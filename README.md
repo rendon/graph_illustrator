@@ -22,6 +22,7 @@ Each line of the input has the following syntax:
     <start> <end> [label]
 
 Examples:
+
 input1.txt
 
     1 3 foo
