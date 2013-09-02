@@ -9,7 +9,7 @@ I've created this tool mainly by two reasons:
 Features
 ========
 - Reads relationships from STDIN (keyboard), although you can always read from files using pipelining.
-- Vertex Dragging - The positions of the vertices are generated randomly so you have to drag the positions as you like (mouse's left button).
+- Vertex Dragging - The positions of the vertices are generated randomly so you have to drag the vertices as you like (mouse's left button).
 - Plane Dragging - Use the mouse's right button to drag the drawing area.
 - Zoom - sometimes we need a better perspective (use the mouse wheel).
 
@@ -28,9 +28,11 @@ input1.txt
     2 5
     3 5 3
 
+Execute:
+
     $ java -jar GraphIllustrator.jar < input1.txt
 
-![Screenshot 1](https://github.com/rendon/graph_illustrator/raw/master/screenshots/screenshot_1.png)
+![Screenshot 1](https://raw.github.com/rendon/graph_illustrator/master/screenshots/screenshot1.png)
 
 input2.txt
 
@@ -40,9 +42,10 @@ input2.txt
     RU MX   8500
     RU ES   2200
 
+Execute:
 
     $ java -jar GraphIllustrator.jar < input2.txt
 
 
-![Screenshot 2](https://github.com/rendon/graph_illustrator/raw/master/screenshots/screenshot_2.png)
+![Screenshot 2](https://raw.github.com/rendon/graph_illustrator/master/screenshots/screenshot2.png)
 
