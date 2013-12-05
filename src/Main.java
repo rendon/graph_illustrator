@@ -35,6 +35,7 @@ public class Main extends JFrame {
         newEdgeButton = new JButton(getImage("edge"));
         ActionHandler actionHandler = new ActionHandler();
         openButton.addActionListener(actionHandler);
+        saveButton.addActionListener(actionHandler);
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -134,6 +135,18 @@ public class Main extends JFrame {
                         HashMap<Integer, Vertex> G = readGraph(reader);
                         plane.setGraph(G);
                         fis.close();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+
+            } else if (e.getSource() == saveButton) {
+                JFileChooser fc = new JFileChooser();
+                int code = fc.showSaveDialog(null);
+                if (code == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    try {
+                        plane.saveToFile(file);
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
                     }

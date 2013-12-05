@@ -25,9 +25,9 @@ import java.math.MathContext;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 public class Plane extends JPanel implements MouseListener,
         MouseWheelListener,
@@ -125,6 +125,7 @@ public class Plane extends JPanel implements MouseListener,
     {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
+        //SVGGraphics2D g2d = new SVGGraphics2D(getWidth(), getHeight());
 
         //initGraphics();
         if (firstTime) {
@@ -144,11 +145,6 @@ public class Plane extends JPanel implements MouseListener,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(3f));
 
-        //for (int i = 0; i < edgeList.size(); i++)
-        //    drawEdge(g2d, edgeList.get(i));
-
-        //for (int i = 0; i < vertexList.size(); i++)
-        //    drawVertex(g2d, vertexList.get(i));
 
         for (Map.Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
@@ -163,6 +159,49 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         fontSize = -1;
+
+    }
+
+
+    public void saveToFile(File file) throws IOException
+    {
+        SVGGraphics2D g2d = new SVGGraphics2D(getWidth(), getHeight());
+
+        //initGraphics();
+        if (firstTime) {
+            initGraphics();
+            //setScale();
+            firstTime = false;
+        }
+
+        g2d.setColor(Color.LIGHT_GRAY);
+        //if (isShowAxis())
+        //    drawAxis(g2d);
+
+        if (isShowGrid())
+            drawGrid(g2d);
+
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setStroke(new BasicStroke(3f));
+
+
+        for (Map.Entry<Integer, Vertex> entry : graph.entrySet()) {
+            Vertex u = entry.getValue();
+            drawVertex(g2d, u);
+
+            for (Map.Entry<Integer, Edge> v : u.getNeighbors().entrySet()) {
+                Edge e = v.getValue();
+                drawEdge(g2d, e);
+            }
+        }
+
+        fontSize = -1;
+
+        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(g2d.getSVGDocument());
+        bw.close();
     }
 
 
@@ -1000,13 +1039,13 @@ public class Plane extends JPanel implements MouseListener,
             double tmpOpposite = tmpHypotenuse * Math.sin(angle);
             double tmpAdjacent = tmpHypotenuse * Math.cos(angle);
 
+            AffineTransform tmp = g2d.getTransform();
             transform.translate(line.x2 - tmpAdjacent, line.y2 - tmpOpposite);
             transform.rotate((angle - Math.PI / 2.0d));
 
-            Graphics2D g = (Graphics2D) g2d.create();
-            g.setTransform(transform);
-            g.fill(arrowHead);
-            g.dispose();
+            g2d.setTransform(transform);
+            g2d.fill(arrowHead);
+            g2d.setTransform(tmp);
         }
 
         g2d.setColor(tmpColor);
