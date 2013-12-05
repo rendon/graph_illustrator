@@ -17,52 +17,80 @@
 package edu.inforscience.graphics;
 
 import java.awt.*;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Random;
 
 public class Vertex {
     // Attributes
-    private Dimension dimensions;	// Dimensions of the shape
+    private Dimension dimensions;    // Dimensions of the shape
 
-    private Color 	border;		  // Vertex's outline color
-    private Color background;	  // Vertex's background color
-    private String label;       // Label for vertex
+    private Color border;           // Vertex's outline color
+    private Color background;       // Vertex's background color
+    private String label;           // Label for vertex
+    private int id;
 
-    private Vector<Vertex> neighbors;
+    private HashMap<Integer, Edge> neighbors;
 
     // This variable indicates the control point direction of the curve
-// that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
+    // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
     private int edgeDirection;
 
-    public Vertex(Dimension measures, String text)
+    public Vertex(int id, String text)
     {
+        this.id = id;
+        setBorderColor(Color.BLACK);
+        setBackgroundColor(Color.WHITE);
+        setLabel(text);
+
+        edgeDirection = 0;
+        neighbors = new HashMap<Integer, Edge>();
+
+
+        Random random = new Random();
+        double[] signs = new double[]{-1, 1};
+        int width = (int) Plane.DEFAULT_REAL_WIDTH / 2 - 10;
+        int height = (int) Plane.DEFAULT_REAL_HEIGHT / 2 - 10;
+        int a = random.nextInt(width);
+        int b = random.nextInt(height);
+
+        double x = a * signs[random.nextInt(2)];
+        double y = b * signs[random.nextInt(2)];
+        setDimensions(new Dimension(x, y, 5));
+    }
+
+    public Vertex(int id, Dimension measures, String text)
+    {
+        this.id = id;
         setDimensions(measures);
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
         setLabel(text);
 
         edgeDirection = 0;
-        neighbors = new Vector<Vertex>();
+        neighbors = new HashMap<Integer, Edge>();
     }
 
-    public Vertex(Dimension measures, String text, Color border, Color background)
+    public Vertex(int id, Dimension measures, String text, Color border, Color background)
     {
+        this.id = id;
         setDimensions(measures);
         setBorderColor(border);
         setBackgroundColor(background);
         setLabel(text);
 
         edgeDirection = 0;
-        neighbors = new Vector<Vertex>();
+        neighbors = new HashMap<Integer, Edge>();
     }
 
-    public Vertex(String nodeName, double x, double y)
+    public Vertex(int id, String nodeName, double x, double y)
     {
+        this.id = id;
         setDimensions(new Dimension(x, y, 5));
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
         setLabel(nodeName);
         edgeDirection = 0;
-        neighbors = new Vector<Vertex>();
+        neighbors = new HashMap<Integer, Edge>();
     }
 
 
@@ -71,25 +99,71 @@ public class Vertex {
     {
         dimensions = dimension;
     }
-    public Dimension getDimensions() { return dimensions; }
 
-    public void  setBorderColor(Color value) { border = value; }
-    public Color getBorderColor() { return border; }
+    public Dimension getDimensions()
+    {
+        return dimensions;
+    }
 
-    public void setBackgroundColor(Color value) { background = value; }
-    public Color getBackgroundColor() { return background; }
+    public void setBorderColor(Color value)
+    {
+        border = value;
+    }
 
-    public void   setLabel(String value) { label = value; }
-    public String getLabel() { return label; }
+    public Color getBorderColor()
+    {
+        return border;
+    }
+
+    public void setBackgroundColor(Color value)
+    {
+        background = value;
+    }
+
+    public Color getBackgroundColor()
+    {
+        return background;
+    }
+
+    public void setLabel(String value)
+    {
+        label = value;
+    }
+
+    public String getLabel()
+    {
+        return label;
+    }
 
 
-    public void setEdgeDirection(int direction) { edgeDirection = direction; }
-    public int getEdgeDirection() { return edgeDirection; }
+    public void setEdgeDirection(int direction)
+    {
+        edgeDirection = direction;
+    }
+
+    public int getEdgeDirection()
+    {
+        return edgeDirection;
+    }
 
 
-    public void addNeighbor(Vertex neighbor) { neighbors.add(neighbor); }
-    public void removeNeighbor(Vertex neighbor) { neighbors.remove(neighbor); }
-    public boolean contains(Vertex v) { return neighbors.contains(v); }
+    public void addNeighbor(int neighbor, String label)
+    {
+        Edge e = new Edge(getId(), neighbor, label);
+        if (!neighbors.containsKey(neighbor)) {
+            neighbors.put(neighbor, e);
+        }
+    }
+
+    public void removeNeighbor(int neighbor)
+    {
+        neighbors.remove(neighbor);
+    }
+
+    public boolean contains(int v)
+    {
+        return neighbors.containsKey(v);
+    }
 
     public Point2D getVertexCenter()
     {
@@ -105,6 +179,21 @@ public class Vertex {
     public double getVertexRadius()
     {
         return dimensions.getRadius();
+    }
+
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
+    }
+
+    public HashMap<Integer, Edge> getNeighbors()
+    {
+        return neighbors;
     }
 }
 

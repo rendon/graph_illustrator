@@ -7,16 +7,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.jar" afterPath="$PROJECT_DIR$/GraphIllustrator.jar" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Dimension.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Dimension.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.iml" afterPath="$PROJECT_DIR$/GraphIllustrator.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Point2D.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Point2D.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/input.txt" afterPath="$PROJECT_DIR$/input.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="GraphIllustrator.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Main.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378150473321" ignored="false" />
+    <file path="/Main.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386218361768" ignored="false" />
     <file path="/fragment.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378143432357" ignored="false" />
-    <file path="/Vertex.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378142800810" ignored="false" />
+    <file path="/Vertex.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386214514889" ignored="false" />
     <file path="/a.dummy" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378143016951" ignored="false" />
-    <file path="/Plane.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378149892832" ignored="false" />
-    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378161839993" ignored="false" />
+    <file path="/Plane.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386218561918" ignored="false" />
+    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386201158987" ignored="false" />
+    <file path="/Edge.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386209944098" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,29 +87,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="36" column="25" selection-start="1086" selection-end="1086" vertical-scroll-proportion="0.26345932">
-              <folding />
+            <state line="36" column="31" selection-start="1157" selection-end="1157" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#1216#1385#0" expanded="true" />
+                <element signature="e#1374#1375#0" expanded="true" />
+                <element signature="e#2389#2406#0" expanded="true" />
+                <element signature="e#2519#2536#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="README.md" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="47" column="0" selection-start="1442" selection-end="1442" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Plane.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Plane.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="98" column="23" selection-start="2790" selection-end="2790" vertical-scroll-proportion="0.0">
-              <folding />
+            <state line="91" column="23" selection-start="2628" selection-end="2628" vertical-scroll-proportion="0.5125285">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -107,7 +116,18 @@
       <file leaf-file-name="Vertex.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="55" column="4" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.0">
+            <state line="198" column="0" selection-start="4768" selection-end="4768" vertical-scroll-proportion="0.0">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Edge.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="19" column="0" selection-start="784" selection-end="784" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -134,18 +154,18 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" />
         <option value="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" />
         <option value="$PROJECT_DIR$/src/Main.java" />
         <option value="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" />
-        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="10" />
-    <option name="y" value="4" />
-    <option name="width" value="1900" />
-    <option name="height" value="1040" />
+    <option name="x" value="-2" />
+    <option name="width" value="1924" />
+    <option name="height" value="1055" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -200,14 +220,6 @@
               <option name="myItemId" value="GraphIllustrator" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="&lt; 1.7 &gt;" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -259,10 +271,11 @@
   <component name="PropertiesComponent">
     <property name="project.structure.last.edited" value="Artifacts" />
     <property name="GoToFile.includeJavaFiles" value="false" />
+    <property name="OverrideImplement.combined" value="true" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="recentsLimit" value="5" />
-    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.General" />
+    <property name="options.lastSelected" value="preferences.general" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -270,9 +283,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -397,24 +410,24 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="10" y="4" width="1900" height="1040" extended-state="0" />
+    <frame x="-2" y="0" width="1924" height="1055" extended-state="6" />
     <editor active="false" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32964602" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32887402" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998884" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15573333" sideWeight="0.67001116" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15340011" sideWeight="0.67146015" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998884" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32853982" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32998884" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32998884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -483,115 +496,167 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="1442" selection-end="1442" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="55" column="4" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="33" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="28" column="13" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="98" column="23" selection-start="2790" selection-end="2790" vertical-scroll-proportion="0.0">
-          <folding />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="47" column="0" selection-start="1442" selection-end="1442" vertical-scroll-proportion="0.0">
+        <state line="51" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="25" selection-start="1086" selection-end="1086" vertical-scroll-proportion="0.26345932">
+        <state line="19" column="0" selection-start="784" selection-end="784" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="4" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.0">
-          <folding />
+        <state line="198" column="0" selection-start="4768" selection-end="4768" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="36" column="31" selection-start="1157" selection-end="1157" vertical-scroll-proportion="0.0">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1216#1385#0" expanded="true" />
+            <element signature="e#1374#1375#0" expanded="true" />
+            <element signature="e#2389#2406#0" expanded="true" />
+            <element signature="e#2519#2536#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="91" column="23" selection-start="2628" selection-end="2628" vertical-scroll-proportion="0.5125285">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

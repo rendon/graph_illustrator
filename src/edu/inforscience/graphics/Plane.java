@@ -24,14 +24,15 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 
 public class Plane extends JPanel implements MouseListener,
         MouseWheelListener,
         MouseMotionListener {
-    private final Vector<Vertex> vertexList;
-    private final Vector<Edge> edgeList;
+    private HashMap<Integer, Vertex> graph;
     private int maxX;
     private int maxY;
     private int centerX;
@@ -45,8 +46,8 @@ public class Plane extends JPanel implements MouseListener,
     private double gridIntervalY;
     private double[] factors;
 
-    private final double DEFAULT_REAL_WIDTH  = 100;
-    private final double DEFAULT_REAL_HEIGHT = 100;
+    public static final double DEFAULT_REAL_WIDTH = 100;
+    public static final double DEFAULT_REAL_HEIGHT = 100;
     private double realWidth;
     private double realHeight;
     private double scaleInX;
@@ -70,8 +71,7 @@ public class Plane extends JPanel implements MouseListener,
 
     public Plane()
     {
-        vertexList = new Vector<Vertex>();
-        edgeList  = new Vector<Edge>();
+        graph = new HashMap<Integer, Vertex>();
         setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
 
         addMouseListener(this);
@@ -86,11 +86,11 @@ public class Plane extends JPanel implements MouseListener,
         gridIntervalX = 0.5;
         gridIntervalY = 0.5;
 
-        factors = new double[] {2, 2, 2.5};
+        factors = new double[]{2, 2, 2.5};
         factorIndexX = 0;
         factorIndexY = 0;
         setShowGrid(true);
-        setShowAxis(true);
+        setShowAxis(false);
         log = System.out;
 
         vertexToDragIndex = -1;
@@ -99,18 +99,32 @@ public class Plane extends JPanel implements MouseListener,
         setDirected(true);
     }
 
-    public double getRealWidth()  { return realWidth;  }
-    public double getRealHeight() { return realHeight; }
+    public double getRealWidth()
+    {
+        return realWidth;
+    }
 
-    public void setRealWidth(double rw)  { realWidth  = rw; }
-    public void setRealHeight(double rh) { realHeight = rh; }
+    public double getRealHeight()
+    {
+        return realHeight;
+    }
+
+    public void setRealWidth(double rw)
+    {
+        realWidth = rw;
+    }
+
+    public void setRealHeight(double rh)
+    {
+        realHeight = rh;
+    }
 
 
     @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D)g;
+        Graphics2D g2d = (Graphics2D) g;
 
         //initGraphics();
         if (firstTime) {
@@ -120,8 +134,8 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         g2d.setColor(Color.LIGHT_GRAY);
-        if (isShowAxis())
-            drawAxis(g2d);
+        //if (isShowAxis())
+        //    drawAxis(g2d);
 
         if (isShowGrid())
             drawGrid(g2d);
@@ -130,11 +144,23 @@ public class Plane extends JPanel implements MouseListener,
                 RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(3f));
 
-        for(int i = 0; i < edgeList.size(); i++)
-            drawEdge(g2d, edgeList.get( i ));
+        //for (int i = 0; i < edgeList.size(); i++)
+        //    drawEdge(g2d, edgeList.get(i));
 
-        for(int i = 0; i < vertexList.size(); i++)
-            drawVertex(g2d, vertexList.get(i));
+        //for (int i = 0; i < vertexList.size(); i++)
+        //    drawVertex(g2d, vertexList.get(i));
+
+        for (Map.Entry<Integer, Vertex> entry : graph.entrySet()) {
+            Vertex u = entry.getValue();
+            drawVertex(g2d, u);
+
+            for (Map.Entry<Integer, Edge> v : u.getNeighbors().entrySet()) {
+                Edge e = v.getValue();
+                drawEdge(g2d, e);
+            }
+
+
+        }
 
         fontSize = -1;
     }
@@ -142,12 +168,17 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns whether to draw or not the axis.
+     *
      * @return true if axis should be drawn.
      */
-    public boolean isShowAxis() { return showAxis; }
+    public boolean isShowAxis()
+    {
+        return showAxis;
+    }
 
     /**
      * Sets the showAxes property.
+     *
      * @param showAxis the new setting
      */
     public void setShowAxis(boolean showAxis)
@@ -168,6 +199,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns true if to draw grid or false if not.
+     *
      * @return true or false, draw or not draw grid
      */
     public boolean isShowGrid()
@@ -177,6 +209,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Sets if to draw grid or not.
+     *
      * @param showGrid boolean, true to draw grid, false if not.
      */
     public void setShowGrid(boolean showGrid)
@@ -194,7 +227,6 @@ public class Plane extends JPanel implements MouseListener,
         showGrid = !showGrid;
         repaint();
     }
-
 
 
     /**
@@ -221,9 +253,9 @@ public class Plane extends JPanel implements MouseListener,
         while (w < 50 || w > 150) {
             if (w < 50) {
                 gridIntervalX *= factors[factorIndexX];
-                factorIndexX = (factorIndexX + 1)%factors.length;
+                factorIndexX = (factorIndexX + 1) % factors.length;
             } else if (w > 150) {
-                factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
+                factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
                 gridIntervalX /= factors[factorIndexX];
             }
 
@@ -235,9 +267,9 @@ public class Plane extends JPanel implements MouseListener,
         while (h < 50 || h > 150) {
             if (h < 50) {
                 gridIntervalY *= factors[factorIndexY];
-                factorIndexY = (factorIndexY + 1)%factors.length;
+                factorIndexY = (factorIndexY + 1) % factors.length;
             } else if (h > 150) {
-                factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+                factorIndexY = (factorIndexY - 1 + factors.length) % factors.length;
                 gridIntervalY /= factors[factorIndexY];
             }
             h = iy(0) - iy(gridIntervalY);
@@ -246,16 +278,18 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns n rounded to the nearest integer.
+     *
      * @param n a double number
      * @return an integer rounded to the nearest integer
      */
     int round(double n)
     {
-        return (int)Math.floor(n + 0.5);
+        return (int) Math.floor(n + 0.5);
     }
 
     /**
      * Returns the device-coordinate of x.
+     *
      * @param x x-coordinate in logical-coordinates
      * @return an integer with the device-coordinate of x
      */
@@ -266,6 +300,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns the device-coordinate of y.
+     *
      * @param y y-coordinate in logical-coordinates
      * @return an integer with the device-coordinate of y
      */
@@ -276,7 +311,8 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns the device-coordinate of x using a particular pixel size.
-     * @param x x-coordinate in logical-coordinates
+     *
+     * @param x  x-coordinate in logical-coordinates
      * @param ps pixel size
      * @return an integer with the device-coordinate of x
      */
@@ -287,7 +323,8 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns the device-coordinate of y using a particular pixel size.
-     * @param y y-coordinate in logical-coordinates
+     *
+     * @param y  y-coordinate in logical-coordinates
      * @param ps pixel size
      * @return an integer with the device-coordinate of y
      */
@@ -299,27 +336,31 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Returns the logical-coordinate of x.
+     *
      * @param x x-coordinate in device-coordinates
      * @return double, logical coordinate of x
      */
-    public double fx(int x) {
-        return (double)(x - centerX) * pixelWidth;
+    public double fx(int x)
+    {
+        return (double) (x - centerX) * pixelWidth;
     }
 
     /**
      * Returns the logical-coordinate of y.
+     *
      * @param y y-coordinate in device-coordinates
      * @return double, logical coordinate of y
      */
     public double fy(int y)
     {
-        return (double)(centerY - y) * pixelHeight;
+        return (double) (centerY - y) * pixelHeight;
     }
 
 
     /**
      * Returns real with the specified precision.
-     * @param real a real number
+     *
+     * @param real      a real number
      * @param precision precision in digits of the output
      * @return real with the specified precision
      */
@@ -332,6 +373,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Zooms out the plane ten percent with origin in mouse click.
+     *
      * @param mx X coordinate of mouse click.
      * @param my Y coordinate of mouse click.
      */
@@ -358,6 +400,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Zooms in the plane ten percent with origin in mouse click.
+     *
      * @param mx X coordinate of mouse click.
      * @param my Y coordinate of mouse click.
      */
@@ -399,11 +442,25 @@ public class Plane extends JPanel implements MouseListener,
     /**
      * This methods set and get the values for scale of the plane.
      */
-    public void setScaleInX(double scale) { scaleInX = scale; }
-    public void setScaleInY(double scale) { scaleInY = scale; }
+    public void setScaleInX(double scale)
+    {
+        scaleInX = scale;
+    }
 
-    public double getScaleInX() { return scaleInX; }
-    public double getScaleInY() { return scaleInY; }
+    public void setScaleInY(double scale)
+    {
+        scaleInY = scale;
+    }
+
+    public double getScaleInX()
+    {
+        return scaleInX;
+    }
+
+    public double getScaleInY()
+    {
+        return scaleInY;
+    }
 
     /**
      * Set the scale of the plane in the form a:b.
@@ -422,6 +479,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Translate the plane and set point (x, y) as the center of the viewport.
+     *
      * @param x
      * @param y
      */
@@ -440,6 +498,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Draw grid in the plane.
+     *
      * @param g2d Graphics2D object
      */
     public void drawGrid(Graphics2D g2d)
@@ -452,9 +511,9 @@ public class Plane extends JPanel implements MouseListener,
         int w = ix(gridIntervalX) - ix(0);
         if (w < 50) {
             gridIntervalX *= factors[factorIndexX];
-            factorIndexX = (factorIndexX + 1)%factors.length;
+            factorIndexX = (factorIndexX + 1) % factors.length;
         } else if (w > 150) {
-            factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
+            factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
             gridIntervalX /= factors[factorIndexX];
         }
 
@@ -466,7 +525,7 @@ public class Plane extends JPanel implements MouseListener,
 
         Stroke dash = new BasicStroke(0.3f, BasicStroke.CAP_SQUARE,
                 BasicStroke.JOIN_MITER, 10,
-                new float[] {8, 4}, 0);
+                new float[]{8, 4}, 0);
 
 
         g2d.setStroke(dash);
@@ -476,13 +535,12 @@ public class Plane extends JPanel implements MouseListener,
                 g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
 
 
-
         int h = iy(0) - iy(gridIntervalY);
         if (h < 50) {
             gridIntervalY *= factors[factorIndexY];
-            factorIndexY = (factorIndexY + 1)%factors.length;
+            factorIndexY = (factorIndexY + 1) % factors.length;
         } else if (h > 150) {
-            factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+            factorIndexY = (factorIndexY - 1 + factors.length) % factors.length;
             gridIntervalY /= factors[factorIndexY];
         }
 
@@ -499,6 +557,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Draw axes in the plane.
+     *
      * @param g2d a Graphics2D object
      */
     public void drawAxis(Graphics2D g2d)
@@ -511,9 +570,9 @@ public class Plane extends JPanel implements MouseListener,
         int w = ix(gridIntervalX) - ix(0);
         if (w < 50) {
             gridIntervalX *= factors[factorIndexX];
-            factorIndexX = (factorIndexX + 1)%factors.length;
+            factorIndexX = (factorIndexX + 1) % factors.length;
         } else if (w > 150) {
-            factorIndexX = (factorIndexX - 1 + factors.length)%factors.length;
+            factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
             gridIntervalX /= factors[factorIndexX];
         }
 
@@ -548,9 +607,9 @@ public class Plane extends JPanel implements MouseListener,
         int h = iy(0) - iy(gridIntervalY);
         if (h < 50) {
             gridIntervalY *= factors[factorIndexY];
-            factorIndexY = (factorIndexY + 1)%factors.length;
+            factorIndexY = (factorIndexY + 1) % factors.length;
         } else if (w > 150) {
-            factorIndexY = (factorIndexY - 1 + factors.length)%factors.length;
+            factorIndexY = (factorIndexY - 1 + factors.length) % factors.length;
             gridIntervalY /= factors[factorIndexY];
         }
 
@@ -610,13 +669,19 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     @Override
-    public void mouseExited(MouseEvent event) { }
+    public void mouseExited(MouseEvent event)
+    {
+    }
 
     @Override
-    public void mouseClicked(MouseEvent event) { }
+    public void mouseClicked(MouseEvent event)
+    {
+    }
 
     @Override
-    public void mouseEntered(MouseEvent event) { }
+    public void mouseEntered(MouseEvent event)
+    {
+    }
 
     @Override
     public void mousePressed(MouseEvent event)
@@ -630,14 +695,16 @@ public class Plane extends JPanel implements MouseListener,
 
 
             Point point = event.getPoint();
-            Point2D click = new Point2D(fx((int)point.getX()), fy((int)point.getY()));
-            for (int i = 0; i < vertexList.size(); i++) {
-                double distance = click.distanceTo(vertexList.get(i).getVertexCenter());
-                if (distance <= vertexList.get(i).getVertexRadius()) {
-                    vertexToDragIndex = i;
+            Point2D click = new Point2D(fx((int) point.getX()), fy((int) point.getY()));
+
+            for (Map.Entry<Integer, Vertex> entry : graph.entrySet()) {
+                double distance = click.distanceTo(entry.getValue().getVertexCenter());
+                if (distance <= entry.getValue().getVertexRadius()) {
+                    vertexToDragIndex = entry.getKey();
                     break;
                 }
             }
+
         }
 
         startDrag = event.getPoint();
@@ -647,13 +714,14 @@ public class Plane extends JPanel implements MouseListener,
 
     /**
      * Performs plane dragging.
+     *
      * @param e MouseEvent with coordinates of mouse position
      */
     @Override
     public void mouseDragged(MouseEvent e)
     {
-        int dx = e.getX() - (int)startDrag.getX();
-        int dy = e.getY() - (int)startDrag.getY();
+        int dx = e.getX() - (int) startDrag.getX();
+        int dy = e.getY() - (int) startDrag.getY();
 
         if (dx * dx + dy * dy < 50)
             return;
@@ -664,7 +732,7 @@ public class Plane extends JPanel implements MouseListener,
             centerX += dx;
             centerY += dy;
         } else if (isDragVertex() && vertexToDragIndex != -1) {
-            Vertex vertex = vertexList.get(vertexToDragIndex);
+            Vertex vertex = graph.get(vertexToDragIndex);
             double x = vertex.getVertexCenter().x();
             double y = vertex.getVertexCenter().y();
 
@@ -679,16 +747,20 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) { }
+    public void mouseMoved(MouseEvent e)
+    {
+    }
 
 /* MouseWheelListener methods. */
 
     /**
      * Controls zoom direction.
+     *
      * @param event a MouseWheelEvent object
      */
     @Override
-    public void mouseWheelMoved(MouseWheelEvent event) {
+    public void mouseWheelMoved(MouseWheelEvent event)
+    {
         int rotation = event.getWheelRotation();
         int x = event.getX();
         int y = event.getY();
@@ -702,24 +774,24 @@ public class Plane extends JPanel implements MouseListener,
 
     public void addVertex(String node)
     {
-        double[] signs = new double[] {-1, 1};
-        int width = (int)DEFAULT_REAL_WIDTH / 2 - 10;
-        int height = (int)DEFAULT_REAL_HEIGHT / 2 - 10;
+        double[] signs = new double[]{-1, 1};
+        int width = (int) DEFAULT_REAL_WIDTH / 2 - 10;
+        int height = (int) DEFAULT_REAL_HEIGHT / 2 - 10;
         int a = random.nextInt(width);
         int b = random.nextInt(height);
 
         double x = a * signs[random.nextInt(2)];
         double y = b * signs[random.nextInt(2)];
-        vertexList.add(new Vertex(node, x, y));
+        //vertexList.add(new Vertex(node, x, y));
     }
 
     public void addEdge(int startIndex, int endIndex, String label)
     {
-        Vertex start = vertexList.get(startIndex);
-        Vertex end = vertexList.get(endIndex);
-        Edge edge = new Edge(start, end, label);
-        edgeList.add(edge);
-        start.addNeighbor(end);
+        //Vertex start = vertexList.get(startIndex);
+        //Vertex end = vertexList.get(endIndex);
+        //Edge edge = new Edge(start, end, label);
+        //edgeList.add(edge);
+        //start.addNeighbor(end);
     }
 
     private void calculateFontSize(Graphics2D g2d, int desiredSize)
@@ -785,19 +857,19 @@ public class Plane extends JPanel implements MouseListener,
 
     public void drawEdge(Graphics2D g2d, Edge edge)
     {
-        Dimension d1 = edge.getStart().getDimensions();
-        Dimension d2 = edge.getEnd().getDimensions();
+        Dimension d1 = graph.get(edge.getStart()).getDimensions();
+        Dimension d2 = graph.get(edge.getEnd()).getDimensions();
 
 
         Color tmpColor = g2d.getColor();
-        g2d.setColor( edge.getColor() );
+        g2d.setColor(edge.getColor());
         CubicCurve2D curve = new CubicCurve2D.Float();
 
         double radius = d1.getRadius();
-        double pxStart  = d1.getX();
-        double pyStart  = d1.getY();
-        double pxEnd    = d2.getX();
-        double pyEnd    = d2.getY();
+        double pxStart = d1.getX();
+        double pyStart = d1.getY();
+        double pxEnd = d2.getX();
+        double pyEnd = d2.getY();
 
         //By default the edge is a straight line
         double angle = 0;
@@ -809,10 +881,10 @@ public class Plane extends JPanel implements MouseListener,
         double ca = 0;
         double co = 0;
 
-        int direction = 0;	//Straight line
-        Vertex start = edge.getStart();
-        Vertex end = edge.getEnd();
-        if (end.contains(start) && start != end) {
+        int direction = 0;    //Straight line
+        Vertex start = graph.get(edge.getStart());
+        Vertex end = graph.get(edge.getEnd());
+        if (end.contains(start.getId()) && start != end) {
             if (start.getEdgeDirection() == end.getEdgeDirection()) {
                 start.setEdgeDirection(1);
                 end.setEdgeDirection(-1);
@@ -890,13 +962,13 @@ public class Plane extends JPanel implements MouseListener,
         int desiredSize = ix(radius) - ix(0);
         calculateFontSize(g2d, desiredSize);
         Font tmpFont = g2d.getFont();
-        g2d.setFont( new Font("Monospaced",
+        g2d.setFont(new Font("Monospaced",
                 Font.BOLD,
-                (int)(fontSize * 0.7))
+                (int) (fontSize * 0.7))
         );
 
         if (direction == Integer.MAX_VALUE)
-            g2d.drawString(edge.getLabel(), ix(pxStart + 2),iy(pyStart));
+            g2d.drawString(edge.getLabel(), ix(pxStart + 2), iy(pyStart));
         else
             g2d.drawString(edge.getLabel(), ix(ctrlX), iy(ctrlY));
 
@@ -940,34 +1012,42 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(tmpColor);
     }
 
-    public void setVertexColor(int index, Color color)
+    public void setVertexColor(int id, Color color)
     {
-        vertexList.get(index).setBackgroundColor(color);
+        graph.get(id).setBackgroundColor(color);
         repaint();
     }
 
-    public void setEdgeColor(int u, int v, Color color)
+    //public void setEdgeColor(int u, int v, Color color)
+    //{
+    //    Vertex start = vertexList.get(u);
+    //    Vertex end = vertexList.get(v);
+    //    for (int index = 0; index < edgeList.size(); index++) {
+    //        if (edgeList.get(index).getStart() == start &&
+    //                edgeList.get(index).getEnd() == end) {
+    //            edgeList.get(index).setStroke(3.0f);
+    //            edgeList.get(index).setColor(color);
+    //        }
+    //    }
+
+    //    repaint();
+    //}
+
+
+    public boolean isDirected()
     {
-        Vertex start = vertexList.get(u);
-        Vertex end = vertexList.get(v);
-        for(int index = 0; index < edgeList.size(); index++) {
-            if (edgeList.get(index).getStart() == start &&
-                    edgeList.get(index).getEnd() == end) {
-                edgeList.get(index).setStroke(3.0f);
-                edgeList.get(index).setColor(color);
-            }
-        }
-
-        repaint();
-    }
-
-
-    public boolean isDirected() {
         return directed;
     }
 
-    public void setDirected(boolean directed) {
+    public void setDirected(boolean directed)
+    {
         this.directed = directed;
+    }
+
+    public void setGraph(HashMap<Integer, Vertex> graph)
+    {
+        this.graph = graph;
+        repaint();
     }
 }
 

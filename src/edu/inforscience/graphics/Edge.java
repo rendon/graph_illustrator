@@ -17,84 +17,83 @@
 package edu.inforscience.graphics;
 
 import java.awt.Color;
-import java.awt.geom.QuadCurve2D;
 
 public class Edge {
-  // Attributes
-  private Vertex start, end;
-  private String label;	// label for edge
-  private Color color;
-  private float stroke;
+    // Attributes
+    private int start, end;
+    private String label;    // label for edge
+    private Color color;
+    private float stroke;
 
-  //Constructors
-  public Edge(Vertex start, Vertex end, String text)
-  {
-    setStart(start);
-    setEnd(end);
+    //Constructors
+    public Edge(int start, int end, String text)
+    {
+        setStart(start);
+        setEnd(end);
 
-    setLabel(text);
-    setColor(Color.BLACK);
-    stroke = 1.0f;
-  }
+        setLabel(text);
+        setColor(Color.BLACK);
+        stroke = 1.0f;
+    }
 
-  public Edge(Vertex start, Vertex end, String text, Color newColor)
-  {
-    setStart(start);
-    setEnd(end);
+    public Edge(int start, int end, String text, Color newColor)
+    {
+        setStart(start);
+        setEnd(end);
 
-    setLabel(text);
-    setColor(newColor);
-    stroke = 1.0f;
-  }
+        setLabel(text);
+        setColor(newColor);
+        stroke = 1.0f;
+    }
 
-  public Vertex getStart()
-  {
-    return start;
-  }
+    public int getStart()
+    {
+        return start;
+    }
 
-  public void setStart(Vertex start)
-  {
-    this.start = start;
-  }
+    public void setStart(int start)
+    {
+        this.start = start;
+    }
 
-  public Vertex getEnd()
-  {
-    return end;
-  }
+    public int getEnd()
+    {
+        return end;
+    }
 
-  public void setEnd(Vertex end)
-  {
-    this.end = end;
-  }
+    public void setEnd(int end)
+    {
+        this.end = end;
+    }
 
-  public String getLabel()
-  {
-    return label;
-  }
+    public String getLabel()
+    {
+        return label;
+    }
 
-  public void setLabel(String label)
-  {
-    this.label = label;
-  }
+    public void setLabel(String label)
+    {
+        this.label = label;
+    }
 
-  public Color getColor()
-  {
-    return color;
-  }
+    public Color getColor()
+    {
+        return color;
+    }
 
-  public void setColor(Color color)
-  {
-    this.color = color;
-  }
+    public void setColor(Color color)
+    {
+        this.color = color;
+    }
 
-  public float getStroke()
-  {
-    return stroke;
-  }
+    public float getStroke()
+    {
+        return stroke;
+    }
 
-  public void setStroke(float stroke)
-  {
-    this.stroke = stroke;
-  }
+    public void setStroke(float stroke)
+    {
+        this.stroke = stroke;
+    }
 }
 

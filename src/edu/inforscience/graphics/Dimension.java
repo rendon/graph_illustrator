@@ -17,50 +17,50 @@
 package edu.inforscience.graphics;
 
 public class Dimension {
-  private double x;		  // X coordinate x for the shape
-  private double y;		  // Y coordinate x for the shape
-  private double radius; // Shape radius
+    private double x;          // X coordinate x for the shape
+    private double y;          // Y coordinate x for the shape
+    private double radius; // Shape radius
 
-  public Dimension(double x, double y, double radius)
-  {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-  }
+    public Dimension(double x, double y, double radius)
+    {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+    }
 
-  public double getX()
-  {
-    return x;
-  }
+    public double getX()
+    {
+        return x;
+    }
 
-  public void setX(double x)
-  {
-    this.x = x;
-  }
+    public void setX(double x)
+    {
+        this.x = x;
+    }
 
-  public double getRadius()
-  {
-    return radius;
-  }
+    public double getRadius()
+    {
+        return radius;
+    }
 
-  public void setRadius(double radius)
-  {
-    this.radius = radius;
-  }
+    public void setRadius(double radius)
+    {
+        this.radius = radius;
+    }
 
-  public double getY()
-  {
-    return y;
-  }
+    public double getY()
+    {
+        return y;
+    }
 
-  public void setY(double y)
-  {
-    this.y = y;
-  }
+    public void setY(double y)
+    {
+        this.y = y;
+    }
 
-  public Point2D getCenter()
-  {
-    return new Point2D(getX(), getY());
-  }
+    public Point2D getCenter()
+    {
+        return new Point2D(getX(), getY());
+    }
 }
 
