@@ -26,22 +26,22 @@ public class Edge {
     private float stroke;
 
     //Constructors
-    public Edge(int start, int end, String text)
+    public Edge(int start, int end, String label)
     {
         setStart(start);
         setEnd(end);
 
-        setLabel(text);
+        setLabel(label);
         setColor(Color.BLACK);
         stroke = 1.0f;
     }
 
-    public Edge(int start, int end, String text, Color newColor)
+    public Edge(int start, int end, String label, Color newColor)
     {
         setStart(start);
         setEnd(end);
 
-        setLabel(text);
+        setLabel(label);
         setColor(newColor);
         stroke = 1.0f;
     }

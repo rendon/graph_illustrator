@@ -7,21 +7,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/jfreesvg_1_4.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.jar" afterPath="$PROJECT_DIR$/GraphIllustrator.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.iml" afterPath="$PROJECT_DIR$/GraphIllustrator.iml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Dimension.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pictures/edge.png" afterPath="$PROJECT_DIR$/pictures/edge.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pictures/node.png" afterPath="$PROJECT_DIR$/pictures/node.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pictures/edge.svg" afterPath="$PROJECT_DIR$/pictures/edge.svg" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pictures/node.svg" afterPath="$PROJECT_DIR$/pictures/node.svg" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="GraphIllustrator.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Main.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386223636925" ignored="false" />
+    <file path="/Main.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386395824911" ignored="false" />
     <file path="/fragment.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378143432357" ignored="false" />
-    <file path="/Vertex.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386214514889" ignored="false" />
+    <file path="/Vertex.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386390238021" ignored="false" />
     <file path="/a.dummy" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378143016951" ignored="false" />
-    <file path="/Plane.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386224874444" ignored="false" />
-    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386221114654" ignored="false" />
+    <file path="/Plane.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386395715135" ignored="false" />
+    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386370257883" ignored="false" />
     <file path="/Edge.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386209944098" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,25 +87,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="20" selection-start="405" selection-end="405" vertical-scroll-proportion="0.0">
+            <state line="213" column="40" selection-start="7592" selection-end="7592" vertical-scroll-proportion="0.5808656">
               <folding>
-                <element signature="e#1269#1438#0" expanded="true" />
-                <element signature="e#1427#1428#0" expanded="true" />
+                <element signature="imports" expanded="true" />
+                <element signature="e#1976#2145#0" expanded="true" />
+                <element signature="e#2134#2135#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Plane.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Plane.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1046" column="31" selection-start="29523" selection-end="29523" vertical-scroll-proportion="0.5888383">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="178" column="4" selection-start="4843" selection-end="4843" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -109,7 +112,7 @@
       <file leaf-file-name="Vertex.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="198" column="0" selection-start="4768" selection-end="4768" vertical-scroll-proportion="0.0">
+            <state line="49" column="21" selection-start="1706" selection-end="1706" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -253,50 +256,10 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GraphIllustrator" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GraphIllustrator" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jfreesvg-1.4.jar" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiFileNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="graphics2d" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GraphIllustrator" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="GraphIllustrator" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="libs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jfreesvg-1.4.jar" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiFileNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -306,7 +269,7 @@
     <property name="project.structure.proportion" value="0.15" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="recentsLimit" value="5" />
-    <property name="options.lastSelected" value="preferences.general" />
+    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -452,7 +415,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15340011" sideWeight="0.67146015" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32964602" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32853982" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32925472" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -527,9 +490,9 @@
     <breakpoint-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
+    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="4" selection-start="1857" selection-end="1857" vertical-scroll-proportion="0.0">
+        <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -538,8 +501,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#1976#2145#0" expanded="true" />
+            <element signature="e#2134#2135#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -547,9 +511,7 @@
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -557,46 +519,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Main.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
+            <element signature="e#1976#2145#0" expanded="true" />
+            <element signature="e#2134#2135#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -604,9 +529,7 @@
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="33" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -614,8 +537,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#1976#2145#0" expanded="true" />
+            <element signature="e#2134#2135#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -623,15 +547,25 @@
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="28" column="13" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state line="51" column="0" selection-start="1459" selection-end="1459" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///opt/jdk1.7.0_09/src.zip!/java/io/FileFilter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="13" selection-start="230" selection-end="230" vertical-scroll-proportion="0.05172414" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="49" column="21" selection-start="1706" selection-end="1706" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -643,28 +577,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java">
+    <entry file="jar:///opt/jdk1.7.0_09/src.zip!/java/awt/Component.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="198" column="0" selection-start="4768" selection-end="4768" vertical-scroll-proportion="0.0">
+        <state line="1362" column="17" selection-start="46309" selection-end="46309" vertical-scroll-proportion="0.33257404">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///opt/jdk1.7.0_09/src.zip!/javax/swing/JFileChooser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="462" column="16" selection-start="15062" selection-end="15062" vertical-scroll-proportion="0.33257404">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///opt/jdk1.7.0_09/src.zip!/java/io/File.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="544" column="16" selection-start="22582" selection-end="22582" vertical-scroll-proportion="0.33257404">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="178" column="4" selection-start="4843" selection-end="4843" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="15" column="20" selection-start="405" selection-end="405" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#1269#1438#0" expanded="true" />
-            <element signature="e#1427#1428#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="1046" column="31" selection-start="29523" selection-end="29523" vertical-scroll-proportion="0.5888383">
+        <state line="213" column="40" selection-start="7592" selection-end="7592" vertical-scroll-proportion="0.5808656">
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1976#2145#0" expanded="true" />
+            <element signature="e#2134#2135#0" expanded="true" />
           </folding>
         </state>
       </provider>

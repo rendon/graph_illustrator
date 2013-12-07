@@ -22,12 +22,12 @@ import java.util.Random;
 
 public class Vertex {
     // Attributes
-    private Dimension dimensions;    // Dimensions of the shape
-
     private Color border;           // Vertex's outline color
     private Color background;       // Vertex's background color
     private String label;           // Label for vertex
     private int id;
+    private Point2D center;            // Position in the plane
+    private double radius;
 
     private HashMap<Integer, Edge> neighbors;
 
@@ -37,72 +37,33 @@ public class Vertex {
 
     public Vertex(int id, String text)
     {
+        this(id, text, null);
+    }
+
+    public Vertex(int id, String text, Point2D pos)
+    {
         this.id = id;
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
         setLabel(text);
+        setCenter(pos);
+        setRadius(5);
 
         edgeDirection = 0;
         neighbors = new HashMap<Integer, Edge>();
-
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
         int width = (int) Plane.DEFAULT_REAL_WIDTH / 2 - 10;
         int height = (int) Plane.DEFAULT_REAL_HEIGHT / 2 - 10;
-        int a = random.nextInt(width);
-        int b = random.nextInt(height);
 
-        double x = a * signs[random.nextInt(2)];
-        double y = b * signs[random.nextInt(2)];
-        setDimensions(new Dimension(x, y, 5));
-    }
-
-    public Vertex(int id, Dimension measures, String text)
-    {
-        this.id = id;
-        setDimensions(measures);
-        setBorderColor(Color.BLACK);
-        setBackgroundColor(Color.WHITE);
-        setLabel(text);
-
-        edgeDirection = 0;
-        neighbors = new HashMap<Integer, Edge>();
-    }
-
-    public Vertex(int id, Dimension measures, String text, Color border, Color background)
-    {
-        this.id = id;
-        setDimensions(measures);
-        setBorderColor(border);
-        setBackgroundColor(background);
-        setLabel(text);
-
-        edgeDirection = 0;
-        neighbors = new HashMap<Integer, Edge>();
-    }
-
-    public Vertex(int id, String nodeName, double x, double y)
-    {
-        this.id = id;
-        setDimensions(new Dimension(x, y, 5));
-        setBorderColor(Color.BLACK);
-        setBackgroundColor(Color.WHITE);
-        setLabel(nodeName);
-        edgeDirection = 0;
-        neighbors = new HashMap<Integer, Edge>();
-    }
-
-
-    // Accessor Methods
-    public void setDimensions(Dimension dimension)
-    {
-        dimensions = dimension;
-    }
-
-    public Dimension getDimensions()
-    {
-        return dimensions;
+        if (getCenter() == null) {
+            int a = random.nextInt(width);
+            int b = random.nextInt(height);
+            double x = a * signs[random.nextInt(2)];
+            double y = b * signs[random.nextInt(2)];
+            setCenter(new Point2D(x, y));
+        }
     }
 
     public void setBorderColor(Color value)
@@ -165,22 +126,6 @@ public class Vertex {
         return neighbors.containsKey(v);
     }
 
-    public Point2D getVertexCenter()
-    {
-        return dimensions.getCenter();
-    }
-
-    public void setVertexCenter(double x, double y)
-    {
-        dimensions.setX(x);
-        dimensions.setY(y);
-    }
-
-    public double getVertexRadius()
-    {
-        return dimensions.getRadius();
-    }
-
     public int getId()
     {
         return id;
@@ -195,6 +140,35 @@ public class Vertex {
     {
         return neighbors;
     }
+
+    public Point2D getCenter()
+    {
+        return center;
+    }
+
+    public void setCenter(Point2D center)
+    {
+        this.center = center;
+    }
+
+    public void setCenter(double x, double y)
+    {
+        center.setX(x);
+        center.setY(y);
+    }
+
+    public double getRadius()
+    {
+        return radius;
+    }
+
+    public void setRadius(double radius)
+    {
+        this.radius = radius;
+    }
+
+
+
 }
 
 
