@@ -141,7 +141,6 @@ public class Plane extends JPanel implements MouseListener,
 
         g2d.setColor(Color.LIGHT_GRAY);
 
-        drawAxis(g2d);
         if (isShowGrid())
             drawGrid(g2d);
 

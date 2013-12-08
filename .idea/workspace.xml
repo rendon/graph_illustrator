@@ -7,15 +7,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.jar" afterPath="$PROJECT_DIR$/GraphIllustrator.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.iml" afterPath="$PROJECT_DIR$/GraphIllustrator.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/GraphIllustrator_jar.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/GraphIllustrator_jar.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/input.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/input2.txt" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/screenshots/screenshot1.png" afterPath="$PROJECT_DIR$/screenshots/screenshot1.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/screenshots/screenshot2.png" afterPath="$PROJECT_DIR$/screenshots/screenshot2.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Point2D.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Point2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Vertex.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="GraphIllustrator.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -24,7 +20,7 @@
     <file path="/Vertex.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386390238021" ignored="false" />
     <file path="/a.dummy" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1378143016951" ignored="false" />
     <file path="/Plane.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386464246554" ignored="false" />
-    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386464785033" ignored="false" />
+    <file path="/Dummy.txt" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386467111106" ignored="false" />
     <file path="/Edge.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386209944098" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -98,9 +94,10 @@
       <file leaf-file-name="Plane.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="24" selection-start="909" selection-end="909" vertical-scroll-proportion="-0.082004555">
+            <state line="144" column="12" selection-start="3750" selection-end="3750" vertical-scroll-proportion="0.77904326">
               <folding>
-                <element signature="e#0#36290#0" expanded="true" />
+                <element signature="e#0#36267#0" expanded="true" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -204,6 +201,7 @@
       <sortByType />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -257,7 +255,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -275,9 +272,9 @@
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
-    <property name="dynamic.classpath" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
+    <property name="dynamic.classpath" value="false" />
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -499,7 +496,8 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="16" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#0#36290#0" expanded="true" />
+            <element signature="e#0#36267#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -515,7 +513,8 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="66" column="33" selection-start="1942" selection-end="1942" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#0#36290#0" expanded="true" />
+            <element signature="e#0#36267#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -531,7 +530,8 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="28" column="13" selection-start="973" selection-end="973" vertical-scroll-proportion="0.0">
           <folding>
-            <element signature="e#0#36290#0" expanded="true" />
+            <element signature="e#0#36267#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -595,9 +595,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="24" selection-start="909" selection-end="909" vertical-scroll-proportion="-0.082004555">
+        <state line="144" column="12" selection-start="3750" selection-end="3750" vertical-scroll-proportion="0.77904326">
           <folding>
-            <element signature="e#0#36290#0" expanded="true" />
+            <element signature="e#0#36267#0" expanded="true" />
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
