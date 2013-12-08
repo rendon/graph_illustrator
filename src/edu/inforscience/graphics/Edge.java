@@ -18,7 +18,7 @@ package edu.inforscience.graphics;
 
 import java.awt.Color;
 
-public class Edge {
+class Edge {
     // Attributes
     private int start, end;
     private String label;    // label for edge
@@ -51,7 +51,7 @@ public class Edge {
         return start;
     }
 
-    public void setStart(int start)
+    void setStart(int start)
     {
         this.start = start;
     }
@@ -61,7 +61,7 @@ public class Edge {
         return end;
     }
 
-    public void setEnd(int end)
+    void setEnd(int end)
     {
         this.end = end;
     }
@@ -71,7 +71,7 @@ public class Edge {
         return label;
     }
 
-    public void setLabel(String label)
+    void setLabel(String label)
     {
         this.label = label;
     }
@@ -81,7 +81,7 @@ public class Edge {
         return color;
     }
 
-    public void setColor(Color color)
+    void setColor(Color color)
     {
         this.color = color;
     }

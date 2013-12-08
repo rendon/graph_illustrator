@@ -9,16 +9,17 @@ import java.io.*;
 import java.util.HashMap;
 
 public class Main extends JFrame {
-    private Plane plane;
-    private PrintStream log;
+    private final Plane plane;
+    private final PrintStream log;
     private static final int MAX = 200;
-    private JButton pointerButton;
-    private JButton openButton;
-    private JButton saveButton;
-    private JButton exportSvgButton;
-    private JButton drawOnlyTextButton;
-    private JButton newNodeButton;
-    private JButton newEdgeButton;
+    private final JButton pointerButton;
+    private final JButton openButton;
+    private final JButton saveButton;
+    private final JButton exportSvgButton;
+    private final JButton drawOnlyTextButton;
+    private final JButton newNodeButton;
+    private final JButton newEdgeButton;
+    private final JButton eraserButton;
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
 
@@ -41,6 +42,7 @@ public class Main extends JFrame {
         newNodeButton = new JButton(getImage("node"));
         newEdgeButton = new JButton(getImage("edge"));
         pointerButton = new JButton(getImage("pointer"));
+        eraserButton = new JButton(getImage("eraser"));
 
         ActionHandler actionHandler = new ActionHandler();
         drawOnlyTextButton.addActionListener(actionHandler);
@@ -50,6 +52,7 @@ public class Main extends JFrame {
         newNodeButton.addActionListener(actionHandler);
         newEdgeButton.addActionListener(actionHandler);
         pointerButton.addActionListener(actionHandler);
+        eraserButton.addActionListener(actionHandler);
 
         quitButton.addActionListener(new ActionListener() {
             @Override
@@ -66,6 +69,7 @@ public class Main extends JFrame {
         toolBar.add(newNodeButton);
         toolBar.add(newEdgeButton);
         toolBar.add(drawOnlyTextButton);
+        toolBar.add(eraserButton);
         toolBar.add(quitButton);
         add(toolBar, BorderLayout.NORTH);
         add(plane, BorderLayout.CENTER);
@@ -76,7 +80,7 @@ public class Main extends JFrame {
         return new ImageIcon(getClass().getResource("/" + name + ".png"));
     }
 
-    public void run() throws IOException
+    void run() throws IOException
     {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
@@ -173,7 +177,7 @@ public class Main extends JFrame {
         plane.setNodeId(nodeId);
     }
 
-    class ActionHandler implements ActionListener {
+    private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e)
         {
@@ -231,9 +235,20 @@ public class Main extends JFrame {
 
             } else if (e.getSource() == exportSvgButton) {
                 JFileChooser fc = new JFileChooser();
+                javax.swing.filechooser.FileFilter f;
+                f = new FileNameExtensionFilter("Scalable Vector Graphics",
+                                                "svg");
+                fc.addChoosableFileFilter(f);
+                fc.setFileFilter(f);
+
                 int code = fc.showSaveDialog(null);
                 if (code == JFileChooser.APPROVE_OPTION) {
                     File file = fc.getSelectedFile();
+                    String path = file.getAbsolutePath();
+                    if (!path.endsWith(".svg"))
+                        path += ".svg";
+
+                    file = new File(path);
                     try {
                         if (file.exists()) {
                             int op = JOptionPane.showConfirmDialog(null,
@@ -252,14 +267,27 @@ public class Main extends JFrame {
                 }
 
             } else if (e.getSource() == newNodeButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+                plane.setCursor(c);
                 plane.setCurrentOperation(Plane.DRAW_NEW_VERTEX);
             } else if (e.getSource() == drawOnlyTextButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+                plane.setCursor(c);
                 plane.toggleDrawOnlyText();
             } else if (e.getSource() == newEdgeButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+                plane.setCursor(c);
                 plane.setCurrentOperation(Plane.DRAW_NEW_EDGE);
             } else if (e.getSource() == pointerButton) {
                 plane.setCurrentOperation(Plane.DEFAULT_OPERATION);
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+                plane.setCursor(c);
+            } else if (e.getSource() == eraserButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+                plane.setCursor(c);
+                plane.setCurrentOperation(Plane.ERASE_OBJECT);
             }
+
         }
     }
 }

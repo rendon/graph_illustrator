@@ -66,7 +66,7 @@ public class Vertex {
         }
     }
 
-    public void setBorderColor(Color value)
+    void setBorderColor(Color value)
     {
         border = value;
     }
@@ -86,7 +86,7 @@ public class Vertex {
         return background;
     }
 
-    public void setLabel(String value)
+    void setLabel(String value)
     {
         label = value;
     }
@@ -95,7 +95,6 @@ public class Vertex {
     {
         return label;
     }
-
 
     public void setEdgeDirection(int direction)
     {
@@ -106,7 +105,6 @@ public class Vertex {
     {
         return edgeDirection;
     }
-
 
     public void addNeighbor(int neighbor, String label)
     {
@@ -162,13 +160,9 @@ public class Vertex {
         return radius;
     }
 
-    public void setRadius(double radius)
+    void setRadius(double radius)
     {
         this.radius = radius;
     }
-
-
-
 }
-
 

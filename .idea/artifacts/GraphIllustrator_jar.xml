@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$</output-path>
     <root id="archive" name="GraphIllustrator.jar">
       <element id="module-output" name="GraphIllustrator" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jfreesvg-1.4.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
