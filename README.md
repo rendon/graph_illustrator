@@ -17,9 +17,15 @@ For now these features are good for me but I'll add more features and improvemen
 
 How to use
 ==========
-Each line of the input has the following syntax:
+The input consist of two parts, edges and vertex info, the latter is optional.
 
-    <start> <end> [label]
+The edge info section starts with the `[EDGES]` label. Each edge info has the following syntax:
+
+    <start>,<end>,[label]
+
+The vertex info section starts with the `[VERTICES]` label. Each vertex info has the following syntax:
+
+    <node>:<x>,<y>
 
 Examples:
 
