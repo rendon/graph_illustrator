@@ -18,12 +18,13 @@ package edu.inforscience.graphics;
 
 import java.awt.Color;
 
-class Edge {
+public class Edge {
     // Attributes
     private int start, end;
     private String label;    // label for edge
     private Color color;
     private float stroke;
+    private Point2D labelPosition;
 
     //Constructors
     public Edge(int start, int end, String label)
@@ -33,16 +34,6 @@ class Edge {
 
         setLabel(label);
         setColor(Color.BLACK);
-        stroke = 1.0f;
-    }
-
-    public Edge(int start, int end, String label, Color newColor)
-    {
-        setStart(start);
-        setEnd(end);
-
-        setLabel(label);
-        setColor(newColor);
         stroke = 1.0f;
     }
 
@@ -94,6 +85,16 @@ class Edge {
     public void setStroke(float stroke)
     {
         this.stroke = stroke;
+    }
+
+    public Point2D getLabelPosition()
+    {
+        return labelPosition;
+    }
+
+    public void setLabelPosition(Point2D labelPosition)
+    {
+        this.labelPosition = labelPosition;
     }
 }
 
