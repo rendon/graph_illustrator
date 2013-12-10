@@ -6,15 +6,7 @@
     </artifacts-to-build>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pictures/onlytext.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pictures/onlytext.svg" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GraphIllustrator.jar" afterPath="$PROJECT_DIR$/GraphIllustrator.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Edge.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Main.java" afterPath="$PROJECT_DIR$/src/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" afterPath="$PROJECT_DIR$/src/edu/inforscience/graphics/Plane.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-    </list>
+    <list default="true" id="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" name="Default" comment="" />
     <ignored path="GraphIllustrator.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Main.java" changelist="9504f89d-f46b-4fc2-9e82-dbd9f2360c98" time="1386608150286" ignored="false" />
