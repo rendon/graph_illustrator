@@ -25,6 +25,7 @@ public class Vertex {
     private Color border;           // Vertex's outline color
     private Color background;       // Vertex's background color
     private String label;           // Label for vertex
+    private int labelAlignment;
     private int id;
     private Point2D center;            // Position in the plane
     private double radius;
@@ -163,6 +164,16 @@ public class Vertex {
     void setRadius(double radius)
     {
         this.radius = radius;
+    }
+
+    public int getLabelAlignment()
+    {
+        return labelAlignment;
+    }
+
+    public void setLabelAlignment(int labelAlignment)
+    {
+        this.labelAlignment = labelAlignment;
     }
 }
 

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import edu.inforscience.util.Editor;
+import edu.inforscience.util.StringUtils;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 public class Plane extends JPanel implements MouseListener,
@@ -773,7 +774,8 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 if (!found) continue;
-                Editor editor = new Editor(vertex.getLabel());
+                Editor editor = new Editor(vertex.getLabel(),
+                                           vertex.getLabelAlignment());
                 int res  = JOptionPane.showConfirmDialog(null, editor,
                         "New label", JOptionPane.OK_CANCEL_OPTION);
 
@@ -782,6 +784,7 @@ public class Plane extends JPanel implements MouseListener,
 
                     if (label != null && !label.isEmpty()) {
                         vertex.setLabel(label);
+                        vertex.setLabelAlignment(editor.getTextAlignment());
                         repaint();
                         return;
                     }
@@ -822,6 +825,7 @@ public class Plane extends JPanel implements MouseListener,
                 String label = editor.getText();
                 if (label != null && !label.isEmpty()) {
                     Vertex v = new Vertex(nodeId, label, p);
+                    v.setLabelAlignment(editor.getTextAlignment());
                     graph.put(nodeId, v);
                     nodeId++;
                     repaint();
@@ -1065,13 +1069,18 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setFont(font);
         FontMetrics metrics = g2d.getFontMetrics();
         int fontHeight = metrics.getHeight();
-        String[] lines = vertex.getLabel().split("\n");
+
+        String label = StringUtils.align(vertex.getLabel(),
+                                         vertex.getLabelAlignment());
+
+        String[] lines = label.split("\n");
         String largest = "";
         for (int i = 0; i < lines.length; i++)
             if (lines[i].length() > largest.length())
                 largest = lines[i];
-        int fontWidth = metrics.stringWidth(largest);
-        int stringHeight = fontHeight * lines.length;
+        int padding = 3 * RECTANGLE_PADDING;
+        int fontWidth = metrics.stringWidth(largest) + padding;
+        int stringHeight = fontHeight * lines.length + padding;
 
         if (getShapeType() == SHAPE_CIRCLE) {
             g2d.setColor(vertex.getBorderColor());
@@ -1080,17 +1089,18 @@ public class Plane extends JPanel implements MouseListener,
             g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             g2d.setColor(vertex.getBorderColor());
-            g2d.drawRoundRect(x - fontWidth / 2 - RECTANGLE_PADDING,
-                              y - stringHeight / 2 - RECTANGLE_PADDING,
-                              fontWidth + 2 * RECTANGLE_PADDING,
-                              stringHeight + 2 * RECTANGLE_PADDING, 10, 10);
+            g2d.drawRoundRect(x - fontWidth / 2,
+                              y - stringHeight / 2,
+                              fontWidth,
+                              stringHeight, 10, 10);
         }
 
         g2d.setColor(Color.BLACK);
         y -= stringHeight / 2;
+        x = x - fontWidth / 2 + RECTANGLE_PADDING;
         for (int i = 0; i < lines.length; i++) {
             y += fontHeight;
-            g2d.drawString(lines[i], x - fontWidth / 2, y);
+            g2d.drawString(lines[i], x, y);
         }
         g2d.setFont(tmpFont);
         g2d.setColor(tmp);
@@ -1207,6 +1217,12 @@ public class Plane extends JPanel implements MouseListener,
                 pyStart = startPoint.y();
                 pxEnd = endPoint.x();
                 pyEnd = endPoint.y();
+                Point2D tmp = new Point2D(pxEnd - pxStart, pyEnd - pyStart);
+                double xx = tmp.x() * 0.5;
+                double yy = tmp.y() * 0.5;
+                ctrlX = pxStart + xx;
+                ctrlY =  pyStart + yy;
+
                 curve.setCurve(ix(pxStart), iy(pyStart),
                         ix(ctrlX), iy(ctrlY), ix(ctrlX), iy(ctrlY),
                         ix(pxEnd), iy(pyEnd));
@@ -1373,8 +1389,10 @@ public class Plane extends JPanel implements MouseListener,
         double c2 = a2 * c.x() + b2 * c.y();
 
         double det = a1 * b2 - a2 * b1;
-        if (det == 0)
+        if (det == 0) {
+            System.out.println("----------------------------------------------------------------------------");
             return null;
+        }
 
         double d1 = b2 * c1 - b1 * c2;
         double d2 = a1 * c2 - a2 * c1;
@@ -1398,14 +1416,15 @@ public class Plane extends JPanel implements MouseListener,
         Point2D cv = v.getCenter();
         int padding = 3 * RECTANGLE_PADDING;
 
-        String[] lines = u.getLabel().split("\n");
+        String label = StringUtils.align(u.getLabel(), u.getLabelAlignment());
+        String[] lines = label.split("\n");
         String largest = "";
         for (int i = 0; i < lines.length; i++)
             if (lines[i].length() > largest.length())
                 largest = lines[i];
 
         int w = metrics.stringWidth(largest) + padding;
-        int h = metrics.getHeight() * lines.length;
+        int h = metrics.getHeight() * lines.length + padding;
         double width = fx(w) - fx(0);
         double height = fy(h) - fy(0);
         double x = cu.x();
@@ -1415,7 +1434,7 @@ public class Plane extends JPanel implements MouseListener,
         Point2D c = new Point2D(x + width * 0.5, y - height * 0.5);
         Point2D d = new Point2D(x - width * 0.5, y - height * 0.5);
 
-        Point2D endPoint = null;
+        Point2D endPoint = cv;
         if (segInt(a, b, cu, cv)) {
             endPoint = intersection(a, b, cu, cv);
         } else if (segInt(b, c, cu, cv)) {
@@ -1430,7 +1449,8 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     public Polygon createBox(Vertex v) {
-        return createBox(v.getCenter(), v.getLabel(), v.getRadius());
+        String label = StringUtils.align(v.getLabel(), v.getLabelAlignment());
+        return createBox(v.getCenter(), label, v.getRadius());
     }
     public Polygon createBox(Point2D center, String label, double r)
     {
@@ -1443,6 +1463,7 @@ public class Plane extends JPanel implements MouseListener,
                              Font.PLAIN,(int)(fontSize * 0.9));
         graphics2D.setFont(font);
         FontMetrics metrics = graphics2D.getFontMetrics();
+
         String[] lines = label.split("\n");
         String largest = "";
         for (int i = 0; i < lines.length; i++)
