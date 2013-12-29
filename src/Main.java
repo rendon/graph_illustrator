@@ -91,6 +91,8 @@ public class Main extends JFrame {
         toolBar.add(quitButton);
         add(toolBar, BorderLayout.NORTH);
         add(plane, BorderLayout.CENTER);
+
+        revalidate();
     }
 
     private ImageIcon getImage(String name)

@@ -27,6 +27,8 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import edu.inforscience.util.Editor;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 public class Plane extends JPanel implements MouseListener,
@@ -771,13 +773,18 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 if (!found) continue;
+                Editor editor = new Editor(vertex.getLabel());
+                int res  = JOptionPane.showConfirmDialog(null, editor,
+                        "New label", JOptionPane.OK_CANCEL_OPTION);
 
-                String label = JOptionPane.showInputDialog(null, "New label",
-                                                           vertex.getLabel());
-                if (label != null && !label.isEmpty()) {
-                    vertex.setLabel(label);
-                    repaint();
-                    return;
+                if (res == JOptionPane.OK_OPTION) {
+                    String label = editor.getText();
+
+                    if (label != null && !label.isEmpty()) {
+                        vertex.setLabel(label);
+                        repaint();
+                        return;
+                    }
                 }
             }
 
@@ -807,13 +814,18 @@ public class Plane extends JPanel implements MouseListener,
 
 
         if (getCurrentOperation() == DRAW_NEW_VERTEX) {
-            String label = JOptionPane
-                            .showInputDialog(null, "Enter label (required):");
-            if (label != null && !label.isEmpty()) {
-                Vertex v = new Vertex(nodeId, label, p);
-                graph.put(nodeId, v);
-                nodeId++;
-                repaint();
+            Editor editor = new Editor();
+            int res  = JOptionPane.showConfirmDialog(null, editor,
+                    "Label (required)", JOptionPane.OK_CANCEL_OPTION);
+
+            if (res == JOptionPane.OK_OPTION) {
+                String label = editor.getText();
+                if (label != null && !label.isEmpty()) {
+                    Vertex v = new Vertex(nodeId, label, p);
+                    graph.put(nodeId, v);
+                    nodeId++;
+                    repaint();
+                }
             }
         } else if (getCurrentOperation() == ERASE_OBJECT) {
             int delId = -1;
@@ -1053,7 +1065,13 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setFont(font);
         FontMetrics metrics = g2d.getFontMetrics();
         int fontHeight = metrics.getHeight();
-        int fontWidth = metrics.stringWidth(vertex.getLabel());
+        String[] lines = vertex.getLabel().split("\n");
+        String largest = "";
+        for (int i = 0; i < lines.length; i++)
+            if (lines[i].length() > largest.length())
+                largest = lines[i];
+        int fontWidth = metrics.stringWidth(largest);
+        int stringHeight = fontHeight * lines.length;
 
         if (getShapeType() == SHAPE_CIRCLE) {
             g2d.setColor(vertex.getBorderColor());
@@ -1063,16 +1081,17 @@ public class Plane extends JPanel implements MouseListener,
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             g2d.setColor(vertex.getBorderColor());
             g2d.drawRoundRect(x - fontWidth / 2 - RECTANGLE_PADDING,
-                              y - fontHeight / 2 - RECTANGLE_PADDING,
+                              y - stringHeight / 2 - RECTANGLE_PADDING,
                               fontWidth + 2 * RECTANGLE_PADDING,
-                              fontHeight + 2 * RECTANGLE_PADDING, 10, 10);
+                              stringHeight + 2 * RECTANGLE_PADDING, 10, 10);
         }
 
         g2d.setColor(Color.BLACK);
-        g2d.drawString(vertex.getLabel(),
-                x - fontWidth / 2,
-                y + fontHeight / 4
-        );
+        y -= stringHeight / 2;
+        for (int i = 0; i < lines.length; i++) {
+            y += fontHeight;
+            g2d.drawString(lines[i], x - fontWidth / 2, y);
+        }
         g2d.setFont(tmpFont);
         g2d.setColor(tmp);
     }
@@ -1378,8 +1397,15 @@ public class Plane extends JPanel implements MouseListener,
         Point2D cu = u.getCenter();
         Point2D cv = v.getCenter();
         int padding = 3 * RECTANGLE_PADDING;
-        int w = metrics.stringWidth(u.getLabel()) + padding;
-        int h = metrics.getHeight() + padding;
+
+        String[] lines = u.getLabel().split("\n");
+        String largest = "";
+        for (int i = 0; i < lines.length; i++)
+            if (lines[i].length() > largest.length())
+                largest = lines[i];
+
+        int w = metrics.stringWidth(largest) + padding;
+        int h = metrics.getHeight() * lines.length;
         double width = fx(w) - fx(0);
         double height = fy(h) - fy(0);
         double x = cu.x();
@@ -1417,8 +1443,14 @@ public class Plane extends JPanel implements MouseListener,
                              Font.PLAIN,(int)(fontSize * 0.9));
         graphics2D.setFont(font);
         FontMetrics metrics = graphics2D.getFontMetrics();
-        int fh = metrics.getHeight();
-        int fw = metrics.stringWidth(label);
+        String[] lines = label.split("\n");
+        String largest = "";
+        for (int i = 0; i < lines.length; i++)
+            if (lines[i].length() > largest.length())
+                largest = lines[i];
+
+        int fw = metrics.stringWidth(largest);
+        int fh = metrics.getHeight() * lines.length;
         int pad = RECTANGLE_PADDING;
         Polygon box = new Polygon();
         box.addPoint(x2 - (fw / 2 + pad), y2 - (fh / 2 + pad));
