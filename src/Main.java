@@ -5,6 +5,7 @@ import edu.inforscience.graphics.Edge;
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.StyleConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -116,8 +117,7 @@ public class Main extends JFrame {
         test.run();
     }
 
-    private void readGraph(BufferedReader reader)
-            throws Exception
+    private void readGraph(BufferedReader reader) throws Exception
     {
         HashMap<Integer, Vertex> G = new HashMap<Integer, Vertex>();
         String line, u , v, label;
@@ -144,6 +144,8 @@ public class Main extends JFrame {
                     else
                         label = "";
 
+                    u = u.replace("\\n", "\n");
+                    v = v.replace("\\n", "\n");
                     Point2D pos = null;
                     if (tokens.length == 5) {
                         double x = Double.parseDouble(tokens[4]);
@@ -174,17 +176,28 @@ public class Main extends JFrame {
                     G.get(uid).addNeighbor(vid, label);
                     //G.get(vid).addNeighbor(uid, label);
                 } else if (operation ==  READ_VERTEX_INFO) {
-                    String[] tokens = line.split(":");
+                    String[] tokens = line.split(":|,");
+
                     u = tokens[0];
-                    String[] coordinates = tokens[1].split(",");
-                    double x = Double.parseDouble(coordinates[0]);
-                    double y = Double.parseDouble(coordinates[1]);
+                    u = u.replace("\\n", "\n");
+                    //String[] coordinates = tokens[1].split(",");
+                    double x = Double.parseDouble(tokens[1]);
+                    double y = Double.parseDouble(tokens[2]);
+                    int align = StyleConstants.ALIGN_LEFT;
+                    if (tokens.length == 4) {
+                        if (tokens[3].equals("C"))
+                            align = StyleConstants.ALIGN_CENTER;
+                        else if (tokens[3].equals("R"))
+                            align = StyleConstants.ALIGN_RIGHT;
+                    }
 
                     if (ids.containsKey(u)) {
                         int id = ids.get(u);
                         G.get(id).setCenter(new Point2D(x, y));
+                        G.get(id).setLabelAlignment(align);
                     } else{
                         Vertex vertex = new Vertex(nodeId, u, new Point2D(x,y));
+                        vertex.setLabelAlignment(align);
                         ids.put(u, nodeId);
                         G.put(nodeId, vertex);
                         nodeId++;
@@ -344,11 +357,11 @@ public class Main extends JFrame {
             for (Entry<Integer, Edge> e : u.getNeighbors().entrySet()) {
                 Edge edge = e.getValue();
                 Vertex v = graph.get(edge.getEnd());
-                writer.write(u.getLabel() + ","
-                           + v.getLabel());
+                writer.write(u.getLabel().replace("\n", "\\n") + ","
+                           + v.getLabel().replace("\n", "\\n"));
 
                 if (!edge.getLabel().isEmpty())
-                    writer.write("," + edge.getLabel());
+                    writer.write("," + edge.getLabel().replace("\n", "\\n"));
 
                 writer.write("\n");
             }
@@ -359,7 +372,15 @@ public class Main extends JFrame {
             Vertex u = entry.getValue();
             double x = u.getCenter().x();
             double y = u.getCenter().y();
-            writer.write(u.getLabel() + ":" + x + "," + y + "\n");
+            int align = u.getLabelAlignment();
+            String a = "L";
+            if (align == StyleConstants.ALIGN_CENTER)
+                a = "C";
+            else if (align == StyleConstants.ALIGN_RIGHT)
+                a = "R";
+            writer.write(u.getLabel().replace("\n", "\\n")
+                         + ":" + x + "," + y
+                         + "," + a + "\n");
         }
 
         writer.close();

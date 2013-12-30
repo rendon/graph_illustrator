@@ -16,6 +16,7 @@
 */
 package edu.inforscience.graphics;
 
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Random;
@@ -65,6 +66,7 @@ public class Vertex {
             double y = b * signs[random.nextInt(2)];
             setCenter(new Point2D(x, y));
         }
+        setLabelAlignment(StyleConstants.ALIGN_LEFT);
     }
 
     void setBorderColor(Color value)

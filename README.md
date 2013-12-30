@@ -25,7 +25,9 @@ The edge info section starts with the `[EDGES]` label. Each edge info has the fo
 
 The vertex info section starts with the `[VERTICES]` label. Each vertex info has the following syntax:
 
-    <node>:<x>,<y>
+    <node>:<x>,<y>[,label_aligment]
+    label_alignment = L | C | R
+
 
 Examples:
 

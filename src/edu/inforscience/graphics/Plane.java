@@ -1243,12 +1243,12 @@ public class Plane extends JPanel implements MouseListener,
             edge.setLabelPosition(new Point2D(pxStart + 0.5 * width,
                                               pyStart + 0.5 * height));
         } else {
-            FontMetrics metrics = g2d.getFontMetrics();
-            Point2D c = new Point2D(ctrlX + 0.5 * width, ctrlY + 0.5 * height);
+            Point2D c = new Point2D(ctrlX, ctrlY + 0.5 * height);
             int x = ix(c.x());
             int y = iy(c.y());
-            int fontHeight = metrics.getHeight();
-            int fontWidth = metrics.stringWidth(edge.getLabel());
+            int fontHeight = m.getHeight();
+            int fontWidth = m.stringWidth(edge.getLabel());
+            log.println("x = " + x + " fw = " + fontWidth);
             g2d.drawString(edge.getLabel(),
                     x - fontWidth / 2,
                     y + fontHeight / 4
