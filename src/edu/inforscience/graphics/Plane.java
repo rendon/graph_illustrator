@@ -26,6 +26,7 @@ import java.math.MathContext;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import edu.inforscience.util.Editor;
@@ -1452,7 +1453,20 @@ public class Plane extends JPanel implements MouseListener,
         String label = StringUtils.align(v.getLabel(), v.getLabelAlignment());
         return createBox(v.getCenter(), label, v.getRadius());
     }
+
     public Polygon createBox(Point2D center, String label, double r)
+    {
+        Polygon box = new Polygon();
+        ArrayList<Point2D> box2 = createBox2(center, label, r);
+        box.addPoint(ix(box2.get(0).x()), iy(box2.get(0).y()));
+        box.addPoint(ix(box2.get(1).x()), iy(box2.get(1).y()));
+        box.addPoint(ix(box2.get(2).x()), iy(box2.get(2).y()));
+        box.addPoint(ix(box2.get(3).x()), iy(box2.get(3).y()));
+
+        return box;
+    }
+
+    public ArrayList<Point2D> createBox2(Point2D center, String label, double r)
     {
         int radius = ix(r) - ix(0);
         int x2 = ix(center.x());
@@ -1473,12 +1487,12 @@ public class Plane extends JPanel implements MouseListener,
         int fw = metrics.stringWidth(largest);
         int fh = metrics.getHeight() * lines.length;
         int pad = RECTANGLE_PADDING;
-        Polygon box = new Polygon();
-        box.addPoint(x2 - (fw / 2 + pad), y2 - (fh / 2 + pad));
-        box.addPoint(x2 + (fw / 2 + pad), y2 - (fh / 2 + pad));
-        box.addPoint(x2 + (fw / 2 + pad), y2 + (fh / 2 + pad));
-        box.addPoint(x2 - (fw / 2 + pad), y2 + (fh / 2 + pad));
-        box.addPoint(x2 - (fw / 2 + pad), y2 - (fh / 2 + pad));
+        ArrayList<Point2D> box = new ArrayList<Point2D>();
+        box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
+        box.add(new Point2D(fx(x2 + (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
+        box.add(new Point2D(fx(x2 + (fw / 2 + pad)), fy(y2 + (fh / 2 + pad))));
+        box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 + (fh / 2 + pad))));
+        box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
 
         return box;
     }

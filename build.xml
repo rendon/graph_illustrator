@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project name="Graph Illustrator" default="compile">
+    <target name="clean" description="Remove intermediate files">
+        <delete dir="build" />
+        <delete file="GraphIllustrator.jar" />
+    </target>
+
+    <target name="compile" description="Compile de project">
+        <javac srcdir="src" destdir="build" includeantruntime="false">
+            <classpath>
+                <pathelement path="${classpath}" />
+                <fileset dir="libs">
+                    <include name="**/*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Create Jar file">
+        <jar destfile="GraphIllustrator.jar">
+            <fileset dir="build" includes="**/*.class" />
+            <zipgroupfileset dir="libs" includes="*.jar" />
+            <fileset dir="pictures" includes="**/*.png" />
+            <manifest>
+                <attribute name="Main-Class" value="Main" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="jar" description="Run the application">
+        <java jar="GraphIllustrator.jar" fork="true" />
+    </target>
+</project>
