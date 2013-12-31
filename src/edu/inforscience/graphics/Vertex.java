@@ -30,8 +30,11 @@ public class Vertex {
     private int id;
     private Point2D center;            // Position in the plane
     private double radius;
+    private boolean labelChanged;
 
     private HashMap<Integer, Edge> neighbors;
+
+    public static final double BASE_VERTEX_RADIUS = 5;
 
     // This variable indicates the control point direction of the curve
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
@@ -49,7 +52,7 @@ public class Vertex {
         setBackgroundColor(Color.WHITE);
         setLabel(text);
         setCenter(pos);
-        setRadius(5);
+        setRadius(BASE_VERTEX_RADIUS);
 
         edgeDirection = 0;
         neighbors = new HashMap<Integer, Edge>();
@@ -67,6 +70,8 @@ public class Vertex {
             setCenter(new Point2D(x, y));
         }
         setLabelAlignment(StyleConstants.ALIGN_LEFT);
+
+        setLabelChanged(true);
     }
 
     void setBorderColor(Color value)
@@ -176,6 +181,16 @@ public class Vertex {
     public void setLabelAlignment(int labelAlignment)
     {
         this.labelAlignment = labelAlignment;
+    }
+
+    public boolean hasLabelChanged()
+    {
+        return labelChanged;
+    }
+
+    public void setLabelChanged(boolean value)
+    {
+        labelChanged = value;
     }
 }
 

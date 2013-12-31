@@ -786,6 +786,7 @@ public class Plane extends JPanel implements MouseListener,
                     if (label != null && !label.isEmpty()) {
                         vertex.setLabel(label);
                         vertex.setLabelAlignment(editor.getTextAlignment());
+                        vertex.setLabelChanged(true);
                         repaint();
                         return;
                     }
@@ -1028,8 +1029,9 @@ public class Plane extends JPanel implements MouseListener,
             zoomOut(x, y);
     }
 
-    private void calculateFontSize(Graphics2D g2d, int desiredSize)
+    private void calculateFontSize(Graphics2D g2d)
     {
+        int desiredSize = ix((int) Vertex.BASE_VERTEX_RADIUS * 0.5) - ix(0);
         if (fontSize == -1) {
             // Search a font size(in points) such that its height in pixels
             // best approximates radius
@@ -1058,6 +1060,21 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setStroke(new BasicStroke(2f));
         Color tmp = g2d.getColor();
 
+        if (vertex.hasLabelChanged()) {
+            ArrayList<Point2D> box = createBox2(vertex.getCenter(),
+                                                vertex.getLabel(),
+                                                vertex.getRadius());
+            double d1 = vertex.getCenter().distanceTo(box.get(0));
+            double d2 = vertex.getCenter().distanceTo(box.get(1));
+            double d3 = vertex.getCenter().distanceTo(box.get(2));
+            double d4 = vertex.getCenter().distanceTo(box.get(3));
+
+            double max = Math.max(Math.max(d1, d2), Math.max(d3, d4));
+            vertex.setRadius(Math.max(max, Vertex.BASE_VERTEX_RADIUS));
+
+            vertex.setLabelChanged(false);
+        }
+
         int radius = ix(vertex.getRadius()) - ix(0);
         int width = 2 * radius;
         int height = 2 * radius;
@@ -1065,7 +1082,7 @@ public class Plane extends JPanel implements MouseListener,
         int y = iy(vertex.getCenter().y());
 
         Font tmpFont = g2d.getFont();
-        calculateFontSize(g2d, radius / 2);
+        calculateFontSize(g2d);
         Font font = new Font(Font.MONOSPACED, Font.PLAIN,(int)(fontSize * 0.9));
         g2d.setFont(font);
         FontMetrics metrics = g2d.getFontMetrics();
@@ -1116,7 +1133,8 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(edge.getColor());
         CubicCurve2D curve = new CubicCurve2D.Float();
 
-        double radius = start.getRadius();
+        double startRadius = start.getRadius();
+        double endRadius = end.getRadius();
         double pxStart = start.getCenter().x();
         double pyStart = start.getCenter().y();
         double pxEnd = end.getCenter().x();
@@ -1128,8 +1146,6 @@ public class Plane extends JPanel implements MouseListener,
         double ctrlY = (pyEnd + pyStart) * 0.5;
         double ctrlX2 = 0;
         double ctrlY2 = 0;
-        double ca = 0;
-        double co = 0;
 
         int direction = 0;    //Straight line
         if (end.contains(start.getId()) && start != end) {
@@ -1143,21 +1159,20 @@ public class Plane extends JPanel implements MouseListener,
         } else if (start == end) {
             direction = Integer.MAX_VALUE;
 
-            ctrlX = pxStart + 3 * radius;
-            ctrlY = pyStart + 2 * radius;
+            ctrlX = pxStart + 3 * startRadius;
+            ctrlY = pyStart + 2 * startRadius;
 
-            ctrlX2 = pxStart + 3 * radius;
-            ctrlY2 = pyStart - 2 * radius;
+            ctrlX2 = pxStart + 3 * endRadius;
+            ctrlY2 = pyStart - 2 * endRadius;
 
-            pxStart += radius * Math.cos(Math.PI * 0.25);
-            pyStart += radius * Math.sin(Math.PI * 0.25);
+            pxStart += startRadius * Math.cos(Math.PI * 0.25);
+            pyStart += startRadius * Math.sin(Math.PI * 0.25);
 
-            pxEnd += radius * Math.cos(-Math.PI * 0.25);
-            pyEnd += radius * Math.sin(-Math.PI * 0.25);
+            pxEnd += endRadius * Math.cos(-Math.PI * 0.25);
+            pyEnd += endRadius * Math.sin(-Math.PI * 0.25);
         }
 
-        int desiredSize = ix(radius) - ix(0);
-        calculateFontSize(g2d, desiredSize);
+        calculateFontSize(g2d);
         Font tmpFont = g2d.getFont();
         Font font = new Font(Font.MONOSPACED, Font.PLAIN,(int)(fontSize * 0.9));
         g2d.setFont(font);
@@ -1168,8 +1183,7 @@ public class Plane extends JPanel implements MouseListener,
                 angle = Math.atan2(pyStart - pyEnd, pxEnd - pxStart);
                 double beta = angle + 0.1;
                 double halfRatio = Math.sqrt(Math.pow(pxEnd - pxStart, 2) +
-                                             Math.pow(pyEnd - pyStart, 2)
-                );
+                                             Math.pow(pyEnd - pyStart, 2));
                 halfRatio *= 0.5;
 
                 ctrlX = ctrlX2 = pxStart + halfRatio * Math.cos(beta);
@@ -1196,14 +1210,27 @@ public class Plane extends JPanel implements MouseListener,
         } else {
             angle = Math.atan2(pyEnd - pyStart, pxEnd - pxStart);
             if (getShapeType() == SHAPE_CIRCLE) {
-                ca = radius * Math.cos(angle);
-                co = radius * Math.sin(angle);
-                pxStart += ca;
-                pyStart += co;
-                pxEnd -= ca;
-                pyEnd -= co;
+                // AS = Adjacent Size
+                // OS = Opposite Size
+                double startAS = startRadius * Math.cos(angle);
+                double startOS = startRadius * Math.sin(angle);
+                pxStart += startAS;
+                pyStart += startOS;
+
+                double endAS = endRadius * Math.cos(angle);
+                double endOS = endRadius * Math.sin(angle);
+                pxEnd -= endAS;
+                pyEnd -= endOS;
+
+                Point2D tmp = new Point2D(pxEnd - pxStart, pyEnd - pyStart);
+                double xx = tmp.x() * 0.5;
+                double yy = tmp.y() * 0.5;
+                ctrlX = pxStart + xx;
+                ctrlY =  pyStart + yy;
+
                 curve.setCurve(ix(pxStart), iy(pyStart),
-                               ix(ctrlX), iy(ctrlY), ix(ctrlX), iy(ctrlY),
+                               ix(ctrlX), iy(ctrlY),
+                               ix(ctrlX), iy(ctrlY),
                                ix(pxEnd), iy(pyEnd));
             } else if (getShapeType() == SHAPE_RECTANGLE ||
                        getShapeType() == SHAPE_NONE) {
@@ -1249,7 +1276,6 @@ public class Plane extends JPanel implements MouseListener,
             int y = iy(c.y());
             int fontHeight = m.getHeight();
             int fontWidth = m.stringWidth(edge.getLabel());
-            log.println("x = " + x + " fw = " + fontWidth);
             g2d.drawString(edge.getLabel(),
                     x - fontWidth / 2,
                     y + fontHeight / 4
@@ -1277,7 +1303,7 @@ public class Plane extends JPanel implements MouseListener,
                 angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
             }
 
-            int length = (ix(radius) - ix(0)) / 8;
+            int length = (ix(endRadius) - ix(0)) / 8;
             Polygon arrowHead = new Polygon();
             arrowHead.addPoint(0, length);
             arrowHead.addPoint(-length / 2, -length);
@@ -1472,7 +1498,7 @@ public class Plane extends JPanel implements MouseListener,
         int x2 = ix(center.x());
         int y2 = iy(center.y());
 
-        calculateFontSize(graphics2D, radius / 2);
+        calculateFontSize(graphics2D);
         Font font = new Font(Font.MONOSPACED,
                              Font.PLAIN,(int)(fontSize * 0.9));
         graphics2D.setFont(font);
