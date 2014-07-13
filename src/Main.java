@@ -28,6 +28,8 @@ public class Main extends JFrame {
     private final JButton shapeCircleButton;
     private final JButton shapeRectangleButton;
     private final JButton shapeNoneButton;
+    private final JButton quitButton;
+
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
 
@@ -42,48 +44,64 @@ public class Main extends JFrame {
         setVisible(true);
 
         log = System.out;
-        plane = new Plane();
-        JToolBar toolBar = new JToolBar();
-        openButton          = new JButton(getImage("open"));
-        reloadButton        = new JButton(getImage("reload"));
-        saveButton          = new JButton(getImage("save"));
-        exportSvgButton     = new JButton(getImage("svg"));
-        JButton quitButton  = new JButton(getImage("quit"));
-        newNodeButton       = new JButton(getImage("node"));
-        newEdgeButton       = new JButton(getImage("edge"));
-        pointerButton       = new JButton(getImage("pointer"));
-        eraserButton        = new JButton(getImage("eraser"));
-
-        shapeCircleButton   = new JButton(getImage("circle"));
-        shapeRectangleButton= new JButton(getImage("rectangle"));
-        shapeNoneButton     = new JButton(getImage("none"));
-
 
         ActionHandler actionHandler = new ActionHandler();
+        plane = new Plane();
+        JToolBar toolBar = new JToolBar();
+        openButton = new JButton(getImage("open"));
         openButton.addActionListener(actionHandler);
-        reloadButton.addActionListener(actionHandler);
-        saveButton.addActionListener(actionHandler);
-        exportSvgButton.addActionListener(actionHandler);
-        newNodeButton.addActionListener(actionHandler);
-        newEdgeButton.addActionListener(actionHandler);
-        pointerButton.addActionListener(actionHandler);
-        eraserButton.addActionListener(actionHandler);
-        shapeCircleButton.addActionListener(actionHandler);
-        shapeRectangleButton.addActionListener(actionHandler);
-        shapeNoneButton.addActionListener(actionHandler);
+        openButton.setToolTipText("Open file");
 
-        quitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                System.exit(0);
-            }
-        });
+        reloadButton = new JButton(getImage("reload"));
+        reloadButton.addActionListener(actionHandler);
+        reloadButton.setToolTipText("Reload file");
+
+        saveButton = new JButton(getImage("save"));
+        saveButton.addActionListener(actionHandler);
+        saveButton.setToolTipText("Save to file");
+
+        exportSvgButton = new JButton(getImage("svg"));
+        exportSvgButton.addActionListener(actionHandler);
+        exportSvgButton.setToolTipText("Export to SVG");
+
+        quitButton = new JButton(getImage("quit"));
+        quitButton.addActionListener(actionHandler);
+        quitButton.setToolTipText("Quit");
+
+        newNodeButton = new JButton(getImage("node"));
+        newNodeButton.addActionListener(actionHandler);
+        newNodeButton.setToolTipText("New node");
+
+        newEdgeButton = new JButton(getImage("edge"));
+        newEdgeButton.addActionListener(actionHandler);
+        newEdgeButton.setToolTipText("New edge");
+
+        pointerButton = new JButton(getImage("pointer"));
+        pointerButton.addActionListener(actionHandler);
+        pointerButton.setToolTipText("Pointer mode");
+
+        eraserButton = new JButton(getImage("eraser"));
+        eraserButton.addActionListener(actionHandler);
+        eraserButton.setToolTipText("Eraser");
+
+        shapeCircleButton = new JButton(getImage("circle"));
+        shapeCircleButton.addActionListener(actionHandler);
+        shapeCircleButton.setToolTipText("Use circles for nodes");
+
+        shapeRectangleButton = new JButton(getImage("rectangle"));
+        shapeRectangleButton.addActionListener(actionHandler);
+        shapeRectangleButton.setToolTipText("Use rectangles for nodes");
+
+        shapeNoneButton = new JButton(getImage("none"));
+        shapeNoneButton.addActionListener(actionHandler);
+        shapeNoneButton.setToolTipText("Remove shape from nodes");
+
 
         toolBar.add(openButton);
         toolBar.add(saveButton);
         toolBar.add(reloadButton);
         toolBar.add(exportSvgButton);
+        toolBar.addSeparator();
         toolBar.add(pointerButton);
         toolBar.add(newNodeButton);
         toolBar.add(newEdgeButton);
@@ -361,6 +379,8 @@ public class Main extends JFrame {
             } else if (source == shapeNoneButton) {
                 plane.setShapeType(Plane.SHAPE_NONE);
                 plane.repaint();
+            } else if (source == quitButton) {
+                System.exit(0);
             }
         }
     }
