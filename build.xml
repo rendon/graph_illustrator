@@ -6,6 +6,7 @@
     </target>
 
     <target name="compile" description="Compile de project">
+        <mkdir dir="build" />
         <javac srcdir="src" destdir="build" includeantruntime="false">
             <classpath>
                 <pathelement path="${classpath}" />
