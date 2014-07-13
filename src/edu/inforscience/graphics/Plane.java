@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013 Rafael Rendón Pablo <smart.rendon@gmail.com>
+Copyright (C) 2013 Rafael Rendón Pablo <rafaelrendonpablo@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -88,6 +88,9 @@ public class Plane extends JPanel implements MouseListener,
     private final PrintStream log; // Utility
     private boolean exportingToSVG;
 
+    // Editions since the last saving
+    private int changes;
+
     public Plane()
     {
         graph = new HashMap<Integer, Vertex>();
@@ -117,6 +120,8 @@ public class Plane extends JPanel implements MouseListener,
         setCurrentOperation(DEFAULT_OPERATION);
         setShapeType(SHAPE_CIRCLE);
         exportingToSVG = false;
+
+        changes = 0;
     }
 
     double getRealWidth()
@@ -778,7 +783,7 @@ public class Plane extends JPanel implements MouseListener,
                 Editor editor = new Editor(vertex.getLabel(),
                                            vertex.getLabelAlignment());
                 int res  = JOptionPane.showConfirmDialog(null, editor,
-                        "New label", JOptionPane.OK_CANCEL_OPTION);
+                            "New label", JOptionPane.OK_CANCEL_OPTION);
 
                 if (res == JOptionPane.OK_OPTION) {
                     String label = editor.getText();
@@ -787,6 +792,7 @@ public class Plane extends JPanel implements MouseListener,
                         vertex.setLabel(label);
                         vertex.setLabelAlignment(editor.getTextAlignment());
                         vertex.setLabelChanged(true);
+                        changes++;
                         repaint();
                         return;
                     }
@@ -807,6 +813,7 @@ public class Plane extends JPanel implements MouseListener,
                                                          edge.getLabel());
                         if (label != null) {
                             edge.setLabel(label);
+                            changes++;
                             repaint();
                             return;
                         }
@@ -830,6 +837,7 @@ public class Plane extends JPanel implements MouseListener,
                     v.setLabelAlignment(editor.getTextAlignment());
                     graph.put(nodeId, v);
                     nodeId++;
+                    changes++;
                     repaint();
                 }
             }
@@ -849,15 +857,18 @@ public class Plane extends JPanel implements MouseListener,
                         found = true;
                 }
 
-                if (!found) continue;
+                if (found) {
+                    int op = JOptionPane
+                            .showConfirmDialog(null, "Are you sure?", "Confirm",
+                                               JOptionPane.YES_NO_OPTION);
+                    if (op == JOptionPane.YES_OPTION) {
+                        delId = vertex.getId();
+                    } else {
+                        return;
+                    }
 
-                int op = JOptionPane
-                        .showConfirmDialog(null, "Are you sure?", "Confirm",
-                                           JOptionPane.YES_NO_OPTION);
-                if (op == JOptionPane.YES_OPTION)
-                    delId = vertex.getId();
-
-                break;
+                    break;
+                }
             }
 
             if (delId != -1) {
@@ -870,6 +881,7 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 graph.remove(delId);
+                changes++;
                 repaint();
                 return;
             }
@@ -882,10 +894,13 @@ public class Plane extends JPanel implements MouseListener,
                     Point2D a = graph.get(startId).getCenter();
                     Point2D b = graph.get(endId).getCenter();
                     if (inLine(a, b, p)) {
-                        int op = JOptionPane.showConfirmDialog(null,
-                                                               "Are you sure?");
+                        int op = JOptionPane
+                                .showConfirmDialog(null, "Are you sure?",
+                                                   "Confirm",
+                                                   JOptionPane.YES_NO_OPTION);
                         if (op == JOptionPane.YES_OPTION) {
                             v.getNeighbors().remove(edge.getKey());
+                            changes++;
                             repaint();
                         }
                         return;
@@ -999,6 +1014,7 @@ public class Plane extends JPanel implements MouseListener,
                 x += dx1;
                 y += dy1;
                 vertex.setCenter(x, y);
+                changes++;
             }
         }
 
@@ -1417,7 +1433,6 @@ public class Plane extends JPanel implements MouseListener,
 
         double det = a1 * b2 - a2 * b1;
         if (det == 0) {
-            System.out.println("----------------------------------------------------------------------------");
             return null;
         }
 
@@ -1521,6 +1536,16 @@ public class Plane extends JPanel implements MouseListener,
         box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
 
         return box;
+    }
+
+    public boolean hasChanges()
+    {
+        return changes > 0;
+    }
+
+    public void setChanges(int value)
+    {
+        changes = value;
     }
 }
 

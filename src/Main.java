@@ -8,6 +8,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.StyleConstants;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -38,7 +41,6 @@ public class Main extends JFrame {
     public Main()
     {
         super("Graph Illustrator");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -46,6 +48,9 @@ public class Main extends JFrame {
         log = System.out;
 
         ActionHandler actionHandler = new ActionHandler();
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(actionHandler);
+
         plane = new Plane();
         JToolBar toolBar = new JToolBar();
         openButton = new JButton(getImage("open"));
@@ -130,6 +135,7 @@ public class Main extends JFrame {
 
         try {
             readGraph(reader);
+            plane.updateUI();
         } catch (IOException ioe) {
             JOptionPane.showMessageDialog(this,
                     "There was  a problem while trying to read " +
@@ -137,7 +143,6 @@ public class Main extends JFrame {
                     "valid input.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
-        plane.updateUI();
     }
 
     public static void main(String[] args) throws Exception
@@ -237,123 +242,22 @@ public class Main extends JFrame {
         plane.setGraph(G);
         plane.setIds(ids);
         plane.setNodeId(nodeId);
+        plane.setChanges(0);
     }
 
-    private class ActionHandler implements ActionListener {
+    private class ActionHandler implements ActionListener, WindowListener {
         @Override
         public void actionPerformed(ActionEvent e)
         {
             Object source = e.getSource();
             if (source == openButton) {
-                JFileChooser fc = new JFileChooser();
-                javax.swing.filechooser.FileFilter f;
-                f = new FileNameExtensionFilter("Graph Illustrator", "gi");
-                fc.addChoosableFileFilter(f);
-                fc.setFileFilter(f);
-
-                int code = fc.showOpenDialog(null);
-                if (code == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    try {
-                        InputStream fis = new FileInputStream(file);
-                        InputStreamReader in = new InputStreamReader(fis);
-                        BufferedReader reader = new BufferedReader(in);
-                        readGraph(reader);
-                        fis.close();
-                        fileName = file.getAbsolutePath();
-                    } catch (IOException ioe) {
-                        JOptionPane.showMessageDialog(null,
-                                "There was  a problem while trying to read "
-                                + "the file.\nCheck if your file contains a "
-                                + "valid input.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                open();
             } else if (source == saveButton) {
-                if (fileName == null) {
-                    JFileChooser fc = new JFileChooser();
-                    javax.swing.filechooser.FileFilter f;
-                    f = new FileNameExtensionFilter("Graph Illustrator", "gi");
-                    fc.addChoosableFileFilter(f);
-                    fc.setFileFilter(f);
-
-                    int code = fc.showSaveDialog(null);
-                    if (code == JFileChooser.APPROVE_OPTION) {
-                        File file = fc.getSelectedFile();
-                        fileName = file.getAbsolutePath();
-                        if (!fileName.endsWith(".gi"))
-                            fileName += ".gi";
-
-                        file = new File(fileName);
-                        try {
-                            if (file.exists()) {
-                                int op = JOptionPane.showConfirmDialog(null,
-                                        "File already exists. Override?",
-                                        "Override?",
-                                        JOptionPane.YES_NO_OPTION);
-                                if (op == JOptionPane.YES_OPTION)
-                                    saveToFile();
-
-                            } else {
-                                saveToFile();
-                            }
-                        } catch (IOException ioe) {
-                            ioe.printStackTrace();
-                        }
-                    }
-                } else {
-                    try {
-                        saveToFile();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
+                save();
             } else if (source == reloadButton) {
-                if (fileName != null) {
-                    try {
-                        InputStream fis = new FileInputStream(new File(fileName));
-                        InputStreamReader in = new InputStreamReader(fis);
-                        BufferedReader reader = new BufferedReader(in);
-                        readGraph(reader);
-                        fis.close();
-                        plane.updateUI();
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
+                reload();
             } else if (source == exportSvgButton) {
-                JFileChooser fc = new JFileChooser();
-                javax.swing.filechooser.FileFilter f;
-                f = new FileNameExtensionFilter("Scalable Vector Graphics",
-                                                "svg");
-                fc.addChoosableFileFilter(f);
-                fc.setFileFilter(f);
-
-                int code = fc.showSaveDialog(null);
-                if (code == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    String path = file.getAbsolutePath();
-                    if (!path.endsWith(".svg"))
-                        path += ".svg";
-
-                    file = new File(path);
-                    try {
-                        if (file.exists()) {
-                            int op = JOptionPane.showConfirmDialog(null,
-                                        "File already exists. Override?",
-                                        "Override?",
-                                        JOptionPane.YES_NO_OPTION);
-                            if (op == JOptionPane.YES_OPTION)
-                                saveToSVG(file);
-
-                        } else {
-                            saveToSVG(file);
-                        }
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
-                    }
-                }
-
+                exportToSvg();
             } else if (source == newNodeButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
@@ -380,9 +284,163 @@ public class Main extends JFrame {
                 plane.setShapeType(Plane.SHAPE_NONE);
                 plane.repaint();
             } else if (source == quitButton) {
-                System.exit(0);
+                windowClosing(null);
             }
         }
+
+        void open()
+        {
+            JFileChooser fc = new JFileChooser();
+            javax.swing.filechooser.FileFilter f;
+            f = new FileNameExtensionFilter("Graph Illustrator", "gi");
+            fc.addChoosableFileFilter(f);
+            fc.setFileFilter(f);
+
+            int code = fc.showOpenDialog(null);
+            if (code == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                try {
+                    InputStream fis = new FileInputStream(file);
+                    InputStreamReader in = new InputStreamReader(fis);
+                    BufferedReader reader = new BufferedReader(in);
+                    readGraph(reader);
+                    fis.close();
+                    fileName = file.getAbsolutePath();
+                } catch (IOException ioe) {
+                    JOptionPane.showMessageDialog(null,
+                            "There was  a problem while trying to read "
+                            + "the file.\nCheck if your file contains a "
+                            + "valid input.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
+        }
+
+        void save()
+        {
+            if (fileName == null) {
+                JFileChooser fc = new JFileChooser();
+                javax.swing.filechooser.FileFilter f;
+                f = new FileNameExtensionFilter("Graph Illustrator", "gi");
+                fc.addChoosableFileFilter(f);
+                fc.setFileFilter(f);
+
+                int code = fc.showSaveDialog(null);
+                if (code == JFileChooser.APPROVE_OPTION) {
+                    File file = fc.getSelectedFile();
+                    fileName = file.getAbsolutePath();
+                    if (!fileName.endsWith(".gi"))
+                        fileName += ".gi";
+
+                    file = new File(fileName);
+                    try {
+                        if (file.exists()) {
+                            int op = JOptionPane.showConfirmDialog(null,
+                                    "File already exists. Override?",
+                                    "Override?",
+                                    JOptionPane.YES_NO_OPTION);
+                            if (op == JOptionPane.YES_OPTION)
+                                saveToFile();
+
+                        } else {
+                            saveToFile();
+                        }
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            } else {
+                try {
+                    saveToFile();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+
+        void reload()
+        {
+            if (fileName != null) {
+                try {
+                    InputStream fis = new FileInputStream(new File(fileName));
+                    InputStreamReader in = new InputStreamReader(fis);
+                    BufferedReader reader = new BufferedReader(in);
+                    readGraph(reader);
+                    fis.close();
+                    plane.updateUI();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+
+        void exportToSvg()
+        {
+            JFileChooser fc = new JFileChooser();
+            javax.swing.filechooser.FileFilter f;
+            f = new FileNameExtensionFilter("Scalable Vector Graphics",
+                    "svg");
+            fc.addChoosableFileFilter(f);
+            fc.setFileFilter(f);
+
+            int code = fc.showSaveDialog(null);
+            if (code == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                String path = file.getAbsolutePath();
+                if (!path.endsWith(".svg"))
+                    path += ".svg";
+
+                file = new File(path);
+                try {
+                    if (file.exists()) {
+                        int op = JOptionPane.showConfirmDialog(null,
+                                "File already exists. Override?",
+                                "Override?",
+                                JOptionPane.YES_NO_OPTION);
+                        if (op == JOptionPane.YES_OPTION)
+                            saveToSVG(file);
+
+                    } else {
+                        saveToSVG(file);
+                    }
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
+            }
+        }
+        
+        @Override
+        public void windowClosing(WindowEvent e)
+        {
+            if (plane.hasChanges()) { 
+                int op = JOptionPane
+                    .showConfirmDialog(null, "Save changes?", "Save?",
+                            JOptionPane.YES_NO_OPTION);
+                if (op == JOptionPane.YES_OPTION) {
+                    save();
+                }
+            }
+            System.exit(0);
+        }
+
+        @Override
+        public void windowDeactivated(WindowEvent e) { }
+
+        @Override
+        public void windowActivated(WindowEvent e) { }
+
+        @Override
+        public void windowDeiconified(WindowEvent e) { }
+
+        @Override
+        public void windowIconified(WindowEvent e) { }
+
+        @Override
+        public void windowClosed(WindowEvent e) { }
+
+        @Override
+        public void windowOpened(WindowEvent e) { }
     }
 
     private void saveToFile() throws IOException
@@ -425,6 +483,7 @@ public class Main extends JFrame {
         }
 
         writer.close();
+        plane.setChanges(0);
     }
 
     private void saveToSVG(File file) throws IOException
