@@ -436,7 +436,7 @@ public class Plane extends JPanel implements MouseListener,
         double psy = pixelHeight;
         Point2D previous = new Point2D(fx(mx), fy(my));
 
-        if (pixelWidth > 0.2 || pixelHeight > 0.2)
+        if (pixelWidth > 1 || pixelHeight > 1)
             return;
 
         pixelWidth += pixelWidth / 10;
@@ -1047,28 +1047,32 @@ public class Plane extends JPanel implements MouseListener,
 
     private void calculateFontSize(Graphics2D g2d)
     {
-        int desiredSize = ix((int) Vertex.BASE_VERTEX_RADIUS * 0.5) - ix(0);
+        int desiredHeight = ix((int) Vertex.BASE_VERTEX_RADIUS) - ix(0);
         if (fontSize == -1) {
             // Search a font size(in points) such that its height in pixels
             // best approximates radius
-            int size = 1;
-            int bestSuited = 1;
-            int minDiff = 1000;
-            while (size <= 300) {
-                Font test = new Font("Monospace", Font.BOLD, size);
+            int bestSuited = 5;
+            int low = 5, high = 512;
+            while (low < high) {
+                int size = (low + high) / 2;
+                Font test = new Font(Font.MONOSPACED, Font.PLAIN, size);
                 FontMetrics metrics = g2d.getFontMetrics(test);
-                int fontHeight = metrics.getHeight();
+                int fontHeight = metrics.getAscent() + metrics.getDescent();
 
-                int diff = Math.abs(desiredSize - fontHeight);
-                if (diff < minDiff) {
+                if (fontHeight > desiredHeight) {
+                    high = size;
+                    bestSuited = high - 1;
+                } else if (fontHeight < desiredHeight) {
+                    low = size + 1;
+                } else {
                     bestSuited = size;
-                    minDiff = diff;
+                    break;
                 }
-                size += 10;
             }
 
             fontSize = bestSuited;
         }
+
     }
 
     void drawVertex(Graphics2D g2d, Vertex vertex)
@@ -1091,7 +1095,8 @@ public class Plane extends JPanel implements MouseListener,
             vertex.setLabelChanged(false);
         }
 
-        int radius = ix(vertex.getRadius()) - ix(0);
+        int padding = 3 * RECTANGLE_PADDING;
+        int radius = ix(vertex.getRadius()) - ix(0) + padding;
         int width = 2 * radius;
         int height = 2 * radius;
         int x = ix(vertex.getCenter().x());
@@ -1099,20 +1104,21 @@ public class Plane extends JPanel implements MouseListener,
 
         Font tmpFont = g2d.getFont();
         calculateFontSize(g2d);
-        Font font = new Font(Font.MONOSPACED, Font.PLAIN,(int)(fontSize * 0.9));
+        Font font = new Font(Font.MONOSPACED, Font.PLAIN, fontSize);
         g2d.setFont(font);
         FontMetrics metrics = g2d.getFontMetrics();
-        int fontHeight = metrics.getHeight();
+        int fontHeight = metrics.getAscent() + metrics.getDescent();
 
         String label = StringUtils.align(vertex.getLabel(),
                                          vertex.getLabelAlignment());
 
         String[] lines = label.split("\n");
         String largest = "";
-        for (int i = 0; i < lines.length; i++)
-            if (lines[i].length() > largest.length())
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].length() > largest.length()) {
                 largest = lines[i];
-        int padding = 3 * RECTANGLE_PADDING;
+            }
+        }
         int fontWidth = metrics.stringWidth(largest) + padding;
         int stringHeight = fontHeight * lines.length + padding;
 
@@ -1130,7 +1136,7 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         g2d.setColor(Color.BLACK);
-        y -= stringHeight / 2;
+        y = y - stringHeight / 2 - metrics.getDescent();
         x = x - fontWidth / 2 + RECTANGLE_PADDING;
         for (int i = 0; i < lines.length; i++) {
             y += fontHeight;
@@ -1190,7 +1196,7 @@ public class Plane extends JPanel implements MouseListener,
 
         calculateFontSize(g2d);
         Font tmpFont = g2d.getFont();
-        Font font = new Font(Font.MONOSPACED, Font.PLAIN,(int)(fontSize * 0.9));
+        Font font = new Font(Font.MONOSPACED, Font.PLAIN, fontSize);
         g2d.setFont(font);
 
         // Draw edge
@@ -1281,7 +1287,7 @@ public class Plane extends JPanel implements MouseListener,
         // Draw label
         FontMetrics m = g2d.getFontMetrics();
         double width = Math.abs(fx(m.stringWidth(edge.getLabel())) - fx(0));
-        double height = Math.abs(fy(m.getHeight()) - fy(0));
+        double height = Math.abs(fy(m.getAscent() + m.getDescent()) - fy(0));
         if (direction == Integer.MAX_VALUE) {
             g2d.drawString(edge.getLabel(), ix(pxStart + 2), iy(pyStart));
             edge.setLabelPosition(new Point2D(pxStart + 0.5 * width,
@@ -1290,12 +1296,11 @@ public class Plane extends JPanel implements MouseListener,
             Point2D c = new Point2D(ctrlX, ctrlY + 0.5 * height);
             int x = ix(c.x());
             int y = iy(c.y());
-            int fontHeight = m.getHeight();
+            int fontHeight = m.getAscent() + m.getDescent();
             int fontWidth = m.stringWidth(edge.getLabel());
             g2d.drawString(edge.getLabel(),
-                    x - fontWidth / 2,
-                    y + fontHeight / 4
-            );
+                           x - fontWidth / 2,
+                           y + fontHeight / 4);
             edge.setLabelPosition(c);
             if (!exportingToSVG && edge.getLabel().isEmpty()) {
                 g2d.setColor(Color.GRAY);
@@ -1452,7 +1457,7 @@ public class Plane extends JPanel implements MouseListener,
         return a1 * b2 - a2 * b1;
     }
 
-    Point2D computeEndPoint(Vertex u, Vertex v, FontMetrics metrics)
+    Point2D computeEndPoint(Vertex u, Vertex v, FontMetrics m)
     {
         Point2D cu = u.getCenter();
         Point2D cv = v.getCenter();
@@ -1461,12 +1466,14 @@ public class Plane extends JPanel implements MouseListener,
         String label = StringUtils.align(u.getLabel(), u.getLabelAlignment());
         String[] lines = label.split("\n");
         String largest = "";
-        for (int i = 0; i < lines.length; i++)
-            if (lines[i].length() > largest.length())
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].length() > largest.length()) {
                 largest = lines[i];
+            }
+        }
 
-        int w = metrics.stringWidth(largest) + padding;
-        int h = metrics.getHeight() * lines.length + padding;
+        int w = m.stringWidth(largest) + padding;
+        int h = (m.getAscent() + m.getDescent()) * lines.length + padding;
         double width = fx(w) - fx(0);
         double height = fy(h) - fy(0);
         double x = cu.x();
@@ -1514,19 +1521,20 @@ public class Plane extends JPanel implements MouseListener,
         int y2 = iy(center.y());
 
         calculateFontSize(graphics2D);
-        Font font = new Font(Font.MONOSPACED,
-                             Font.PLAIN,(int)(fontSize * 0.9));
+        Font font = new Font(Font.MONOSPACED, Font.PLAIN, fontSize);
         graphics2D.setFont(font);
         FontMetrics metrics = graphics2D.getFontMetrics();
 
         String[] lines = label.split("\n");
         String largest = "";
-        for (int i = 0; i < lines.length; i++)
-            if (lines[i].length() > largest.length())
+        for (int i = 0; i < lines.length; i++) {
+            if (lines[i].length() > largest.length()) {
                 largest = lines[i];
+            }
+        }
 
         int fw = metrics.stringWidth(largest);
-        int fh = metrics.getHeight() * lines.length;
+        int fh = (metrics.getAscent() + metrics.getDescent()) * lines.length;
         int pad = RECTANGLE_PADDING;
         ArrayList<Point2D> box = new ArrayList<Point2D>();
         box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
