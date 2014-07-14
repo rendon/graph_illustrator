@@ -933,7 +933,6 @@ public class Plane extends JPanel implements MouseListener,
 
                 for (Map.Entry<Integer, Vertex> entry : graph.entrySet()) {
                     Vertex vertex = entry.getValue();
-
                     if (getShapeType() == SHAPE_CIRCLE) {
                         double distance = click.distanceTo(vertex.getCenter());
                         if (distance <= vertex.getRadius()) {
@@ -1090,13 +1089,13 @@ public class Plane extends JPanel implements MouseListener,
             double d4 = vertex.getCenter().distanceTo(box.get(3));
 
             double max = Math.max(Math.max(d1, d2), Math.max(d3, d4));
+            max += 3 * RECTANGLE_PADDING;
             vertex.setRadius(Math.max(max, Vertex.BASE_VERTEX_RADIUS));
 
             vertex.setLabelChanged(false);
         }
 
-        int padding = 3 * RECTANGLE_PADDING;
-        int radius = ix(vertex.getRadius()) - ix(0) + padding;
+        int radius = ix(vertex.getRadius()) - ix(0);
         int width = 2 * radius;
         int height = 2 * radius;
         int x = ix(vertex.getCenter().x());
@@ -1119,6 +1118,8 @@ public class Plane extends JPanel implements MouseListener,
                 largest = lines[i];
             }
         }
+
+        int padding = 3 * RECTANGLE_PADDING;
         int fontWidth = metrics.stringWidth(largest) + padding;
         int stringHeight = fontHeight * lines.length + padding;
 
