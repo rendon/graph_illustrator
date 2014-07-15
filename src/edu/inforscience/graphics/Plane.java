@@ -779,23 +779,24 @@ public class Plane extends JPanel implements MouseListener,
                         found = true;
                 }
 
-                if (!found) continue;
-                Editor editor = new Editor(vertex.getLabel(),
-                                           vertex.getLabelAlignment());
-                int res  = JOptionPane.showConfirmDialog(null, editor,
-                            "New label", JOptionPane.OK_CANCEL_OPTION);
+                if (found) {
+                    Editor editor = new Editor(vertex.getLabel(),
+                                               vertex.getLabelAlignment());
+                    int res  = JOptionPane.showConfirmDialog(null, editor,
+                                "New label", JOptionPane.OK_CANCEL_OPTION);
 
-                if (res == JOptionPane.OK_OPTION) {
-                    String label = editor.getText();
+                    if (res == JOptionPane.OK_OPTION) {
+                        String label = editor.getText();
 
-                    if (label != null && !label.isEmpty()) {
-                        vertex.setLabel(label);
-                        vertex.setLabelAlignment(editor.getTextAlignment());
-                        vertex.setLabelChanged(true);
-                        changes++;
-                        repaint();
-                        return;
+                        if (label != null && !label.isEmpty()) {
+                            vertex.setLabel(label);
+                            vertex.setLabelAlignment(editor.getTextAlignment());
+                            vertex.setLabelChanged(true);
+                            changes++;
+                            repaint();
+                        }
                     }
+                    return;
                 }
             }
 
@@ -815,8 +816,8 @@ public class Plane extends JPanel implements MouseListener,
                             edge.setLabel(label);
                             changes++;
                             repaint();
-                            return;
                         }
+                        return;
                     }
                 }
             }

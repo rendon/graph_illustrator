@@ -21,7 +21,7 @@ The input consist of two parts, edges and vertex info, the latter is optional.
 
 The edge info section starts with the `[EDGES]` label. Each edge info has the following syntax:
 
-    <start>,<end>,[label]
+    <start>,<end>[,label]
 
 The vertex info section starts with the `[VERTICES]` label. Each vertex info has the following syntax:
 
