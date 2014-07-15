@@ -34,7 +34,7 @@ public class Vertex {
 
     private HashMap<Integer, Edge> neighbors;
 
-    public static final double BASE_VERTEX_RADIUS = 5;
+    public static final double BASE_VERTEX_RADIUS = 1;
 
     // This variable indicates the control point direction of the curve
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).

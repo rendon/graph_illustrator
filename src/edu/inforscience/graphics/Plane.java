@@ -53,8 +53,8 @@ public class Plane extends JPanel implements MouseListener,
     private double gridIntervalY;
     private final double[] factors;
 
-    public static final double DEFAULT_REAL_WIDTH   = 100;
-    public static final double DEFAULT_REAL_HEIGHT  = 100;
+    public static final double DEFAULT_REAL_WIDTH   = 50;
+    public static final double DEFAULT_REAL_HEIGHT  = 50;
     public static final int DEFAULT_OPERATION   = 1;
     public static final int DRAW_NEW_VERTEX     = 2;
     public static final int DRAW_NEW_EDGE       = 3;
@@ -436,7 +436,7 @@ public class Plane extends JPanel implements MouseListener,
         double psy = pixelHeight;
         Point2D previous = new Point2D(fx(mx), fy(my));
 
-        if (pixelWidth > 1 || pixelHeight > 1)
+        if (pixelWidth > 0.5 || pixelHeight > 0.5)
             return;
 
         pixelWidth += pixelWidth / 10;
@@ -1050,8 +1050,8 @@ public class Plane extends JPanel implements MouseListener,
         if (fontSize == -1) {
             // Search a font size(in points) such that its height in pixels
             // best approximates radius
-            int bestSuited = 5;
-            int low = 5, high = 512;
+            int bestSuited = 2;
+            int low = 2, high = 512;
             while (low < high) {
                 int size = (low + high) / 2;
                 Font test = new Font(Font.MONOSPACED, Font.PLAIN, size);
@@ -1089,9 +1089,7 @@ public class Plane extends JPanel implements MouseListener,
             double d4 = vertex.getCenter().distanceTo(box.get(3));
 
             double max = Math.max(Math.max(d1, d2), Math.max(d3, d4));
-            max += 3 * RECTANGLE_PADDING;
             vertex.setRadius(Math.max(max, Vertex.BASE_VERTEX_RADIUS));
-
             vertex.setLabelChanged(false);
         }
 
@@ -1119,9 +1117,8 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        int padding = 3 * RECTANGLE_PADDING;
-        int fontWidth = metrics.stringWidth(largest) + padding;
-        int stringHeight = fontHeight * lines.length + padding;
+        int fontWidth = metrics.stringWidth(largest);
+        int stringHeight = fontHeight * lines.length;
 
         if (getShapeType() == SHAPE_CIRCLE) {
             g2d.setColor(vertex.getBorderColor());
@@ -1130,18 +1127,20 @@ public class Plane extends JPanel implements MouseListener,
             g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             g2d.setColor(vertex.getBorderColor());
-            g2d.drawRoundRect(x - fontWidth / 2,
-                              y - stringHeight / 2,
-                              fontWidth,
-                              stringHeight, 10, 10);
+            int fw = fontWidth + 3 * metrics.getDescent();
+            int fh = stringHeight + 3 * metrics.getDescent();
+            g2d.drawRoundRect(x - fw / 2,
+                              y - fh / 2,
+                              fw,
+                              fh, 10, 10);
         }
 
         g2d.setColor(Color.BLACK);
-        y = y - stringHeight / 2 - metrics.getDescent();
-        x = x - fontWidth / 2 + RECTANGLE_PADDING;
+        y = y - stringHeight / 2 + (fontHeight  * 3 / 4);
+        x = x - fontWidth / 2;
         for (int i = 0; i < lines.length; i++) {
-            y += fontHeight;
             g2d.drawString(lines[i], x, y);
+            y += fontHeight;
         }
         g2d.setFont(tmpFont);
         g2d.setColor(tmp);
@@ -1462,7 +1461,7 @@ public class Plane extends JPanel implements MouseListener,
     {
         Point2D cu = u.getCenter();
         Point2D cv = v.getCenter();
-        int padding = 3 * RECTANGLE_PADDING;
+        int padding = 3 * m.getDescent();
 
         String label = StringUtils.align(u.getLabel(), u.getLabelAlignment());
         String[] lines = label.split("\n");
@@ -1536,7 +1535,7 @@ public class Plane extends JPanel implements MouseListener,
 
         int fw = metrics.stringWidth(largest);
         int fh = (metrics.getAscent() + metrics.getDescent()) * lines.length;
-        int pad = RECTANGLE_PADDING;
+        int pad = 3 * metrics.getDescent();
         ArrayList<Point2D> box = new ArrayList<Point2D>();
         box.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
         box.add(new Point2D(fx(x2 + (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
