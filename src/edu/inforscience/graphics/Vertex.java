@@ -114,11 +114,14 @@ public class Vertex {
         return edgeDirection;
     }
 
-    public void addNeighbor(int neighbor, String label)
+    public Edge addNeighbor(int neighbor, String label)
     {
         Edge e = new Edge(getId(), neighbor, label);
         if (!neighbors.containsKey(neighbor)) {
             neighbors.put(neighbor, e);
+            return e;
+        } else {
+            return null;
         }
     }
 

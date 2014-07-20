@@ -4,7 +4,7 @@ This tool reads a collection of relationships (u --> v) from the standard input 
 
 I've created this tool mainly by two reasons:
 - There are many problems involving graphs and it is much more easy to understand the problem with a graphical representation.
-- I could not found a any tool that suit my needs.
+- I could not found any tool that suit my needs.
 
 Features
 ========

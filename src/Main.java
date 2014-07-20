@@ -261,19 +261,19 @@ public class Main extends JFrame {
             } else if (source == newNodeButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
-                plane.setCurrentOperation(Plane.DRAW_NEW_VERTEX);
+                plane.setCurrentAction(Plane.ACTION_CREATE_NEW_VERTEX);
             } else if (source == newEdgeButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
-                plane.setCurrentOperation(Plane.DRAW_NEW_EDGE);
+                plane.setCurrentAction(Plane.ACTION_DRAW_NEW_EDGE);
             } else if (source == pointerButton) {
-                plane.setCurrentOperation(Plane.DEFAULT_OPERATION);
+                plane.setCurrentAction(Plane.ACTION_DEFAULT);
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
                 plane.setCursor(c);
             } else if (source == eraserButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
-                plane.setCurrentOperation(Plane.ERASE_OBJECT);
+                plane.setCurrentAction(Plane.ACTION_ERASE_OBJECT);
             } else if (source == shapeCircleButton) {
                 plane.setShapeType(Plane.SHAPE_CIRCLE);
                 plane.repaint();

@@ -24,7 +24,7 @@ public class Edge {
     private String label;    // label for edge
     private Color color;
     private float stroke;
-    private Point2D labelPosition;
+    private Point2D labelCenter;
 
     //Constructors
     public Edge(int start, int end, String label)
@@ -87,14 +87,14 @@ public class Edge {
         this.stroke = stroke;
     }
 
-    public Point2D getLabelPosition()
+    public Point2D getLabelCenter()
     {
-        return labelPosition;
+        return labelCenter;
     }
 
-    public void setLabelPosition(Point2D labelPosition)
+    public void setLabelCenter(Point2D labelCenter)
     {
-        this.labelPosition = labelPosition;
+        this.labelCenter = labelCenter;
     }
 }
 
