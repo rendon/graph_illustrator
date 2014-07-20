@@ -27,12 +27,11 @@ public class Vertex {
     private Color background;       // Vertex's background color
     private String label;           // Label for vertex
     private int labelAlignment;
-    private int id;
     private Point2D center;            // Position in the plane
     private double radius;
     private boolean labelChanged;
 
-    private HashMap<Integer, Edge> neighbors;
+    private HashMap<String, Edge> neighbors;
 
     public static final double BASE_VERTEX_RADIUS = 1;
 
@@ -40,22 +39,21 @@ public class Vertex {
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
     private int edgeDirection;
 
-    public Vertex(int id, String text)
+    public Vertex(String label)
     {
-        this(id, text, null);
+        this(label, null);
     }
 
-    public Vertex(int id, String text, Point2D pos)
+    public Vertex(String label, Point2D pos)
     {
-        this.id = id;
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
-        setLabel(text);
+        setLabel(label);
         setCenter(pos);
         setRadius(BASE_VERTEX_RADIUS);
 
         edgeDirection = 0;
-        neighbors = new HashMap<Integer, Edge>();
+        neighbors = new HashMap<String, Edge>();
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
@@ -74,7 +72,7 @@ public class Vertex {
         setLabelChanged(true);
     }
 
-    void setBorderColor(Color value)
+    public void setBorderColor(Color value)
     {
         border = value;
     }
@@ -94,7 +92,7 @@ public class Vertex {
         return background;
     }
 
-    void setLabel(String value)
+    public void setLabel(String value)
     {
         label = value;
     }
@@ -114,9 +112,9 @@ public class Vertex {
         return edgeDirection;
     }
 
-    public Edge addNeighbor(int neighbor, String label)
+    public Edge addNeighbor(String neighbor, String label)
     {
-        Edge e = new Edge(getId(), neighbor, label);
+        Edge e = new Edge(getLabel(), neighbor, label);
         if (!neighbors.containsKey(neighbor)) {
             neighbors.put(neighbor, e);
             return e;
@@ -125,27 +123,17 @@ public class Vertex {
         }
     }
 
-    public void removeNeighbor(int neighbor)
+    public void removeNeighbor(String neighbor)
     {
         neighbors.remove(neighbor);
     }
 
-    public boolean contains(int v)
+    public boolean contains(String v)
     {
         return neighbors.containsKey(v);
     }
 
-    public int getId()
-    {
-        return id;
-    }
-
-    public void setId(int id)
-    {
-        this.id = id;
-    }
-
-    public HashMap<Integer, Edge> getNeighbors()
+    public HashMap<String, Edge> getNeighbors()
     {
         return neighbors;
     }
@@ -171,7 +159,7 @@ public class Vertex {
         return radius;
     }
 
-    void setRadius(double radius)
+    public void setRadius(double radius)
     {
         this.radius = radius;
     }

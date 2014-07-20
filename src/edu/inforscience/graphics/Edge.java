@@ -20,14 +20,14 @@ import java.awt.Color;
 
 public class Edge {
     // Attributes
-    private int start, end;
+    private String start, end;
     private String label;    // label for edge
     private Color color;
     private float stroke;
     private Point2D labelCenter;
 
     //Constructors
-    public Edge(int start, int end, String label)
+    public Edge(String start, String end, String label)
     {
         setStart(start);
         setEnd(end);
@@ -37,22 +37,22 @@ public class Edge {
         stroke = 1.0f;
     }
 
-    public int getStart()
+    public String getStart()
     {
         return start;
     }
 
-    void setStart(int start)
+    public void setStart(String start)
     {
         this.start = start;
     }
 
-    public int getEnd()
+    public String getEnd()
     {
         return end;
     }
 
-    void setEnd(int end)
+    public void setEnd(String end)
     {
         this.end = end;
     }
@@ -62,7 +62,7 @@ public class Edge {
         return label;
     }
 
-    void setLabel(String label)
+    public void setLabel(String label)
     {
         this.label = label;
     }
@@ -72,7 +72,7 @@ public class Edge {
         return color;
     }
 
-    void setColor(Color color)
+    public void setColor(Color color)
     {
         this.color = color;
     }
