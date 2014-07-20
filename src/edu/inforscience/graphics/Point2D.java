@@ -64,7 +64,7 @@ public class Point2D {
     public double distanceTo(Point2D point)
     {
         return Math.sqrt((px - point.x()) * (px - point.x()) +
-                        (py - point.y()) * (py - point.y()));
+                         (py - point.y()) * (py - point.y()));
     }
 
     /**

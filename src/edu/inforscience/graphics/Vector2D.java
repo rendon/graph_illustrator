@@ -127,12 +127,12 @@ public class Vector2D {
 
 
     /**
-     * Actualy the result of cross product  is another vector, but also the cross
-     * product allows to find the area of a triangle formed by the two vectors
-     * and the oriantation of a set of points in the plane: positive value means a
-     * counter-clockwise arrangement, a negative value means clockwise arrangement.
-     * <p/>
-     * Therefore this method returns the double of the area formed by two vectors.
+     * Actualy the result of cross product  is another vector, but also the
+     * cross product allows to find the area of a triangle formed by the two
+     * vectors and the oriantation of a set of points in the plane: positive
+     * value means a counter-clockwise arrangement, a negative value means
+     * clockwise arrangement.
+     * This method returns the double of the area formed by two vectors.
      */
     public static double area2(Point2D p, Point2D q, Point2D r)
     {

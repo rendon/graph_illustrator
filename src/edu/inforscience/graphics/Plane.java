@@ -928,9 +928,7 @@ public class Plane extends JPanel implements MouseListener,
                     String endId = edge.getValue().getEnd();
                     Point2D a = graph.get(startId).getCenter();
                     Point2D b = graph.get(endId).getCenter();
-                    // WARNING: Possible bug, should be inline && the line
-                    // should visible
-                    if (inLine(a, b, p)) {
+                    if (onSegment(a, b, p)) {
                         int op = JOptionPane
                             .showConfirmDialog(null, "Are you sure?",
                                     "Confirm",
@@ -1477,7 +1475,7 @@ public class Plane extends JPanel implements MouseListener,
         this.shapeType = shapeType;
     }
 
-    boolean inLine(Point2D a, Point2D b, Point2D p)
+    boolean onSegment(Point2D a, Point2D b, Point2D p)
     {
         double a1 = b.x() - a.x();
         double b1 = b.y() - a.y();
@@ -1488,8 +1486,17 @@ public class Plane extends JPanel implements MouseListener,
         double beta = Math.atan2(b2, a2);
         double theta = Math.abs(alpha - beta);
         double dist = Math.abs(a.distanceTo(p) * Math.sin(theta));
-        double eps = Math.abs(fx(3) - fx(0));
 
+        Vector2D A = new Vector2D(a1, b1);
+        Vector2D B = new Vector2D(a2, b2);
+        double dot = Vector2D.dotProduct(A, B);
+
+        if (dot < 0)   { return false; }
+
+        double ab2 = a1 * a1 + b1 * b1;
+        if (dot > ab2) { return false; }
+
+        double eps = Math.abs(fx(3) - fx(0));
         return dist < eps;
     }
 
