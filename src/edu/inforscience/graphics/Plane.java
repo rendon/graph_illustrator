@@ -77,6 +77,7 @@ public class Plane extends JPanel implements MouseListener,
     private boolean showGrid;
     private boolean dragPlane;
     private boolean dragVertex;
+    private boolean smoothLines;
 
     private boolean directed;
 
@@ -154,6 +155,8 @@ public class Plane extends JPanel implements MouseListener,
             @Override
             public void keyTyped(KeyEvent e) { }
         });
+
+        smoothLines = true;
     }
 
     double getRealWidth()
@@ -194,17 +197,21 @@ public class Plane extends JPanel implements MouseListener,
             drawGrid(g2d);
         }
 
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                             RenderingHints.VALUE_ANTIALIAS_ON);
+        if (smoothLines) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
+        }
 
         for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
-            drawVertex(g2d, u);
-
             for (Map.Entry<String, Edge> v : u.getNeighbors().entrySet()) {
                 Edge e = v.getValue();
                 drawEdge(g2d, e);
             }
+        }
+
+        for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+            drawVertex(g2d, entry.getValue());
         }
 
         if (getCurrentAction() == ACTION_DRAW_NEW_EDGE && startVertex != null) {
@@ -236,8 +243,10 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(Color.LIGHT_GRAY);
         //if (isShowGrid()) drawGrid(g2d);
 
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                             RenderingHints.VALUE_ANTIALIAS_ON);
+        if (smoothLines) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                 RenderingHints.VALUE_ANTIALIAS_ON);
+        }
         g2d.setStroke(new BasicStroke(3f));
 
         for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
@@ -1037,7 +1046,7 @@ public class Plane extends JPanel implements MouseListener,
 
         if (vertex.hasLabelChanged()) {
             ArrayList<Point2D> rect = createRect(vertex.getCenter(),
-                    vertex.getLabel(), true);
+                                                 vertex.getLabel(), true);
             double d1 = vertex.getCenter().distanceTo(rect.get(0));
             double d2 = vertex.getCenter().distanceTo(rect.get(1));
             double d3 = vertex.getCenter().distanceTo(rect.get(2));
@@ -1523,6 +1532,12 @@ public class Plane extends JPanel implements MouseListener,
     public void setChanges(int value)
     {
         changes = value;
+    }
+
+    public void toggleSmoothLines()
+    {
+        smoothLines = !smoothLines;
+        repaint();
     }
 
     private void resizeLabelEditor(Point2D center, String text)

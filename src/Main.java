@@ -28,6 +28,7 @@ public class Main extends JFrame {
     private final JButton newEdgeButton;
     private final JButton eraserButton;
     private final JButton showGridButton;
+    private final JButton smoothLinesButton;
 
     private final JButton shapeCircleButton;
     private final JButton shapeRectangleButton;
@@ -42,7 +43,7 @@ public class Main extends JFrame {
     public Main()
     {
         super("Graph Illustrator");
-        setSize(800, 600);
+        setSize(1200, 900);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -92,7 +93,11 @@ public class Main extends JFrame {
 
         showGridButton = new JButton(getImage("show_grid"));
         showGridButton.addActionListener(actionHandler);
-        showGridButton.setToolTipText("Show grid");
+        showGridButton.setToolTipText("Toggle grid");
+
+        smoothLinesButton = new JButton(getImage("antialias"));
+        smoothLinesButton.addActionListener(actionHandler);
+        smoothLinesButton.setToolTipText("Toggle smooth lines");
 
         shapeCircleButton = new JButton(getImage("circle"));
         shapeCircleButton.addActionListener(actionHandler);
@@ -106,7 +111,6 @@ public class Main extends JFrame {
         shapeNoneButton.addActionListener(actionHandler);
         shapeNoneButton.setToolTipText("Remove shape from nodes");
 
-
         toolBar.add(openButton);
         toolBar.add(saveButton);
         toolBar.add(reloadButton);
@@ -117,6 +121,7 @@ public class Main extends JFrame {
         toolBar.add(newEdgeButton);
         toolBar.add(eraserButton);
         toolBar.add(showGridButton);
+        toolBar.add(smoothLinesButton);
         toolBar.addSeparator();
         toolBar.add(shapeCircleButton);
         toolBar.add(shapeRectangleButton);
@@ -260,6 +265,8 @@ public class Main extends JFrame {
                 plane.setCurrentAction(Plane.ACTION_ERASE_OBJECT);
             } else if (source == showGridButton) {
                 plane.toggleShowGrid();
+            } else if (source == smoothLinesButton) {
+                plane.toggleSmoothLines();
             } else if (source == shapeCircleButton) {
                 plane.setShapeType(Plane.SHAPE_CIRCLE);
                 plane.repaint();
@@ -495,6 +502,4 @@ public class Main extends JFrame {
         bw.write(plane.exportToSVG());
         bw.close();
     }
-
-
 }
