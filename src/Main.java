@@ -27,6 +27,7 @@ public class Main extends JFrame {
     private final JButton newNodeButton;
     private final JButton newEdgeButton;
     private final JButton eraserButton;
+    private final JButton showGridButton;
 
     private final JButton shapeCircleButton;
     private final JButton shapeRectangleButton;
@@ -89,6 +90,10 @@ public class Main extends JFrame {
         eraserButton.addActionListener(actionHandler);
         eraserButton.setToolTipText("Eraser");
 
+        showGridButton = new JButton(getImage("show_grid"));
+        showGridButton.addActionListener(actionHandler);
+        showGridButton.setToolTipText("Show grid");
+
         shapeCircleButton = new JButton(getImage("circle"));
         shapeCircleButton.addActionListener(actionHandler);
         shapeCircleButton.setToolTipText("Use circles for nodes");
@@ -111,6 +116,7 @@ public class Main extends JFrame {
         toolBar.add(newNodeButton);
         toolBar.add(newEdgeButton);
         toolBar.add(eraserButton);
+        toolBar.add(showGridButton);
         toolBar.addSeparator();
         toolBar.add(shapeCircleButton);
         toolBar.add(shapeRectangleButton);
@@ -252,6 +258,8 @@ public class Main extends JFrame {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
                 plane.setCurrentAction(Plane.ACTION_ERASE_OBJECT);
+            } else if (source == showGridButton) {
+                plane.toggleShowGrid();
             } else if (source == shapeCircleButton) {
                 plane.setShapeType(Plane.SHAPE_CIRCLE);
                 plane.repaint();

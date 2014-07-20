@@ -74,7 +74,6 @@ public class Plane extends JPanel implements MouseListener,
     private int currentAction;
 
     private boolean firstTime;
-    private boolean showAxis;
     private boolean showGrid;
     private boolean dragPlane;
     private boolean dragVertex;
@@ -118,8 +117,7 @@ public class Plane extends JPanel implements MouseListener,
         factors = new double[]{2, 2, 2.5};
         factorIndexX = 0;
         factorIndexY = 0;
-        setShowGrid(true);
-        setShowAxis(false);
+        setShowGrid(false);
         log = System.out;
 
         vertexToDragIndex = null;
@@ -192,11 +190,12 @@ public class Plane extends JPanel implements MouseListener,
 
         g2d.setColor(Color.LIGHT_GRAY);
 
-        if (isShowGrid())
+        if (isShowGrid()) {
             drawGrid(g2d);
+        }
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+                             RenderingHints.VALUE_ANTIALIAS_ON);
 
         for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
@@ -235,11 +234,10 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         g2d.setColor(Color.LIGHT_GRAY);
-        //if (isShowAxis()) drawAxis(g2d);
         //if (isShowGrid()) drawGrid(g2d);
 
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+                             RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setStroke(new BasicStroke(3f));
 
         for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
@@ -256,36 +254,6 @@ public class Plane extends JPanel implements MouseListener,
 
         exportingToSVG = false;
         return g2d.getSVGDocument();
-    }
-
-    /**
-     * Returns whether to draw or not the axis.
-     *
-     * @return true if axis should be drawn.
-     */
-    boolean isShowAxis()
-    {
-        return showAxis;
-    }
-
-    /**
-     * Sets the showAxes property.
-     *
-     * @param showAxis the new setting
-     */
-    void setShowAxis(boolean showAxis)
-    {
-        this.showAxis = showAxis;
-        repaint();
-    }
-
-    /**
-     * Toggle showAxis state.
-     */
-    public void toggleShowAxis()
-    {
-        showAxis = !showAxis;
-        repaint();
     }
 
     /**
@@ -607,14 +575,14 @@ public class Plane extends JPanel implements MouseListener,
         double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
 
         Stroke dash = new BasicStroke(0.3f, BasicStroke.CAP_SQUARE,
-                BasicStroke.JOIN_MITER, 10,
-                new float[]{8, 4}, 0);
+                                      BasicStroke.JOIN_MITER, 10,
+                                      new float[]{8, 4}, 0);
 
         g2d.setStroke(dash);
         g2d.setColor(Color.LIGHT_GRAY);
-        for (double i = startX; i <= right; i += gridIntervalX)
-            if (ix(i) != ix(0) || !isShowAxis())
-                g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
+        for (double i = startX; i <= right; i += gridIntervalX) {
+            g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
+        }
 
         int h = iy(0) - iy(gridIntervalY);
         if (h < 50) {
@@ -630,92 +598,11 @@ public class Plane extends JPanel implements MouseListener,
         mod = cY % interval;
         double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
 
-        for (double i = startY; i >= bottom; i -= gridIntervalY)
-            if (iy(i) != iy(0) || !isShowAxis())
-                g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
+        for (double i = startY; i >= bottom; i -= gridIntervalY) {
+            g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
+        }
 
     } // End of drawGrid()
-
-    /**
-     * Draw axes in the plane.
-     *
-     * @param g2d a Graphics2D object
-     */
-    void drawAxis(Graphics2D g2d)
-    {
-        double left = fx(0);
-        double top = fy(0);
-        double right = fx(getWidth() - 1);
-        double bottom = fy(getHeight() - 1);
-
-        int w = ix(gridIntervalX) - ix(0);
-        if (w < 50) {
-            gridIntervalX *= factors[factorIndexX];
-            factorIndexX = (factorIndexX + 1) % factors.length;
-        } else if (w > 150) {
-            factorIndexX = (factorIndexX - 1 + factors.length) % factors.length;
-            gridIntervalX /= factors[factorIndexX];
-        }
-
-        int cX = ix(0);
-        int interval = java.lang.Math.max(1, ix(gridIntervalX) - cX);
-        int mod = cX % interval;
-        double startX = fx(mod) - (fx(mod) % gridIntervalX) - gridIntervalX;
-
-        g2d.setStroke(new BasicStroke(1f));
-        g2d.setColor(Color.BLACK);
-
-        for (double i = startX; i <= right; i += gridIntervalX) {
-            if (ix(i) == ix(0)) {
-                g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
-
-                //Draws arrows of y axis
-                g2d.drawLine(ix(i) - 7, iy(top) + 7, ix(i), iy(top));
-                g2d.drawLine(ix(i) + 7, iy(top) + 7, ix(i), iy(top));
-                g2d.drawString("y", ix(i) - 20, iy(top) + 10);
-
-                g2d.drawLine(ix(i) - 7, iy(bottom) - 7, ix(i), iy(bottom));
-                g2d.drawLine(ix(i) + 7, iy(bottom) - 7, ix(i), iy(bottom));
-                g2d.drawString("-y", ix(i) - 20, iy(bottom) - 10);
-            } else {
-                g2d.drawString("" + setPrecision(i, 5), ix(i) + 5, iy(0) + 15);
-            }
-            g2d.drawLine(ix(i), iy(0), ix(i), iy(0) + 12);
-        }
-
-        int h = iy(0) - iy(gridIntervalY);
-        if (h < 50) {
-            gridIntervalY *= factors[factorIndexY];
-            factorIndexY = (factorIndexY + 1) % factors.length;
-        } else if (w > 150) {
-            factorIndexY = (factorIndexY - 1 + factors.length) % factors.length;
-            gridIntervalY /= factors[factorIndexY];
-        }
-
-        int cY = iy(0);
-        interval = java.lang.Math.max(1, iy(gridIntervalY) - cY);
-        mod = cY % interval;
-        double startY = fy(mod) - (fy(mod) % gridIntervalY) + gridIntervalY;
-
-        for (double i = startY; i >= bottom; i -= gridIntervalY) {
-            if (iy(i) == iy(0)) {
-                g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
-
-                //Draw arrows of x axis
-                g2d.drawLine(ix(left) + 7, iy(i) - 7, ix(left), iy(i));
-                g2d.drawLine(ix(left) + 7, iy(i) + 7, ix(left), iy(i));
-                g2d.drawString("-x", ix(left) + 5, iy(i) - 10);
-
-                g2d.drawLine(ix(right) - 7, iy(i) - 7, ix(right), iy(i));
-                g2d.drawLine(ix(right) - 7, iy(i) + 7, ix(right), iy(i));
-                g2d.drawString("x", ix(right) - 5, iy(i) - 10);
-            } else {
-                g2d.drawString("" + setPrecision(i, 5), ix(0) + 10, iy(i) - 5);
-            }
-            g2d.drawLine(ix(0), iy(i), ix(0) + 12, iy(i));
-        }
-
-    } // End of drawAxis()
 
     boolean isDragPlane()
     {
