@@ -268,6 +268,17 @@ public class Main extends JFrame {
 
         void open()
         {
+            if (plane.hasChanges()) {
+                int op = JOptionPane
+                    .showConfirmDialog(null,
+                            "Do you want to save changes " + 
+                            "before opening a new file?", "Save?",
+                            JOptionPane.YES_NO_OPTION);
+                if (op == JOptionPane.YES_OPTION) {
+                    save();
+                }
+            }
+
             JFileChooser fc = new JFileChooser();
             javax.swing.filechooser.FileFilter f;
             f = new FileNameExtensionFilter("Graph Illustrator", "gi");
@@ -394,12 +405,17 @@ public class Main extends JFrame {
             if (plane.hasChanges()) { 
                 int op = JOptionPane
                     .showConfirmDialog(null, "Save changes?", "Save?",
-                            JOptionPane.YES_NO_OPTION);
+                            JOptionPane.YES_NO_CANCEL_OPTION);
                 if (op == JOptionPane.YES_OPTION) {
                     save();
+                } 
+
+                if (op != JOptionPane.CANCEL_OPTION) {
+                    System.exit(0);
                 }
+            } else {
+                System.exit(0);
             }
-            System.exit(0);
         }
 
         @Override
