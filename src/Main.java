@@ -53,8 +53,8 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(actionHandler);
 
-        plane = new Plane();
         JToolBar toolBar = new JToolBar();
+        plane = new Plane(toolBar);
         openButton = new JButton(getImage("open"));
         openButton.addActionListener(actionHandler);
         openButton.setToolTipText("Open file");

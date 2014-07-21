@@ -98,9 +98,17 @@ public class Plane extends JPanel implements MouseListener,
     private final JTextPane labelEditor;
     private Vertex vertexBeingEdited;
     private Edge edgeBeingEdited;
-    public Plane()
+
+    private JToolBar mainToolBar;
+    private JButton alignLeftButton;
+    private JButton alignRightButton;
+    private JButton alignCenterButton;
+    private int textAlignment;
+    private boolean alignButtonsEnabled;
+    public Plane(JToolBar toolBar)
     {
         setLayout(null);
+        mainToolBar = toolBar;
         graph = new HashMap<String, Vertex>();
 
         addMouseListener(this);
@@ -157,6 +165,15 @@ public class Plane extends JPanel implements MouseListener,
         });
 
         smoothLines = true;
+
+        alignLeftButton = new JButton(getImage("align_left"));
+        alignCenterButton = new JButton(getImage("align_center"));
+        alignRightButton = new JButton(getImage("align_right"));
+        ActionHandler actionHandler = new ActionHandler();
+        alignLeftButton.addActionListener(actionHandler);
+        alignCenterButton.addActionListener(actionHandler);
+        alignRightButton.addActionListener(actionHandler);
+        alignButtonsEnabled = false;
     }
 
     double getRealWidth()
@@ -191,9 +208,11 @@ public class Plane extends JPanel implements MouseListener,
             firstTime = false;
         }
 
-        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.setColor(Color.GRAY);
+        g2d.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
 
         if (isShowGrid()) {
+            g2d.setColor(Color.LIGHT_GRAY);
             drawGrid(g2d);
         }
 
@@ -233,10 +252,8 @@ public class Plane extends JPanel implements MouseListener,
         SVGGraphics2D g2d = new SVGGraphics2D(getWidth(), getHeight());
         exportingToSVG = true;
 
-        //initGraphics();
         if (firstTime) {
             initGraphics();
-            //setScale();
             firstTime = false;
         }
 
@@ -251,12 +268,14 @@ public class Plane extends JPanel implements MouseListener,
 
         for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
-            drawVertex(g2d, u);
-
             for (Map.Entry<String, Edge> v : u.getNeighbors().entrySet()) {
                 Edge e = v.getValue();
                 drawEdge(g2d, e);
             }
+        }
+
+        for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+            drawVertex(g2d, entry.getValue());
         }
 
         currentFont = null;
@@ -708,7 +727,7 @@ public class Plane extends JPanel implements MouseListener,
         int operation = getCurrentAction();
         if (event.getClickCount() == 2 && operation == ACTION_DEFAULT) {
             for (Entry<String, Vertex> entry : graph.entrySet()) {
-                final Vertex vertex = entry.getValue();
+                Vertex vertex = entry.getValue();
                 boolean found = false;
 
                 if (getShapeType() == SHAPE_CIRCLE) {
@@ -1359,6 +1378,22 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         this.currentAction = currentAction;
+
+        if (currentAction == ACTION_EDIT_NEW_NODE_LABEL ||
+            currentAction == ACTION_EDIT_NODE_LABEL) {
+            mainToolBar.add(alignLeftButton);
+            mainToolBar.add(alignCenterButton);
+            mainToolBar.add(alignRightButton);
+            alignButtonsEnabled = true;
+        } else {
+            if (alignButtonsEnabled) {
+                mainToolBar.remove(alignRightButton);
+                mainToolBar.remove(alignCenterButton);
+                mainToolBar.remove(alignLeftButton);
+                mainToolBar.updateUI();
+                alignButtonsEnabled = false;
+            }
+        }
     }
 
     public int getShapeType()
@@ -1564,6 +1599,7 @@ public class Plane extends JPanel implements MouseListener,
             } else {
                 vertexBeingEdited.setLabel(label);
                 vertexBeingEdited.setLabelChanged(true);
+                vertexBeingEdited.setLabelAlignment(textAlignment);
                 graph.put(label, vertexBeingEdited);
                 changes++;
             }
@@ -1579,14 +1615,39 @@ public class Plane extends JPanel implements MouseListener,
     {
         String oldLabel = vertexBeingEdited.getLabel();
         String newLabel = labelEditor.getText().trim();
+        int oldAlignment = vertexBeingEdited.getLabelAlignment();
+        if (oldAlignment != textAlignment) {
+            vertexBeingEdited.setLabelAlignment(textAlignment);
+        }
+
         if (!oldLabel.equals(newLabel) && !newLabel.isEmpty()) {
-            if (graph.containsKey(newLabel)) {
+            Vertex vertex = graph.get(newLabel);
+            if (vertex != null && !vertex.getLabel().equals(oldLabel)) {
                 JOptionPane.showMessageDialog(null,
                         "A node with the same label already exists!",
                         "Error", JOptionPane.ERROR_MESSAGE);
             } else {
+                HashMap<String, Edge> neighbors =
+                                            vertexBeingEdited.getNeighbors();
+                for (Map.Entry<String, Edge> e : neighbors.entrySet()) {
+                    e.getValue().setStart(newLabel);
+                }
+
+                for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+                    Vertex v = entry.getValue();
+                    if (!v.getLabel().equals(oldLabel)) {
+                        Edge edge = v.getNeighbors().remove(oldLabel);
+                        if (edge != null) {
+                            edge.setEnd(newLabel);
+                            v.getNeighbors().put(newLabel, edge);
+                        }
+                    }
+                }
+
+                graph.remove(oldLabel);
                 vertexBeingEdited.setLabel(newLabel);
                 vertexBeingEdited.setLabelChanged(true);
+                graph.put(newLabel, vertexBeingEdited);
                 changes++;
             }
         }
@@ -1637,5 +1698,38 @@ public class Plane extends JPanel implements MouseListener,
                 break;
         }
     }
+
+    private ImageIcon getImage(String name)
+    {
+        return new ImageIcon(getClass().getResource("/" + name + ".png"));
+    }
+
+    private void setTextAlignment(int newAlignment)
+    {
+        String text = labelEditor.getText();
+        StyledDocument document = new DefaultStyledDocument();
+        Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
+        StyleConstants.setAlignment(defaultStyle, newAlignment);
+        labelEditor.setDocument(document);
+        labelEditor.setText(text);
+        textAlignment = newAlignment;
+    }
+
+    private class ActionHandler implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            JButton source = (JButton) e.getSource();
+            if (source == alignLeftButton) {
+                setTextAlignment(StyleConstants.ALIGN_LEFT);
+            } else if (source == alignCenterButton) {
+                setTextAlignment(StyleConstants.ALIGN_CENTER);
+            } else if (source == alignRightButton) {
+                setTextAlignment(StyleConstants.ALIGN_RIGHT);
+            }
+        }
+
+    }
+
 }
 
