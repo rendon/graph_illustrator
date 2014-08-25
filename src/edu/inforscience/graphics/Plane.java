@@ -57,17 +57,20 @@ public class Plane extends JPanel implements MouseListener,
 
     public static final double DEFAULT_REAL_WIDTH   = 50;
     public static final double DEFAULT_REAL_HEIGHT  = 50;
-    public static final int ACTION_DEFAULT              = 1;
-    public static final int ACTION_CREATE_NEW_VERTEX    = 2;
-    public static final int ACTION_DRAW_NEW_EDGE        = 3;
-    public static final int ACTION_ERASE_OBJECT         = 4;
-    public static final int ACTION_EDIT_NODE_LABEL      = 5;
-    public static final int ACTION_EDIT_NEW_NODE_LABEL  = 6;
-    public static final int ACTION_EDIT_EDGE_LABEL      = 7;
-    public static final int ACTION_EDIT_NEW_EDGE_LABEL  = 8;
-    public static final int SHAPE_CIRCLE                = 9;
-    public static final int SHAPE_RECTANGLE             = 10;
-    public static final int SHAPE_NONE                  = 11;
+    public static final int ACTION_DEFAULT              = 0x01;
+    public static final int ACTION_CREATE_NEW_VERTEX    = 0x02;
+    public static final int ACTION_DRAW_NEW_EDGE        = 0x03;
+    public static final int ACTION_ERASE_OBJECT         = 0x04;
+    public static final int ACTION_EDIT_NODE_LABEL      = 0x05;
+    public static final int ACTION_EDIT_NEW_NODE_LABEL  = 0x06;
+    public static final int ACTION_EDIT_EDGE_LABEL      = 0x07;
+    public static final int ACTION_EDIT_NEW_EDGE_LABEL  = 0x08;
+    public static final int ACTION_SELECTION            = 0x09;
+    public static final int ACTION_DRAG_PLANE           = 0x10;
+    public static final int ACTION_DRAG_VERTEX          = 0x11;
+    public static final int SHAPE_CIRCLE                = 0x12;
+    public static final int SHAPE_RECTANGLE             = 0x13;
+    public static final int SHAPE_NONE                  = 0x14;
     private double realWidth;
     private double realHeight;
     private double scaleInX;
@@ -77,8 +80,6 @@ public class Plane extends JPanel implements MouseListener,
 
     private boolean firstTime;
     private boolean showGrid;
-    private boolean dragPlane;
-    private boolean dragVertex;
     private boolean smoothLines;
 
     // True if the dragging really occured, i.e, there was a displacement.
@@ -87,6 +88,8 @@ public class Plane extends JPanel implements MouseListener,
     private boolean directed;
 
     private Point startDrag;
+    private Point startSelection;
+    private Point endSelection;
     private Vertex vertexToDrag;
 
     private Font currentFont;
@@ -149,7 +152,7 @@ public class Plane extends JPanel implements MouseListener,
         pendingActions = false;
         labelEditor = new JTextPane();
         labelEditor.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        //labelEditor.addKeyListener(this);
+        labelEditor.addKeyListener(this);
 
         smoothLines = true;
 
@@ -198,11 +201,7 @@ public class Plane extends JPanel implements MouseListener,
             firstTime = false;
         }
 
-        //g2d.setColor(Color.GRAY);
-        //g2d.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
-
         if (isShowGrid()) {
-            g2d.setColor(Color.LIGHT_GRAY);
             drawGrid(g2d);
         }
 
@@ -230,6 +229,18 @@ public class Plane extends JPanel implements MouseListener,
                 int x2 = (int) getMousePosition().getX();
                 int y2 = (int) getMousePosition().getY();
                 g2d.drawLine(ix(x1), iy(y1), x2, y2);
+            }
+        }
+
+        if (getCurrentAction() == ACTION_SELECTION) {
+            if (startSelection != null && endSelection != null) {
+                int x1 = (int) startSelection.getX();
+                int y1 = (int) startSelection.getY();
+                int x2 = (int) endSelection.getX();
+                int y2 = (int) endSelection.getY();
+                int w = Math.abs(x2 - x1);
+                int h = Math.abs(y2 - y1);
+                g2d.drawRect(Math.min(x1, x2), Math.min(y2, y1), w, h);
             }
         }
 
@@ -596,7 +607,9 @@ public class Plane extends JPanel implements MouseListener,
                                       BasicStroke.JOIN_MITER, 10,
                                       new float[]{8, 4}, 0);
 
+        Stroke tempStroke = g2d.getStroke();
         g2d.setStroke(dash);
+        Color tempColor = g2d.getColor();
         g2d.setColor(Color.LIGHT_GRAY);
         for (double i = startX; i <= right; i += gridIntervalX) {
             g2d.drawLine(ix(i), iy(top), ix(i), iy(bottom));
@@ -620,37 +633,15 @@ public class Plane extends JPanel implements MouseListener,
             g2d.drawLine(ix(left), iy(i), ix(right), iy(i));
         }
 
+        g2d.setColor(tempColor);
+        g2d.setStroke(tempStroke);
     } // End of drawGrid()
-
-    boolean isDragPlane()
-    {
-        return dragPlane;
-    }
-
-    void setDragPlane(boolean dragPlane)
-    {
-        this.dragPlane = dragPlane;
-    }
-
-    boolean isDragVertex()
-    {
-        return dragVertex;
-    }
-
-    void setDragVertex(boolean dragVertex)
-    {
-        this.dragVertex = dragVertex;
-    }
 
     /* MouseListener methods. */
     @Override
     public void mouseReleased(MouseEvent event)
     {
-        setDragPlane(false);
-        vertexToDrag = null;
-        int x = (int) event.getPoint().getX();
-        int y = (int) event.getPoint().getY();
-        Point2D click = new Point2D(fx(x), fy(y));
+        Point2D click = to2D(event.getPoint());
 
         if (getCurrentAction() == ACTION_DRAW_NEW_EDGE && startVertex != null) {
             for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
@@ -696,6 +687,35 @@ public class Plane extends JPanel implements MouseListener,
                     break;
                 }
             }
+        } else if (getCurrentAction() == ACTION_SELECTION && wasDragged) {
+            double x1 = Math.min(startSelection.getX(), endSelection.getX());
+            double x2 = Math.max(startSelection.getX(), endSelection.getX());
+            double y1 = Math.min(startSelection.getY(), endSelection.getY());
+            double y2 = Math.max(startSelection.getY(), endSelection.getY());
+            for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+                Vertex v = entry.getValue();
+                Point[] rect = createVertexRect(v);
+
+                // Test if the current node is inside the selection rectangle
+                boolean inside = true;
+                for (int i = 0; i < 4; i++) {
+                    double x = rect[i].getX();
+                    double y = rect[i].getY();
+                    if (x < x1 || x > x2 || y < y1 || y > y2) {
+                        inside = false;
+                        break;
+                    }
+                }
+
+                if (inside) {
+                    v.setSelected(true);
+                } else {
+                    v.setSelected(false);
+                }
+            }
+            setCurrentAction(ACTION_DEFAULT);
+        } else if (getCurrentAction() == ACTION_DRAG_PLANE) {
+            setCurrentAction(ACTION_DEFAULT);
         } else {
             for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
                 Vertex v = entry.getValue();
@@ -726,12 +746,16 @@ public class Plane extends JPanel implements MouseListener,
                     v.setSelected(false);
                 }
             }
+
+            setCurrentAction(ACTION_DEFAULT);
         }
 
-
-        setDragVertex(false);
-        startVertex = null;
+        vertexToDrag = null;
         wasDragged = false;
+        startSelection = null;
+        endSelection = null;
+
+        startVertex = null;
         repaint();
     }
 
@@ -744,9 +768,7 @@ public class Plane extends JPanel implements MouseListener,
     public void mouseClicked(MouseEvent event)
     {
         this.requestFocus();
-        int cx = (int) event.getPoint().getX();
-        int cy = (int) event.getPoint().getY();
-        Point2D click = new Point2D(fx(cx), fy(cy));
+        Point2D click = to2D(event.getPoint());
         int operation = getCurrentAction();
         if (event.getClickCount() == 2 && operation == ACTION_DEFAULT) {
             for (Entry<String, Vertex> entry : graph.entrySet()) {
@@ -908,18 +930,36 @@ public class Plane extends JPanel implements MouseListener,
     public void mousePressed(MouseEvent event)
     {
         this.requestFocus();
-        int cx = (int) event.getPoint().getX();
-        int cy = (int) event.getPoint().getY();
-        Point2D click = new Point2D(fx(cx), fy(cy));
-        if (event.getButton() == MouseEvent.BUTTON3) {        // Drag plane
-            setDragPlane(true);
-            setDragVertex(false);
-            repaint();
-        } else if (event.getButton() == MouseEvent.BUTTON1) { // Drag vertex
+        Point2D click = to2D(event.getPoint());
+        if (event.getButton() == MouseEvent.BUTTON3) { // Drag plane
+            if (ctrlKeyStatus) {
+                for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+                    Vertex v = entry.getValue();
+                    Point2D center = v.getCenter();
+                    if (getShapeType() == SHAPE_CIRCLE) {
+                        if (center.distanceTo(click) <= v.getRadius()) {
+                            if (v.isSelected()) {
+                                v.setSelected(false);
+                                break;
+                            }
+                        }
+                    } else {
+                        Polygon polygon = createPolygon(v);
+                        if (polygon.contains(event.getPoint())) {
+                            if (v.isSelected()) {
+                                v.setSelected(false);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                setCurrentAction(ACTION_DRAG_PLANE);
+            }
+        } else if (event.getButton() == MouseEvent.BUTTON1) {
             if (getCurrentAction() == ACTION_DEFAULT) {
-                setDragPlane(false);
-                setDragVertex(true);
                 wasDragged = false;
+                vertexToDrag = null;
                 for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
                     Vertex v = entry.getValue();
                     if (getShapeType() == SHAPE_CIRCLE) {
@@ -937,7 +977,13 @@ public class Plane extends JPanel implements MouseListener,
                     }
                 }
 
-                repaint();
+                if (vertexToDrag != null) {
+                    setCurrentAction(ACTION_DRAG_VERTEX);
+                } else {
+                    startSelection = event.getPoint();
+                    endSelection = event.getPoint();
+                    setCurrentAction(ACTION_SELECTION);
+                }
             } else if (getCurrentAction() == ACTION_DRAW_NEW_EDGE ||
                        getCurrentAction() == ACTION_EDIT_NEW_EDGE_LABEL) {
                 if (getCurrentAction() == ACTION_EDIT_NEW_EDGE_LABEL) {
@@ -966,13 +1012,14 @@ public class Plane extends JPanel implements MouseListener,
                     }
                 }
 
-                if (!found)
+                if (!found) {
                     startVertex = null;
+                }
             }
-
         }
 
         startDrag = event.getPoint();
+        repaint();
     }
 
     /* MouseMotionListener methods. */
@@ -982,54 +1029,52 @@ public class Plane extends JPanel implements MouseListener,
      * @param e MouseEvent with coordinates of mouse position
      */
     @Override
-    public void mouseDragged(MouseEvent e)
+    public void mouseDragged(MouseEvent event)
     {
-        int dx = e.getX() - (int) startDrag.getX();
-        int dy = e.getY() - (int) startDrag.getY();
+        int dx = event.getX() - (int) startDrag.getX();
+        int dy = event.getY() - (int) startDrag.getY();
 
         if (dx * dx + dy * dy < 50)
             return;
 
-        startDrag = e.getPoint();
-
-        if (getCurrentAction() == ACTION_DEFAULT) {
-            if (isDragPlane()) {
+        startDrag = event.getPoint();
+        int ca = getCurrentAction();
+        if (ca  == ACTION_DRAG_PLANE) {
                 centerX += dx;
                 centerY += dy;
-            } else if (isDragVertex() && vertexToDrag != null) {
-                if (!ctrlKeyStatus) {
-                    double dx1 = fx(dx) - fx(0);
-                    double dy1 = fy(dy) - fy(0);
-                    double x, y;
-                    if (!vertexToDrag.isSelected()) {
-                        x = vertexToDrag.getCenter().x();
-                        y = vertexToDrag.getCenter().y();
-                        vertexToDrag.setCenter(x + dx1, y + dy1);
-                    }
-
-                    for (Entry<String, Vertex> entry : graph.entrySet()) {
-                        Vertex vertex = entry.getValue();
-                        if (!vertexToDrag.isSelected()) {
-                            vertex.setSelected(false);
-                        } else if (vertex.isSelected()) {
-                            x = vertex.getCenter().x();
-                            y = vertex.getCenter().y();
-                            vertex.setCenter(x + dx1, y + dy1);
-                        }
-                    }
-                    wasDragged = true;
-                    changes++;
+        } else if (ca == ACTION_DRAG_VERTEX) {
+            if (!ctrlKeyStatus) {
+                double dx1 = fx(dx) - fx(0);
+                double dy1 = fy(dy) - fy(0);
+                double x, y;
+                if (!vertexToDrag.isSelected()) {
+                    x = vertexToDrag.getCenter().x();
+                    y = vertexToDrag.getCenter().y();
+                    vertexToDrag.setCenter(x + dx1, y + dy1);
                 }
+
+                for (Entry<String, Vertex> entry : graph.entrySet()) {
+                    Vertex vertex = entry.getValue();
+                    if (!vertexToDrag.isSelected()) {
+                        vertex.setSelected(false);
+                    } else if (vertex.isSelected()) {
+                        x = vertex.getCenter().x();
+                        y = vertex.getCenter().y();
+                        vertex.setCenter(x + dx1, y + dy1);
+                    }
+                }
+                changes++;
             }
+        } else if (ca == ACTION_SELECTION) {
+            endSelection = event.getPoint();
         }
 
+        wasDragged = true;
         repaint();
     }
 
     @Override
-    public void mouseMoved(MouseEvent e)
-    {
-    }
+    public void mouseMoved(MouseEvent event) { }
 
     /* MouseWheelListener methods. */
     /**
@@ -1094,16 +1139,18 @@ public class Plane extends JPanel implements MouseListener,
 
     void drawVertex(Graphics2D g2d, Vertex vertex)
     {
+        Stroke tempStroke = g2d.getStroke();
         g2d.setStroke(new BasicStroke(2f));
-        Color tmp = g2d.getColor();
+        Color tempColor = g2d.getColor();
 
         if (vertex.hasLabelChanged()) {
-            ArrayList<Point2D> rect = createRect(vertex.getCenter(),
-                                                 vertex.getLabel(), true);
-            double d1 = vertex.getCenter().distanceTo(rect.get(0));
-            double d2 = vertex.getCenter().distanceTo(rect.get(1));
-            double d3 = vertex.getCenter().distanceTo(rect.get(2));
-            double d4 = vertex.getCenter().distanceTo(rect.get(3));
+            Point[] rect = createTextRect(vertex.getCenter(),
+                                          vertex.getLabel(), true);
+            Point2D c = vertex.getCenter();
+            double d1 = c.distanceTo(to2D(rect[0]));
+            double d2 = c.distanceTo(to2D(rect[1]));
+            double d3 = c.distanceTo(to2D(rect[2]));
+            double d4 = c.distanceTo(to2D(rect[3]));
             double max = Math.max(Math.max(d1, d2), Math.max(d3, d4));
             vertex.setRadius(Math.max(max, Vertex.BASE_VERTEX_RADIUS));
             vertex.setLabelChanged(false);
@@ -1115,7 +1162,7 @@ public class Plane extends JPanel implements MouseListener,
         int x = ix(vertex.getCenter().x());
         int y = iy(vertex.getCenter().y());
 
-        Font tmpFont = g2d.getFont();
+        Font tempFont = g2d.getFont();
         calculateFontSize(g2d);
         g2d.setFont(currentFont);
         FontMetrics metrics = g2d.getFontMetrics();
@@ -1141,10 +1188,8 @@ public class Plane extends JPanel implements MouseListener,
             g2d.setColor(vertex.getBackgroundColor());
             g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
             if (vertex.isSelected()) {
-                Color tempColor = g2d.getColor();
-                g2d.setColor(new Color(0, 0, 255, 64));
+                g2d.setColor(new Color(0, 0, 255, 32));
                 g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
-                g2d.setColor(tempColor);
             }
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             int fw = fontWidth + 3 * metrics.getDescent();
@@ -1154,11 +1199,20 @@ public class Plane extends JPanel implements MouseListener,
             g2d.setColor(vertex.getBackgroundColor());
             g2d.fillRoundRect(x - fw / 2 + 1, y - fh / 2 + 1, fw - 2, fh - 2,
                               10, 10);
+            if (vertex.isSelected()) {
+                g2d.setColor(new Color(0, 0, 255, 32));
+                g2d.fillRoundRect(x - fw / 2 + 1, y - fh / 2 + 1,
+                                  fw - 2, fh - 2, 10, 10);
+            }
         }
 
         if (getCurrentAction() != ACTION_EDIT_NODE_LABEL ||
             vertex != vertexBeingEdited) {
-            g2d.setColor(Color.BLACK);
+            if (vertex.isSelected()) {
+                g2d.setColor(new Color(0, 0, 255, 128));
+            } else {
+                g2d.setColor(Color.BLACK);
+            }
             y = y - stringHeight / 2 + (fontHeight  * 3 / 4);
             x = x - fontWidth / 2;
             for (int i = 0; i < lines.length; i++) {
@@ -1167,8 +1221,9 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        g2d.setFont(tmpFont);
-        g2d.setColor(tmp);
+        g2d.setFont(tempFont);
+        g2d.setColor(tempColor);
+        g2d.setStroke(tempStroke);
     }
 
     void drawEdge(Graphics2D g2d, Edge edge)
@@ -1557,18 +1612,18 @@ public class Plane extends JPanel implements MouseListener,
     public Polygon createPolygon(Point2D center, String label)
     {
         Polygon polygon = new Polygon();
-        ArrayList<Point2D> rect = createRect(center, label, true);
-        polygon.addPoint(ix(rect.get(0).x()), iy(rect.get(0).y()));
-        polygon.addPoint(ix(rect.get(1).x()), iy(rect.get(1).y()));
-        polygon.addPoint(ix(rect.get(2).x()), iy(rect.get(2).y()));
-        polygon.addPoint(ix(rect.get(3).x()), iy(rect.get(3).y()));
+        Point[] rect = createTextRect(center, label, true);
+        polygon.addPoint((int) rect[0].getX(), (int) rect[0].getY());
+        polygon.addPoint((int) rect[1].getX(), (int) rect[1].getY());
+        polygon.addPoint((int) rect[2].getX(), (int) rect[2].getY());
+        polygon.addPoint((int) rect[3].getX(), (int) rect[3].getY());
 
         return polygon;
     }
 
-    public ArrayList<Point2D> createRect(Point2D center,
-            String label,
-            boolean withPadding)
+    private Point[] createTextRect(Point2D center,
+                                  String label,
+                                  boolean withPadding)
     {
         int x2 = ix(center.x());
         int y2 = iy(center.y());
@@ -1589,15 +1644,33 @@ public class Plane extends JPanel implements MouseListener,
         int fh = (metrics.getAscent() + metrics.getDescent()) * lines.length;
         int pad = withPadding ? 3 * metrics.getDescent() : 0;
 
-        ArrayList<Point2D> rect = new ArrayList<Point2D>();
-        rect.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
-        rect.add(new Point2D(fx(x2 + (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
-        rect.add(new Point2D(fx(x2 + (fw / 2 + pad)), fy(y2 + (fh / 2 + pad))));
-        rect.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 + (fh / 2 + pad))));
-        rect.add(new Point2D(fx(x2 - (fw / 2 + pad)), fy(y2 - (fh / 2 + pad))));
+        Point[] rect = new Point[4];
+        rect[0] = new Point(x2 - (fw / 2 + pad), y2 - (fh / 2 + pad));
+        rect[1] = new Point(x2 + (fw / 2 + pad), y2 - (fh / 2 + pad));
+        rect[2] = new Point(x2 + (fw / 2 + pad), y2 + (fh / 2 + pad));
+        rect[3] = new Point(x2 - (fw / 2 + pad), y2 + (fh / 2 + pad));
 
         return rect;
     }
+
+    private Point[] createVertexRect(Vertex v)
+    {
+        if (getShapeType() == SHAPE_RECTANGLE) {
+            return createTextRect(v.getCenter(), v.getLabel(), true);
+        } else {
+            Point[] rect = new Point[4];
+            int x = ix(v.getCenter().x());
+            int y = iy(v.getCenter().y());
+            int r = ix(v.getRadius()) - ix(0);
+            rect[0] = new Point(x - r, y - r);
+            rect[1] = new Point(x + r, y - r);
+            rect[2] = new Point(x + r, y + r);
+            rect[3] = new Point(x - r, y + r);
+
+            return rect;
+        }
+    }
+
 
     public boolean hasChanges()
     {
@@ -1619,12 +1692,12 @@ public class Plane extends JPanel implements MouseListener,
     {
         // prevent the TextPane to disappear in case of empty string
         text += " ";
-        ArrayList<Point2D> rect = createRect(center, text, false);
+        Point[] rect = createTextRect(center, text, false);
         labelEditor.setFont(currentFont);
-        int a = ix(rect.get(0).x());
-        int b = iy(rect.get(0).y());
-        int w = ix(rect.get(1).x()) - ix(rect.get(0).x());
-        int h = iy(rect.get(3).y()) - iy(rect.get(0).y());
+        int a = (int) rect[0].getX();
+        int b = (int) rect[0].getY();
+        int w = (int) (rect[1].getX() - rect[0].getX());
+        int h = (int) (rect[3].getY() - rect[0].getY());
         labelEditor.setBounds(a, b, w, h);
     }
 
@@ -1801,5 +1874,9 @@ public class Plane extends JPanel implements MouseListener,
     @Override
     public void keyTyped(KeyEvent e) { }
 
+    private Point2D to2D(Point p)
+    {
+        return new Point2D(fx((int) p.getX()), fy((int) p.getY()));
+    }
 }
 

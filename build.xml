@@ -7,7 +7,7 @@
 
     <target name="compile" description="Compile de project">
         <mkdir dir="build" />
-        <javac srcdir="src" destdir="build" includeantruntime="false">
+        <javac srcdir="src" destdir="build" includeantruntime="false" debug="true">
             <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="libs">
