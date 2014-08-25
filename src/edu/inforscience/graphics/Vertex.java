@@ -23,13 +23,14 @@ import java.util.Random;
 
 public class Vertex {
     // Attributes
-    private Color border;           // Vertex's outline color
-    private Color background;       // Vertex's background color
+    private Color borderColor;           // Vertex's outline color
+    private Color backgroundColor;       // Vertex's background color
     private String label;           // Label for vertex
     private int labelAlignment;
     private Point2D center;            // Position in the plane
     private double radius;
     private boolean labelChanged;
+    private boolean selected;
 
     private HashMap<String, Edge> neighbors;
 
@@ -70,26 +71,27 @@ public class Vertex {
         setLabelAlignment(StyleConstants.ALIGN_LEFT);
 
         setLabelChanged(true);
+        setSelected(false);
     }
 
     public void setBorderColor(Color value)
     {
-        border = value;
+        borderColor = value;
     }
 
     public Color getBorderColor()
     {
-        return border;
+        return borderColor;
     }
 
     public void setBackgroundColor(Color value)
     {
-        background = value;
+        backgroundColor = value;
     }
 
     public Color getBackgroundColor()
     {
-        return background;
+        return backgroundColor;
     }
 
     public void setLabel(String value)
@@ -182,6 +184,16 @@ public class Vertex {
     public void setLabelChanged(boolean value)
     {
         labelChanged = value;
+    }
+
+    public boolean isSelected()
+    {
+        return selected;
+    }
+
+    public void setSelected(boolean value)
+    {
+        selected = value;
     }
 }
 

@@ -27,6 +27,7 @@ import java.math.MathContext;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
@@ -35,8 +36,9 @@ import edu.inforscience.util.StringUtils;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
 public class Plane extends JPanel implements MouseListener,
-        MouseWheelListener,
-        MouseMotionListener {
+                                             KeyListener,
+                                             MouseWheelListener,
+                                             MouseMotionListener {
     private HashMap<String, Vertex> graph;
     private HashMap<String, Integer> ids;
     private Vertex startVertex;
@@ -79,10 +81,13 @@ public class Plane extends JPanel implements MouseListener,
     private boolean dragVertex;
     private boolean smoothLines;
 
+    // True if the dragging really occured, i.e, there was a displacement.
+    private boolean wasDragged;
+
     private boolean directed;
 
     private Point startDrag;
-    private String vertexToDragIndex;
+    private Vertex vertexToDrag;
 
     private Font currentFont;
     private int shapeType;
@@ -105,12 +110,16 @@ public class Plane extends JPanel implements MouseListener,
     private JButton alignCenterButton;
     private int textAlignment;
     private boolean alignButtonsEnabled;
+
+    private boolean ctrlKeyStatus;
+
     public Plane(JToolBar toolBar)
     {
         setLayout(null);
         mainToolBar = toolBar;
         graph = new HashMap<String, Vertex>();
 
+        addKeyListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
         addMouseMotionListener(this);
@@ -129,7 +138,7 @@ public class Plane extends JPanel implements MouseListener,
         setShowGrid(false);
         log = System.out;
 
-        vertexToDragIndex = null;
+        vertexToDrag = null;
 
         setDirected(true);
         setCurrentAction(ACTION_DEFAULT);
@@ -140,29 +149,7 @@ public class Plane extends JPanel implements MouseListener,
         pendingActions = false;
         labelEditor = new JTextPane();
         labelEditor.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        labelEditor.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent event) { }
-
-            @Override
-            public void keyReleased(KeyEvent e)  {
-                switch (getCurrentAction()) {
-                    case ACTION_EDIT_NODE_LABEL:
-                    case ACTION_EDIT_NEW_NODE_LABEL:
-                        resizeLabelEditor(vertexBeingEdited.getCenter(),
-                                          labelEditor.getText());
-                        break;
-                    case ACTION_EDIT_EDGE_LABEL:
-                    case ACTION_EDIT_NEW_EDGE_LABEL:
-                        resizeLabelEditor(edgeBeingEdited.getLabelCenter(),
-                                          labelEditor.getText());
-                        break;
-                }
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e) { }
-        });
+        //labelEditor.addKeyListener(this);
 
         smoothLines = true;
 
@@ -174,6 +161,9 @@ public class Plane extends JPanel implements MouseListener,
         alignCenterButton.addActionListener(actionHandler);
         alignRightButton.addActionListener(actionHandler);
         alignButtonsEnabled = false;
+
+        ctrlKeyStatus = false;
+        wasDragged = false;
     }
 
     double getRealWidth()
@@ -208,8 +198,8 @@ public class Plane extends JPanel implements MouseListener,
             firstTime = false;
         }
 
-        g2d.setColor(Color.GRAY);
-        g2d.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+        //g2d.setColor(Color.GRAY);
+        //g2d.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
 
         if (isShowGrid()) {
             g2d.setColor(Color.LIGHT_GRAY);
@@ -657,14 +647,12 @@ public class Plane extends JPanel implements MouseListener,
     public void mouseReleased(MouseEvent event)
     {
         setDragPlane(false);
-        setDragVertex(false);
-        vertexToDragIndex = null;
+        vertexToDrag = null;
+        int x = (int) event.getPoint().getX();
+        int y = (int) event.getPoint().getY();
+        Point2D click = new Point2D(fx(x), fy(y));
 
         if (getCurrentAction() == ACTION_DRAW_NEW_EDGE && startVertex != null) {
-            int x = (int) event.getPoint().getX();
-            int y = (int) event.getPoint().getY();
-            Point2D p = new Point2D(fx(x), fy(y));
-
             for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
                 Vertex vertex = entry.getValue();
                 String id = vertex.getLabel();
@@ -674,7 +662,7 @@ public class Plane extends JPanel implements MouseListener,
 
                 boolean found = false;
                 if (getShapeType() == SHAPE_CIRCLE) {
-                    double distance = p.distanceTo(vertex.getCenter());
+                    double distance = click.distanceTo(vertex.getCenter());
                     if (distance <= entry.getValue().getRadius())
                         found = true;
                 } else {
@@ -708,9 +696,42 @@ public class Plane extends JPanel implements MouseListener,
                     break;
                 }
             }
+        } else {
+            for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
+                Vertex v = entry.getValue();
+                Point2D center = v.getCenter();
+                boolean selected = false;
+                if (getShapeType() == SHAPE_CIRCLE) {
+                    if (center.distanceTo(click) <= v.getRadius()) {
+                        selected = true;
+                    }
+                } else {
+                    Polygon polygon = createPolygon(v);
+                    if (polygon.contains(event.getPoint())) {
+                        selected = true;
+                    }
+                }
+
+                boolean isRightButton = event.getButton() == MouseEvent.BUTTON3;
+                boolean isLeftButton = event.getButton() == MouseEvent.BUTTON1;
+                if (selected) {
+                     //Use mouse's right button to flip selection in multiple
+                     //selection mode (pressing Ctrl).
+                    if (ctrlKeyStatus && isRightButton) {
+                        v.setSelected(false);
+                    } else {
+                        v.setSelected(true);
+                    }
+                } else if (!ctrlKeyStatus && !wasDragged && isLeftButton) {
+                    v.setSelected(false);
+                }
+            }
         }
 
+
+        setDragVertex(false);
         startVertex = null;
+        wasDragged = false;
         repaint();
     }
 
@@ -722,8 +743,10 @@ public class Plane extends JPanel implements MouseListener,
     @Override
     public void mouseClicked(MouseEvent event)
     {
-        Point point = event.getPoint();
-        Point2D p = new Point2D(fx((int) point.getX()), fy((int) point.getY()));
+        this.requestFocus();
+        int cx = (int) event.getPoint().getX();
+        int cy = (int) event.getPoint().getY();
+        Point2D click = new Point2D(fx(cx), fy(cy));
         int operation = getCurrentAction();
         if (event.getClickCount() == 2 && operation == ACTION_DEFAULT) {
             for (Entry<String, Vertex> entry : graph.entrySet()) {
@@ -731,7 +754,7 @@ public class Plane extends JPanel implements MouseListener,
                 boolean found = false;
 
                 if (getShapeType() == SHAPE_CIRCLE) {
-                    double distance = vertex.getCenter().distanceTo(p);
+                    double distance = vertex.getCenter().distanceTo(click);
                     if (distance <= vertex.getRadius())
                         found = true;
                 } else {
@@ -782,8 +805,8 @@ public class Plane extends JPanel implements MouseListener,
                 setCurrentAction(ACTION_CREATE_NEW_VERTEX);
             }
 
-            resizeLabelEditor(p, "");
-            vertexBeingEdited = new Vertex("", p);
+            resizeLabelEditor(click, "");
+            vertexBeingEdited = new Vertex("", click);
             graph.put("", vertexBeingEdited);
             labelEditor.setText("");
             this.add(labelEditor);
@@ -797,7 +820,7 @@ public class Plane extends JPanel implements MouseListener,
                 boolean found = false;
 
                 if (getShapeType() == SHAPE_CIRCLE) {
-                    double distance = vertex.getCenter().distanceTo(p);
+                    double distance = vertex.getCenter().distanceTo(click);
                     if (distance <= vertex.getRadius())
                         found = true;
                 } else {
@@ -843,7 +866,7 @@ public class Plane extends JPanel implements MouseListener,
                     String endId = edge.getValue().getEnd();
                     Point2D a = graph.get(startId).getCenter();
                     Point2D b = graph.get(endId).getCenter();
-                    if (onSegment(a, b, p)) {
+                    if (onSegment(a, b, click)) {
                         int op = JOptionPane
                             .showConfirmDialog(null, "Are you sure?",
                                     "Confirm",
@@ -884,34 +907,37 @@ public class Plane extends JPanel implements MouseListener,
     @Override
     public void mousePressed(MouseEvent event)
     {
+        this.requestFocus();
+        int cx = (int) event.getPoint().getX();
+        int cy = (int) event.getPoint().getY();
+        Point2D click = new Point2D(fx(cx), fy(cy));
         if (event.getButton() == MouseEvent.BUTTON3) {        // Drag plane
             setDragPlane(true);
             setDragVertex(false);
+            repaint();
         } else if (event.getButton() == MouseEvent.BUTTON1) { // Drag vertex
             if (getCurrentAction() == ACTION_DEFAULT) {
-                setDragVertex(true);
                 setDragPlane(false);
-
-                int x = (int) event.getPoint().getX();
-                int y = (int) event.getPoint().getY();
-                Point2D click = new Point2D(fx(x), fy(y));
-
+                setDragVertex(true);
+                wasDragged = false;
                 for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
-                    Vertex vertex = entry.getValue();
+                    Vertex v = entry.getValue();
                     if (getShapeType() == SHAPE_CIRCLE) {
-                        double distance = click.distanceTo(vertex.getCenter());
-                        if (distance <= vertex.getRadius()) {
-                            vertexToDragIndex = entry.getKey();
+                        double distance = click.distanceTo(v.getCenter());
+                        if (distance <= v.getRadius()) {
+                            vertexToDrag = v;
                             break;
                         }
                     } else {
-                        Polygon polygon = createPolygon(vertex);
+                        Polygon polygon = createPolygon(v);
                         if (polygon.contains(event.getPoint())) {
-                            vertexToDragIndex = entry.getKey();
+                            vertexToDrag = v;
                             break;
                         }
                     }
                 }
+
+                repaint();
             } else if (getCurrentAction() == ACTION_DRAW_NEW_EDGE ||
                        getCurrentAction() == ACTION_EDIT_NEW_EDGE_LABEL) {
                 if (getCurrentAction() == ACTION_EDIT_NEW_EDGE_LABEL) {
@@ -919,10 +945,6 @@ public class Plane extends JPanel implements MouseListener,
                     setCurrentAction(ACTION_DRAW_NEW_EDGE);
                     pendingActions = false;
                 }
-
-                int x = (int) event.getPoint().getX();
-                int y = (int) event.getPoint().getY();
-                Point2D click = new Point2D(fx(x), fy(y));
 
                 boolean found = false;
                 for (Map.Entry<String, Vertex> entry : graph.entrySet()) {
@@ -974,18 +996,30 @@ public class Plane extends JPanel implements MouseListener,
             if (isDragPlane()) {
                 centerX += dx;
                 centerY += dy;
-            } else if (isDragVertex() && vertexToDragIndex != null) {
-                Vertex vertex = graph.get(vertexToDragIndex);
-                double x = vertex.getCenter().x();
-                double y = vertex.getCenter().y();
+            } else if (isDragVertex() && vertexToDrag != null) {
+                if (!ctrlKeyStatus) {
+                    double dx1 = fx(dx) - fx(0);
+                    double dy1 = fy(dy) - fy(0);
+                    double x, y;
+                    if (!vertexToDrag.isSelected()) {
+                        x = vertexToDrag.getCenter().x();
+                        y = vertexToDrag.getCenter().y();
+                        vertexToDrag.setCenter(x + dx1, y + dy1);
+                    }
 
-                double dx1 = fx(dx) - fx(0);
-                double dy1 = fy(dy) - fy(0);
-
-                x += dx1;
-                y += dy1;
-                vertex.setCenter(x, y);
-                changes++;
+                    for (Entry<String, Vertex> entry : graph.entrySet()) {
+                        Vertex vertex = entry.getValue();
+                        if (!vertexToDrag.isSelected()) {
+                            vertex.setSelected(false);
+                        } else if (vertex.isSelected()) {
+                            x = vertex.getCenter().x();
+                            y = vertex.getCenter().y();
+                            vertex.setCenter(x + dx1, y + dy1);
+                        }
+                    }
+                    wasDragged = true;
+                    changes++;
+                }
             }
         }
 
@@ -1106,6 +1140,12 @@ public class Plane extends JPanel implements MouseListener,
             g2d.drawOval(x - radius, y - radius, width, height);
             g2d.setColor(vertex.getBackgroundColor());
             g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
+            if (vertex.isSelected()) {
+                Color tempColor = g2d.getColor();
+                g2d.setColor(new Color(0, 0, 255, 64));
+                g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
+                g2d.setColor(tempColor);
+            }
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             int fw = fontWidth + 3 * metrics.getDescent();
             int fh = stringHeight + 3 * metrics.getDescent();
@@ -1704,17 +1744,6 @@ public class Plane extends JPanel implements MouseListener,
         return new ImageIcon(getClass().getResource("/" + name + ".png"));
     }
 
-    private void setTextAlignment(int newAlignment)
-    {
-        String text = labelEditor.getText();
-        StyledDocument document = new DefaultStyledDocument();
-        Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
-        StyleConstants.setAlignment(defaultStyle, newAlignment);
-        labelEditor.setDocument(document);
-        labelEditor.setText(text);
-        textAlignment = newAlignment;
-    }
-
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e)
@@ -1729,7 +1758,48 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
+        private void setTextAlignment(int newAlignment)
+        {
+            String text = labelEditor.getText();
+            StyledDocument document = new DefaultStyledDocument();
+            Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
+            StyleConstants.setAlignment(defaultStyle, newAlignment);
+            labelEditor.setDocument(document);
+            labelEditor.setText(text);
+            textAlignment = newAlignment;
+        }
     }
+
+    @Override
+    public void keyPressed(KeyEvent event)
+    {
+        if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
+            ctrlKeyStatus = true;
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e)  {
+        switch (getCurrentAction()) {
+            case ACTION_EDIT_NODE_LABEL:
+            case ACTION_EDIT_NEW_NODE_LABEL:
+                resizeLabelEditor(vertexBeingEdited.getCenter(),
+                                  labelEditor.getText());
+                break;
+            case ACTION_EDIT_EDGE_LABEL:
+            case ACTION_EDIT_NEW_EDGE_LABEL:
+                resizeLabelEditor(edgeBeingEdited.getLabelCenter(),
+                                  labelEditor.getText());
+                break;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+            ctrlKeyStatus = false;
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) { }
 
 }
 
