@@ -58,8 +58,8 @@ public class Vertex {
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
-        int width = (int) Plane.DEFAULT_REAL_WIDTH / 2 - 10;
-        int height = (int) Plane.DEFAULT_REAL_HEIGHT / 2 - 10;
+        int width = (int) GraphicsContext.DEFAULT_REAL_WIDTH / 2 - 10;
+        int height = (int) GraphicsContext.DEFAULT_REAL_HEIGHT / 2 - 10;
 
         if (getCenter() == null) {
             int a = random.nextInt(width);

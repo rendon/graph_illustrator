@@ -16,12 +16,20 @@
 */
 package edu.inforscience.graphics;
 
+import java.awt.Point;
+
 /**
  * A 2D Point class to use with logical coordinates.
  */
 public class Point2D {
     private double px;
     private double py;
+
+    public Point2D(Point p, GraphicsContext gc)
+    {
+        px = gc.fx((int) p.getX());
+        py = gc.fy((int) p.getY());
+    }
 
     public Point2D(double x, double y)
     {
