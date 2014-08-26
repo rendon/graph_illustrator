@@ -146,7 +146,6 @@ public class Main extends JFrame {
 
         try {
             readGraph(reader);
-            plane.updateUI();
         } catch (IOException ioe) {
             JOptionPane.showMessageDialog(this,
                     "There was  a problem while trying to read " +
@@ -230,8 +229,11 @@ public class Main extends JFrame {
             }
         }
 
+        plane.finishPendingActions();
         plane.setGraph(G);
         plane.setChanges(0);
+        plane.resetZoom();
+        plane.updateUI();
     }
 
     private class ActionHandler implements ActionListener, WindowListener {
