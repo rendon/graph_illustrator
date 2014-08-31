@@ -44,6 +44,19 @@ public class Plane extends JPanel implements MouseListener,
     public static final int SHAPE_RECTANGLE             = 0x13;
     public static final int SHAPE_NONE                  = 0x14;
 
+    public static final Stroke GRID_DASH = new BasicStroke(
+                                                    0.3f,
+                                                    BasicStroke.CAP_SQUARE,
+                                                    BasicStroke.JOIN_MITER, 10,
+                                                    new float[]{8, 4}, 0
+                                                );
+    public static final Stroke SELECTED_DASH = new BasicStroke(
+                                                    0.5f,
+                                                    BasicStroke.CAP_SQUARE,
+                                                    BasicStroke.JOIN_MITER, 10,
+                                                    new float[]{8, 4}, 0
+                                                );
+
     private int currentAction;
 
     private boolean firstTime;
@@ -259,12 +272,8 @@ public class Plane extends JPanel implements MouseListener,
      */
     private void drawGrid(Graphics2D g2d)
     {
-        Stroke dash = new BasicStroke(0.3f, BasicStroke.CAP_SQUARE,
-                                      BasicStroke.JOIN_MITER, 10,
-                                      new float[]{8, 4}, 0);
-
         Stroke tempStroke = g2d.getStroke();
-        g2d.setStroke(dash);
+        g2d.setStroke(GRID_DASH);
         Color tempColor = g2d.getColor();
         g2d.setColor(Color.LIGHT_GRAY);
 
@@ -666,10 +675,11 @@ public class Plane extends JPanel implements MouseListener,
             g2d.drawOval(x - radius, y - radius, width, height);
             g2d.setColor(vertex.getBackgroundColor());
             g2d.fillOval(x + 1 - radius, y + 1 - radius, width - 2, width - 2);
-            if (vertex.isSelected()) {
-                g2d.setColor(new Color(0, 0, 255, 32));
-                g2d.fillOval(x + 1 - radius, y + 1 - radius,
-                             width - 2, width - 2);
+            if (vertex.isSelected() && !exportingToSVG) {
+                g2d.setColor(Color.BLACK);
+                g2d.setStroke(SELECTED_DASH);
+                g2d.drawRect(x - radius - 5, y - radius - 5,
+                             width + 10, width + 10);
             }
         } else if (getShapeType() == SHAPE_RECTANGLE) {
             int fw = fontWidth + 3 * metrics.getDescent();
@@ -679,10 +689,20 @@ public class Plane extends JPanel implements MouseListener,
             g2d.setColor(vertex.getBackgroundColor());
             g2d.fillRoundRect(x - fw / 2 + 1, y - fh / 2 + 1,
                               fw - 2, fh - 2, 10, 10);
-            if (vertex.isSelected()) {
-                g2d.setColor(new Color(0, 0, 255, 32));
-                g2d.fillRoundRect(x - fw / 2 + 1, y - fh / 2 + 1,
-                                  fw - 2, fh - 2, 10, 10);
+            if (vertex.isSelected() && !exportingToSVG) {
+                g2d.setColor(Color.BLACK);
+                g2d.setStroke(SELECTED_DASH);
+                g2d.drawRect(x - fw / 2 + 1 - 5, y - fh / 2 + 1 - 5,
+                             fw - 2 + 10, fh - 2 + 10);
+            }
+        } else { // Only text
+            if (vertex.isSelected() && !exportingToSVG) {
+                int fw = fontWidth + 3 * metrics.getDescent();
+                int fh = stringHeight + 3 * metrics.getDescent();
+                g2d.setColor(Color.BLACK);
+                g2d.setStroke(SELECTED_DASH);
+                g2d.drawRect(x - fw / 2 + 1 - 5, y - fh / 2 + 1 - 5,
+                             fw - 2 + 10, fh - 2 + 10);
             }
         }
 
