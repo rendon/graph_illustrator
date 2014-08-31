@@ -35,6 +35,10 @@ public class Main extends JFrame {
     private final JButton shapeNoneButton;
     private final JButton quitButton;
 
+    private final JButton labelColorButton;
+    private final JButton backgroundColorButton;
+    private final JButton borderColorButton;
+
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
 
@@ -111,6 +115,18 @@ public class Main extends JFrame {
         shapeNoneButton.addActionListener(actionHandler);
         shapeNoneButton.setToolTipText("Remove shape from nodes");
 
+        labelColorButton = new JButton(getImage("labelColor"));
+        labelColorButton.addActionListener(actionHandler);
+        labelColorButton.setToolTipText("Set text color");
+
+        backgroundColorButton = new JButton(getImage("backgroundColor"));
+        backgroundColorButton.addActionListener(actionHandler);
+        backgroundColorButton.setToolTipText("Set background color");
+
+        borderColorButton = new JButton(getImage("borderColor"));
+        borderColorButton.addActionListener(actionHandler);
+        borderColorButton.setToolTipText("Set border color");
+
         toolBar.add(openButton);
         toolBar.add(saveButton);
         toolBar.add(reloadButton);
@@ -126,6 +142,10 @@ public class Main extends JFrame {
         toolBar.add(shapeCircleButton);
         toolBar.add(shapeRectangleButton);
         toolBar.add(shapeNoneButton);
+        toolBar.addSeparator();
+        toolBar.add(labelColorButton);
+        toolBar.add(backgroundColorButton);
+        toolBar.add(borderColorButton);
         toolBar.addSeparator();
         toolBar.add(quitButton);
         add(toolBar, BorderLayout.NORTH);
@@ -280,7 +300,24 @@ public class Main extends JFrame {
                 plane.repaint();
             } else if (source == quitButton) {
                 windowClosing(null);
-            }
+            } else if (source == labelColorButton ||
+                       source == backgroundColorButton ||
+                       source == borderColorButton) {
+                Color color = JColorChooser.showDialog(
+                            Main.this,
+                            "Choose a color",
+                            null
+                        );
+
+                if (source == labelColorButton) {
+                    plane.setLabelColorToSelectedNodes(color);
+                } else if (source == backgroundColorButton) {
+                    plane.setBackgroundColorToSelectedNodes(color);
+                } else if (source == borderColorButton) {
+                    plane.setBorderColorToSelectedNodes(color);
+                }
+           }
+
         }
 
         void open()

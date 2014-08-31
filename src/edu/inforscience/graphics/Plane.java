@@ -104,9 +104,9 @@ public class Plane extends JPanel implements MouseListener,
         labelEditor.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         labelEditor.addKeyListener(this);
 
-        alignLeftButton = new JButton(getImage("align_left"));
-        alignCenterButton = new JButton(getImage("align_center"));
-        alignRightButton = new JButton(getImage("align_right"));
+        alignLeftButton = new JButton(getImage("alignLeft"));
+        alignCenterButton = new JButton(getImage("alignCenter"));
+        alignRightButton = new JButton(getImage("alignRight"));
         ActionHandler actionHandler = new ActionHandler();
         alignLeftButton.addActionListener(actionHandler);
         alignCenterButton.addActionListener(actionHandler);
@@ -688,11 +688,7 @@ public class Plane extends JPanel implements MouseListener,
 
         if (getCurrentAction() != ACTION_EDIT_NODE_LABEL ||
             vertex != vertexBeingEdited) {
-            if (vertex.isSelected()) {
-                g2d.setColor(new Color(0, 0, 255, 128));
-            } else {
-                g2d.setColor(Color.BLACK);
-            }
+            g2d.setColor(vertex.getLabelColor());
             y = y - stringHeight / 2 + (fontHeight  * 3 / 4);
             x = x - fontWidth / 2;
             for (int i = 0; i < lines.length; i++) {
@@ -1129,6 +1125,43 @@ public class Plane extends JPanel implements MouseListener,
     public void resetZoom()
     {
         gc.resetZoom(getWidth(), getHeight());
+    }
+
+    public void setLabelColorToSelectedNodes(Color color)
+    {
+        setColorsToSelectedNodes("labelColor", color);
+    }
+
+    public void setBackgroundColorToSelectedNodes(Color color)
+    {
+        setColorsToSelectedNodes("backgroundColor", color);
+    }
+
+    public void setBorderColorToSelectedNodes(Color color)
+    {
+        setColorsToSelectedNodes("borderColor", color);
+    }
+
+    private void setColorsToSelectedNodes(String key, Color color)
+    {
+        for (Entry<String, Vertex> entry : graph.entrySet()) {
+            Vertex v = entry.getValue();
+            if (v.isSelected()) {
+                if ("labelColor".equals(key)) {
+                    v.setLabelColor(color);
+                }
+
+                if ("backgroundColor".equals(key)) {
+                    v.setBackgroundColor(color);
+                }
+
+                if ("borderColor".equals(key)) {
+                    v.setBorderColor(color);
+                }
+            }
+        }
+
+        repaint();
     }
 
     /* -------------------- Private methods. --------------------*/
