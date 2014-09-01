@@ -631,7 +631,6 @@ public class Plane extends JPanel implements MouseListener,
     private void drawVertex(Graphics2D g2d, Vertex vertex)
     {
         Stroke tempStroke = g2d.getStroke();
-        g2d.setStroke(new BasicStroke(2f));
         Color tempColor = g2d.getColor();
 
         if (vertex.hasLabelChanged()) {
@@ -730,8 +729,8 @@ public class Plane extends JPanel implements MouseListener,
         Vertex start = graph.get(edge.getStart());
         Vertex end = graph.get(edge.getEnd());
 
-        Color tmpColor = g2d.getColor();
-        g2d.setColor(edge.getColor());
+        Color tempColor = g2d.getColor();
+        g2d.setColor(edge.getLabelColor());
         CubicCurve2D curve = new CubicCurve2D.Float();
 
         double startRadius = start.getRadius();
@@ -834,7 +833,7 @@ public class Plane extends JPanel implements MouseListener,
                                gc.ix(ctrlX), gc.iy(ctrlY),
                                gc.ix(pxEnd), gc.iy(pyEnd));
             } else if (getShapeType() == SHAPE_RECTANGLE ||
-                    getShapeType() == SHAPE_NONE) {
+                       getShapeType() == SHAPE_NONE) {
 
                 FontMetrics metrics = g2d.getFontMetrics();
                 Vertex u = graph.get(edge.getStart());
@@ -860,14 +859,16 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        g2d.setStroke(new BasicStroke(edge.getStroke()));
+        g2d.setStroke(new BasicStroke(edge.getStrokeSize()));
+        g2d.setColor(edge.getStrokeColor());
         g2d.draw(curve);
-        g2d.setStroke(new BasicStroke(1));
+        g2d.setStroke(new BasicStroke(1f));
         //Ends draw edge
 
         // Draw label
-        if (getCurrentAction() != ACTION_EDIT_EDGE_LABEL ||
-            edgeBeingEdited != edge) {
+        int ca = getCurrentAction();
+        if (ca != ACTION_EDIT_EDGE_LABEL || edgeBeingEdited != edge) {
+            g2d.setColor(edge.getLabelColor());
             FontMetrics m = g2d.getFontMetrics();
             double width = gc.fx(m.stringWidth(edge.getLabel())) - gc.fx(0);
             double height = gc.fy(m.getAscent() + m.getDescent()) -gc.fy(0);
@@ -932,10 +933,13 @@ public class Plane extends JPanel implements MouseListener,
         transform.rotate((angle - Math.PI * 0.5));
 
         g2d.setTransform(transform);
+        g2d.setStroke(new BasicStroke(edge.getStrokeSize()));
+        g2d.setColor(edge.getStrokeColor());
         g2d.draw(arrowHead);
+        g2d.setStroke(new BasicStroke(1f));
         g2d.setTransform(tmp);
 
-        g2d.setColor(tmpColor);
+        g2d.setColor(tempColor);
     }
 
     public void setGraph(HashMap<Integer, Vertex> graph)

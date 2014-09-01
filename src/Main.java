@@ -12,8 +12,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowEvent;
 import java.io.*;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import javax.swing.filechooser.FileFilter;
+
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 public class Main extends JFrame {
     private final Plane plane;
@@ -165,31 +170,16 @@ public class Main extends JFrame {
         return new ImageIcon(getClass().getResource("/" + name + ".png"));
     }
 
-    void run()
-    {
-        InputStreamReader input = new InputStreamReader(System.in);
-        BufferedReader reader = new BufferedReader(input);
-
-        try {
-            readGraph(reader);
-        } catch (IOException ioe) {
-            JOptionPane.showMessageDialog(this,
-                    "There was  a problem while trying to read " +
-                    "the file.\nCheck if your file contains a "  +
-                    "valid input.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     public static void main(String[] args) throws Exception
     {
         Main test = new Main();
-        // try to read from STDOUT
-        test.run();
     }
 
-    private void readGraph(BufferedReader reader) throws IOException
+    private void readLightGraph() throws IOException, ParseException
     {
+        InputStream fis = new FileInputStream(fileName);
+        InputStreamReader in = new InputStreamReader(fis);
+        BufferedReader reader = new BufferedReader(in);
         HashMap<Integer, Vertex> G = new HashMap<Integer, Vertex>();
         HashMap<String, Integer> keys = new HashMap<String, Integer>();
         Integer nextKey = 1;
@@ -275,7 +265,137 @@ public class Main extends JFrame {
         plane.setGraph(G);
         plane.setChanges(0);
         plane.resetZoom();
-        plane.updateUI();
+        fis.close();
+    }
+
+    private void readGraph() throws Exception, IOException, ParseException
+    {
+        HashMap<Integer, Vertex> graph = new HashMap<Integer, Vertex>();
+        HashSet<Integer> keys = new HashSet<Integer>();
+        HashSet<String> labels = new HashSet<String>();
+        FileReader reader = new FileReader(fileName);
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(reader);
+        JSONObject graphObject = (JSONObject) json.get("Graph");
+        JSONArray vertices = (JSONArray) graphObject.get("Vertices");
+        for (Object obj : vertices) {
+            JSONObject v = (JSONObject) obj;
+            Integer key = Integer.parseInt(v.get("key").toString());
+            String label = (String) v.get("label");
+
+
+            // Mandatory properties
+            if (!v.containsKey("key") || !v.containsKey("label")) {
+                throw new Exception(); // Pending: Define custom exception
+            }
+
+            if (keys.contains(key) || labels.contains(label)) {
+                throw new Exception(); // Repeated node key or node label
+            }
+
+            Vertex vertex = new Vertex(label);
+            vertex.setKey(key);
+
+            // Optional properties
+            Point2D center = null;
+            if (v.containsKey("center")) {
+                JSONObject point = (JSONObject) v.get("center");
+                if (point.containsKey("x") && point.containsKey("y")) {
+                    double x = Double.parseDouble(point.get("x").toString());
+                    double y = Double.parseDouble(point.get("y").toString());
+                    center = new Point2D(x, y);
+                }
+                vertex.setCenter(center);
+            }
+
+            if (v.containsKey("radius")) {
+                Double radius = Double.parseDouble(v.get("radius").toString());
+                System.out.println("Radius = " + radius);
+                vertex.setRadius(radius);
+            }
+
+            String str;
+            if (v.containsKey("labelColor")) {
+                str = (String) v.get("labelColor");
+                Color labelColor = Color.decode(str);
+                vertex.setLabelColor(labelColor);
+            }
+
+            if (v.containsKey("backgroundColor")) {
+                str = (String) v.get("backgroundColor");
+                Color backgroundColor = Color.decode(str);
+                vertex.setBackgroundColor(backgroundColor);
+            }
+
+            if (v.containsKey("borderColor")) {
+                str = (String) v.get("borderColor");
+                Color borderColor = Color.decode(str);
+                vertex.setBorderColor(borderColor);
+            }
+
+            graph.put(key, vertex);
+            keys.add(key);
+            labels.add(label);
+        }
+
+        JSONArray edges = (JSONArray) graphObject.get("Edges");
+        for (Object obj : edges) {
+            JSONObject e = (JSONObject) obj;
+            if (!e.containsKey("start") || !e.containsKey("end")) {
+                throw new Exception(); // Invalid edge
+            }
+
+            Integer start = Integer.parseInt(e.get("start").toString());
+            Integer end = Integer.parseInt(e.get("end").toString());
+
+            if (!keys.contains(start) || !keys.contains(end)) {
+                throw new Exception(); // Invalid edge
+            }
+
+            Edge edge = new Edge(start, end, "");
+
+            if (e.containsKey("label")) {
+                String label = (String) e.get("label");
+                edge.setLabel(label);
+            }
+
+            String str;
+            if (e.containsKey("labelColor")) {
+                str = (String) e.get("labelColor");
+                Color labelColor = Color.decode(str);
+                edge.setLabelColor(labelColor);
+            }
+
+            if (e.containsKey("strokeColor")) {
+                str = (String) e.get("strokeColor");
+                Color strokeColor = Color.decode(str);
+                edge.setStrokeColor(strokeColor);
+            }
+
+            if (e.containsKey("strokeSize")) {
+                str = e.get("strokeSize").toString();
+                Float strokeSize = Float.parseFloat(str);
+                edge.setStrokeSize(strokeSize);
+            }
+
+            // Not supported yet.
+            if (e.containsKey("center")) {
+                JSONObject point = (JSONObject) e.get("center");
+                if (point.containsKey("x") && point.containsKey("y")) {
+                    double x = Double.parseDouble(point.get("x").toString());
+                    double y = Double.parseDouble(point.get("y").toString());
+                    Point2D center = new Point2D(x, y);
+                    edge.setLabelCenter(center);
+                }
+            }
+
+            graph.get(start).getNeighbors().put(end, edge);
+        }
+
+        plane.finishPendingActions();
+        plane.resetZoom();
+        plane.setGraph(graph);
+        plane.setChanges(0);
     }
 
     private class ActionHandler implements ActionListener, WindowListener {
@@ -362,27 +482,39 @@ public class Main extends JFrame {
             }
 
             JFileChooser fc = new JFileChooser();
-            javax.swing.filechooser.FileFilter f;
-            f = new FileNameExtensionFilter("Graph Illustrator", "gi");
-            fc.addChoosableFileFilter(f);
-            fc.setFileFilter(f);
+            FileFilter gi, lgi;
+            gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
+            lgi = new FileNameExtensionFilter("Light Graph Illustrator", "lgi");
+
+            fc.addChoosableFileFilter(gi);
+            fc.addChoosableFileFilter(lgi);
+            fc.setFileFilter(gi);
 
             int code = fc.showOpenDialog(null);
             if (code == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 try {
-                    InputStream fis = new FileInputStream(file);
-                    InputStreamReader in = new InputStreamReader(fis);
-                    BufferedReader reader = new BufferedReader(in);
-                    readGraph(reader);
-                    fis.close();
                     fileName = file.getAbsolutePath();
+                    if (fileName.toLowerCase().endsWith(".gi")) {
+                        readGraph();
+                    } else {
+                        readLightGraph();
+                    }
+                    plane.updateUI();
+                } catch (ParseException pe) {
+                    JOptionPane.showMessageDialog(
+                                    null,
+                                    "Error while parsing file.",
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                                );
                 } catch (IOException ioe) {
-                    JOptionPane.showMessageDialog(null,
-                            "There was  a problem while trying to read "
-                            + "the file.\nCheck if your file contains a "
-                            + "valid input.",
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(
+                                    null,
+                                    "Couldn't open file",
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                                );
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -445,14 +577,26 @@ public class Main extends JFrame {
                 }
 
                 try {
-                    InputStream fis = new FileInputStream(new File(fileName));
-                    InputStreamReader in = new InputStreamReader(fis);
-                    BufferedReader reader = new BufferedReader(in);
-                    readGraph(reader);
-                    fis.close();
+                    if (fileName.toLowerCase().endsWith(".gi")) {
+                        readGraph();
+                    } else {
+                        readLightGraph();
+                    }
                     plane.updateUI();
+                } catch (ParseException pe) {
+                    JOptionPane.showMessageDialog(
+                                    null,
+                                    "Error while parsing file.",
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                                );
                 } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                    JOptionPane.showMessageDialog(
+                                    null,
+                                    "Couldn't open file",
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                                );
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

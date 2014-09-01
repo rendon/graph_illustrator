@@ -6,8 +6,9 @@ public class Edge {
     // Attributes
     private Integer start, end;
     private String label;    // label for edge
-    private Color color;
-    private float stroke;
+    private Color labelColor;
+    private Color strokeColor;
+    private float strokeSize;
     private Point2D labelCenter;
 
     //Constructors
@@ -17,8 +18,9 @@ public class Edge {
         setEnd(end);
 
         setLabel(label);
-        setColor(Color.BLACK);
-        stroke = 1.0f;
+        labelColor = Color.BLACK;
+        strokeColor = Color.BLACK;
+        strokeSize = 1.0f;
     }
 
     public Integer getStart()
@@ -41,34 +43,48 @@ public class Edge {
         this.end = end;
     }
 
-    public String getLabel()
-    {
-        return label;
-    }
-
     public void setLabel(String label)
     {
         this.label = label;
     }
 
-    public Color getColor()
+    public String getLabel()
     {
-        return color;
+        return label;
     }
 
-    public void setColor(Color color)
+    public void setLabelColor(Color color)
     {
-        this.color = color;
+        if (color != null) {
+            labelColor = color;
+        }
     }
 
-    public float getStroke()
+    public Color getLabelColor()
     {
-        return stroke;
+        return labelColor;
     }
 
-    public void setStroke(float stroke)
+    public void setStrokeColor(Color color)
     {
-        this.stroke = stroke;
+        if (color != null) {
+            strokeColor = color;
+        }
+    }
+
+    public Color getStrokeColor()
+    {
+        return strokeColor;
+    }
+
+    public float getStrokeSize()
+    {
+        return strokeSize;
+    }
+
+    public void setStrokeSize(float stroke)
+    {
+        strokeSize = stroke;
     }
 
     public Point2D getLabelCenter()
@@ -76,9 +92,9 @@ public class Edge {
         return labelCenter;
     }
 
-    public void setLabelCenter(Point2D labelCenter)
+    public void setLabelCenter(Point2D center)
     {
-        this.labelCenter = labelCenter;
+        labelCenter = center;
     }
 }
 
