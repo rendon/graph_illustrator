@@ -184,7 +184,9 @@ public class Main extends JFrame {
 
     private void readGraph(BufferedReader reader) throws IOException
     {
-        HashMap<String, Vertex> G = new HashMap<String, Vertex>();
+        HashMap<Integer, Vertex> G = new HashMap<Integer, Vertex>();
+        HashMap<String, Integer> keys = new HashMap<String, Integer>();
+        Integer nextKey = 1;
         String line, u , v, label;
 
         int operation = 0;
@@ -210,17 +212,28 @@ public class Main extends JFrame {
                 u = u.replace("\\n", "\n");
                 v = v.replace("\\n", "\n");
 
-                if (!G.containsKey(u)) {
+                Integer ku = null, kv = null;
+                if (!keys.containsKey(u)) {
+                    ku = nextKey++;
                     Vertex vu = new Vertex(u);
-                    G.put(u, vu);
+                    vu.setKey(ku);
+                    keys.put(u, ku);
+                    G.put(ku, vu);
+                } else {
+                    ku = keys.get(u);
                 }
 
-                if (!G.containsKey(v)) {
+                if (!keys.containsKey(v)) {
+                    kv = nextKey++;
                     Vertex vv = new Vertex(v);
-                    G.put(v, vv);
+                    vv.setKey(kv);
+                    keys.put(v, kv);
+                    G.put(kv, vv);
+                } else {
+                    kv = keys.get(v);
                 }
 
-                G.get(u).addNeighbor(v, label);
+                G.get(ku).addNeighbor(kv, label);
                 //G.get(vid).addNeighbor(uid, label);
             } else if (operation ==  READ_VERTEX_INFO) {
                 String[] tokens = line.split(":|,");
@@ -238,13 +251,16 @@ public class Main extends JFrame {
                         align = StyleConstants.ALIGN_RIGHT;
                 }
 
-                if (G.containsKey(u)) {
-                    G.get(u).setCenter(new Point2D(x, y));
-                    G.get(u).setLabelAlignment(align);
+                if (keys.containsKey(u)) {
+                    G.get(keys.get(u)).setCenter(new Point2D(x, y));
+                    G.get(keys.get(u)).setLabelAlignment(align);
                 } else{
+                    Integer key = nextKey++;
                     Vertex vertex = new Vertex(u, new Point2D(x, y));
+                    vertex.setKey(key);
                     vertex.setLabelAlignment(align);
-                    G.put(u, vertex);
+                    keys.put(u, key);
+                    G.put(key, vertex);
                 }
             }
         }
@@ -497,11 +513,11 @@ public class Main extends JFrame {
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter writer = new BufferedWriter(fw);
 
-        HashMap<String, Vertex> graph = plane.getGraph();
+        HashMap<Integer, Vertex> graph = plane.getGraph();
         writer.write("[EDGES]" + "\n");
-        for (Entry<String, Vertex> entry : graph.entrySet()) {
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
-            for (Entry<String, Edge> e : u.getNeighbors().entrySet()) {
+            for (Entry<Integer, Edge> e : u.getNeighbors().entrySet()) {
                 Edge edge = e.getValue();
                 Vertex v = graph.get(edge.getEnd());
                 writer.write(u.getLabel().replace("\n", "\\n") + ","
@@ -515,7 +531,7 @@ public class Main extends JFrame {
         }
 
         writer.write("[VERTICES]" + "\n");
-        for (Entry<String, Vertex> entry : graph.entrySet()) {
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
             double x = u.getCenter().x();
             double y = u.getCenter().y();

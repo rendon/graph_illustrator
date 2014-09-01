@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class Vertex {
+    public static final double BASE_VERTEX_RADIUS = 1;
+
     // Attributes
+    private Integer key;
     private Color labelColor;        // Vertex's label color
     private Color borderColor;      // Vertex's outline color
     private Color backgroundColor;  // Vertex's background color
@@ -17,9 +20,8 @@ public class Vertex {
     private boolean labelChanged;
     private boolean selected;
 
-    private HashMap<String, Edge> neighbors;
+    private HashMap<Integer, Edge> neighbors;
 
-    public static final double BASE_VERTEX_RADIUS = 1;
 
     // This variable indicates the control point direction of the curve
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
@@ -40,7 +42,7 @@ public class Vertex {
         setRadius(BASE_VERTEX_RADIUS);
 
         edgeDirection = 0;
-        neighbors = new HashMap<String, Edge>();
+        neighbors = new HashMap<Integer, Edge>();
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
@@ -60,9 +62,19 @@ public class Vertex {
         setSelected(false);
     }
 
-    public void setLabel(String value)
+    public void setKey(Integer key)
     {
-        label = value;
+        this.key = key;
+    }
+
+    public Integer getKey()
+    {
+        return key;
+    }
+
+    public void setLabel(String label)
+    {
+        this.label = label;
     }
 
     public String getLabel()
@@ -80,28 +92,28 @@ public class Vertex {
         return edgeDirection;
     }
 
-    public Edge addNeighbor(String neighbor, String label)
+    public Edge addNeighbor(Integer neighborKey, String label)
     {
-        Edge e = new Edge(getLabel(), neighbor, label);
-        if (!neighbors.containsKey(neighbor)) {
-            neighbors.put(neighbor, e);
+        if (!neighbors.containsKey(neighborKey)) {
+            Edge e = new Edge(getKey(), neighborKey, label);
+            neighbors.put(neighborKey, e);
             return e;
         } else {
             return null;
         }
     }
 
-    public void removeNeighbor(String neighbor)
+    public void removeNeighbor(Integer neighborKey)
     {
-        neighbors.remove(neighbor);
+        neighbors.remove(neighborKey);
     }
 
-    public boolean contains(String v)
+    public boolean contains(Integer k)
     {
-        return neighbors.containsKey(v);
+        return neighbors.containsKey(k);
     }
 
-    public HashMap<String, Edge> getNeighbors()
+    public HashMap<Integer, Edge> getNeighbors()
     {
         return neighbors;
     }
@@ -162,10 +174,10 @@ public class Vertex {
         selected = value;
     }
 
-    public void setLabelColor(Color value)
+    public void setLabelColor(Color color)
     {
-        if (value != null) {
-            labelColor = value;
+        if (color != null) {
+            labelColor = color;
         }
     }
 
@@ -174,10 +186,10 @@ public class Vertex {
         return labelColor;
     }
 
-    public void setBorderColor(Color value)
+    public void setBorderColor(Color color)
     {
-        if (value != null) {
-            borderColor = value;
+        if (color != null) {
+            borderColor = color;
         }
     }
 
@@ -186,10 +198,10 @@ public class Vertex {
         return borderColor;
     }
 
-    public void setBackgroundColor(Color value)
+    public void setBackgroundColor(Color color)
     {
-        if (value != null) {
-            backgroundColor = value;
+        if (color != null) {
+            backgroundColor = color;
         }
     }
 
@@ -197,6 +209,5 @@ public class Vertex {
     {
         return backgroundColor;
     }
-
 }
 
