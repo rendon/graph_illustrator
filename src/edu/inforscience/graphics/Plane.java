@@ -1150,22 +1150,22 @@ public class Plane extends JPanel implements MouseListener,
         gc.resetZoom(getWidth(), getHeight());
     }
 
-    public void setLabelColorToSelectedNodes(Color color)
+    public void setLabelColorToSelectedVertices(Color color)
     {
-        setColorsToSelectedNodes("labelColor", color);
+        setColorsToSelectedVertices("labelColor", color);
     }
 
-    public void setBackgroundColorToSelectedNodes(Color color)
+    public void setBackgroundColorToSelectedVertices(Color color)
     {
-        setColorsToSelectedNodes("backgroundColor", color);
+        setColorsToSelectedVertices("backgroundColor", color);
     }
 
-    public void setBorderColorToSelectedNodes(Color color)
+    public void setBorderColorToSelectedVertices(Color color)
     {
-        setColorsToSelectedNodes("borderColor", color);
+        setColorsToSelectedVertices("borderColor", color);
     }
 
-    private void setColorsToSelectedNodes(String key, Color color)
+    private void setColorsToSelectedVertices(String key, Color color)
     {
         for (Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex v = entry.getValue();
@@ -1185,6 +1185,43 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         repaint();
+    }
+
+    public void deleteSelectedVertices()
+    {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
+            Vertex v = entry.getValue();
+            if (v.isSelected()) {
+                list.add(v.getKey());
+            }
+        }
+
+        for (Integer k : list) {
+            deleteVertex(k);
+        }
+
+        repaint();
+    }
+
+    private void deleteVertex(Integer deleteKey)
+    {
+        if (deleteKey == null || !graph.containsKey(deleteKey)) {
+            return;
+        }
+
+        // Disconnect the vertex to delete from the rest of the vertices.
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
+            Vertex v = entry.getValue();
+            boolean test1 = v.getKey().equals(deleteKey);
+            boolean test2 = v.contains(deleteKey);
+            if (!test1 && test2) {
+                v.getNeighbors().remove(deleteKey);
+            }
+        }
+
+        graph.remove(deleteKey);
+        changes++;
     }
 
     /* -------------------- Private methods. --------------------*/
@@ -1364,7 +1401,6 @@ public class Plane extends JPanel implements MouseListener,
                         JOptionPane.ERROR_MESSAGE
                     );
         } else {
-            log.println("u.key = " + u.getKey() + "  v.key = " + v.getKey());
             Edge edge = u.addNeighbor(key, "");
             Point2D a = u.getCenter();
             Point2D b = v.getCenter();
@@ -1464,33 +1500,23 @@ public class Plane extends JPanel implements MouseListener,
             }
 
             if (found) {
-                int op = JOptionPane
-                    .showConfirmDialog(null, "Are you sure?", "Confirm",
-                            JOptionPane.YES_NO_OPTION);
-                if (op == JOptionPane.YES_OPTION) {
-                    deleteKey = vertex.getKey();
-                    break;
-                } else {
-                    return;
-                }
+                deleteKey = vertex.getKey();
+                break;
+                //int op = JOptionPane
+                //    .showConfirmDialog(null, "Are you sure?", "Confirm",
+                //            JOptionPane.YES_NO_OPTION);
+                //if (op == JOptionPane.YES_OPTION) {
+                //    deleteKey = vertex.getKey();
+                //    break;
+                //} else {
+                //    return;
+                //}
             }
         }
 
         if (deleteKey != null) {
-            // Disconnect the vertex to delete from the rest of the vertices.
-            for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                Vertex v = entry.getValue();
-                boolean test1 = v.getKey().equals(deleteKey);
-                boolean test2 = v.contains(deleteKey);
-                if (!test1 && test2) {
-                    v.getNeighbors().remove(deleteKey);
-                }
-            }
-
-            graph.remove(deleteKey);
-            changes++;
+            deleteVertex(deleteKey);
             repaint();
-            return;
         }
 
         // Or delete an edge?
@@ -1502,15 +1528,18 @@ public class Plane extends JPanel implements MouseListener,
                 Point2D a = graph.get(startId).getCenter();
                 Point2D b = graph.get(endId).getCenter();
                 if (GeometryUtils.onSegment(a, b, click, gc)) {
-                    int op = JOptionPane
-                        .showConfirmDialog(null, "Are you sure?",
-                                "Confirm",
-                                JOptionPane.YES_NO_OPTION);
-                    if (op == JOptionPane.YES_OPTION) {
-                        v.getNeighbors().remove(edge.getKey());
-                        changes++;
-                        repaint();
-                    }
+                    //int op = JOptionPane
+                    //    .showConfirmDialog(null, "Are you sure?",
+                    //            "Confirm",
+                    //            JOptionPane.YES_NO_OPTION);
+                    //if (op == JOptionPane.YES_OPTION) {
+                    //    v.getNeighbors().remove(edge.getKey());
+                    //    changes++;
+                    //    repaint();
+                    //}
+                    v.getNeighbors().remove(edge.getKey());
+                    changes++;
+                    repaint();
                     return;
                 }
             }

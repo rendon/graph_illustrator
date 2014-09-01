@@ -27,6 +27,7 @@ public class Main extends JFrame {
     private final JButton newNodeButton;
     private final JButton newEdgeButton;
     private final JButton eraserButton;
+    private final JButton deleteButton;
     private final JButton showGridButton;
     private final JButton smoothLinesButton;
 
@@ -95,6 +96,10 @@ public class Main extends JFrame {
         eraserButton.addActionListener(actionHandler);
         eraserButton.setToolTipText("Eraser");
 
+        deleteButton = new JButton(getImage("delete"));
+        deleteButton.addActionListener(actionHandler);
+        deleteButton.setToolTipText("Delete selected nodes");
+
         showGridButton = new JButton(getImage("show_grid"));
         showGridButton.addActionListener(actionHandler);
         showGridButton.setToolTipText("Toggle grid");
@@ -136,6 +141,7 @@ public class Main extends JFrame {
         toolBar.add(newNodeButton);
         toolBar.add(newEdgeButton);
         toolBar.add(eraserButton);
+        toolBar.add(deleteButton);
         toolBar.add(showGridButton);
         toolBar.add(smoothLinesButton);
         toolBar.addSeparator();
@@ -294,13 +300,18 @@ public class Main extends JFrame {
                 plane.setCursor(c);
                 plane.setCurrentAction(Plane.ACTION_DRAW_NEW_EDGE);
             } else if (source == pointerButton) {
-                plane.setCurrentAction(Plane.ACTION_DEFAULT);
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
                 plane.setCursor(c);
+                plane.setCurrentAction(Plane.ACTION_DEFAULT);
             } else if (source == eraserButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
                 plane.setCurrentAction(Plane.ACTION_ERASE_OBJECT);
+            } else if (source == deleteButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+                plane.setCursor(c);
+                plane.setCurrentAction(Plane.ACTION_DEFAULT);
+                plane.deleteSelectedVertices();
             } else if (source == showGridButton) {
                 plane.toggleShowGrid();
             } else if (source == smoothLinesButton) {
@@ -326,11 +337,11 @@ public class Main extends JFrame {
                         );
 
                 if (source == labelColorButton) {
-                    plane.setLabelColorToSelectedNodes(color);
+                    plane.setLabelColorToSelectedVertices(color);
                 } else if (source == backgroundColorButton) {
-                    plane.setBackgroundColorToSelectedNodes(color);
+                    plane.setBackgroundColorToSelectedVertices(color);
                 } else if (source == borderColorButton) {
-                    plane.setBorderColorToSelectedNodes(color);
+                    plane.setBorderColorToSelectedVertices(color);
                 }
            }
 
@@ -339,11 +350,12 @@ public class Main extends JFrame {
         void open()
         {
             if (plane.hasChanges()) {
-                int op = JOptionPane
-                    .showConfirmDialog(null,
-                            "Do you want to save changes " + 
-                            "before opening a new file?", "Save?",
-                            JOptionPane.YES_NO_OPTION);
+                int op = JOptionPane.showConfirmDialog(
+                                null,
+                                "Do you want to save changes " + 
+                                "before opening a new file?", "Save?",
+                                JOptionPane.YES_NO_OPTION
+                            );
                 if (op == JOptionPane.YES_OPTION) {
                     save();
                 }
@@ -421,6 +433,17 @@ public class Main extends JFrame {
         void reload()
         {
             if (fileName != null) {
+                int op = JOptionPane.showConfirmDialog(
+                                null,
+                                "WARNING: All unsaved changes will be lost! " +
+                                "Are you sure?",
+                                "Confirmation",
+                                JOptionPane.YES_NO_OPTION
+                            );
+                if (op != JOptionPane.YES_OPTION) {
+                    return;
+                }
+
                 try {
                     InputStream fis = new FileInputStream(new File(fileName));
                     InputStreamReader in = new InputStreamReader(fis);
