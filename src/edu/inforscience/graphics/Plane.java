@@ -19,6 +19,7 @@ import edu.inforscience.util.MathUtils;
 import edu.inforscience.util.GeometryUtils;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 
+@SuppressWarnings("serial")
 public class Plane extends JPanel implements MouseListener,
                                              KeyListener,
                                              MouseWheelListener,
@@ -200,7 +201,7 @@ public class Plane extends JPanel implements MouseListener,
     }
 
 
-    public String exportToSVG()
+    public String exportToSvg()
     {
         SVGGraphics2D g2d = new SVGGraphics2D(getWidth(), getHeight());
         exportingToSVG = true;
@@ -942,9 +943,23 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(tempColor);
     }
 
-    public void setGraph(HashMap<Integer, Vertex> graph)
+    public void setGraph(HashMap<Integer, Vertex> graph,
+                         HashMap<String, Integer> keys,
+                         Integer nextKey)
     {
         this.graph = graph;
+        if (keys != null) {
+            this.keys = keys;
+        } else {
+            this.keys.clear();
+        }
+
+        if (nextKey != null) {
+            this.nextKey = nextKey;
+        } else {
+            this.nextKey = 1;
+        }
+
         repaint();
     }
 

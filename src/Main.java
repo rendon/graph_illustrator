@@ -15,11 +15,23 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Map;
+import java.util.Iterator;
 import javax.swing.filechooser.FileFilter;
 
-import org.json.simple.*;
-import org.json.simple.parser.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 
+@SuppressWarnings("serial")
 public class Main extends JFrame {
     private final Plane plane;
     private final PrintStream log;
@@ -175,7 +187,7 @@ public class Main extends JFrame {
         Main test = new Main();
     }
 
-    private void readLightGraph() throws IOException, ParseException
+    private void readLaxGraph() throws IOException
     {
         InputStream fis = new FileInputStream(fileName);
         InputStreamReader in = new InputStreamReader(fis);
@@ -261,75 +273,78 @@ public class Main extends JFrame {
             }
         }
 
-        plane.finishPendingActions();
-        plane.setGraph(G);
-        plane.setChanges(0);
+        plane.setGraph(G, keys, nextKey);
         plane.resetZoom();
         fis.close();
     }
 
-    private void readGraph() throws Exception, IOException, ParseException
+    private void readGraph() throws InvalidFormatException, IOException
     {
         HashMap<Integer, Vertex> graph = new HashMap<Integer, Vertex>();
+        HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
         HashSet<String> labels = new HashSet<String>();
-        FileReader reader = new FileReader(fileName);
-        JSONParser parser = new JSONParser();
-        JSONObject json = (JSONObject) parser.parse(reader);
-        JSONObject graphObject = (JSONObject) json.get("Graph");
-        JSONArray vertices = (JSONArray) graphObject.get("Vertices");
-        for (Object obj : vertices) {
-            JSONObject v = (JSONObject) obj;
-            Integer key = Integer.parseInt(v.get("key").toString());
-            String label = (String) v.get("label");
-
-
+        File input = new File(fileName);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(input);
+        Iterator<JsonNode> V = root.path("Graph").path("Vertices").elements();
+        Integer nextKey = 0;
+        while (V.hasNext()) {
+            JsonNode v = V.next();
             // Mandatory properties
-            if (!v.containsKey("key") || !v.containsKey("label")) {
-                throw new Exception(); // Pending: Define custom exception
+            if (v.get("key") == null || v.get("label") == null) {
+                throw new InvalidFormatException(
+                            "Vertex's key and label are not optional.",
+                            null, null, null
+                        );
             }
 
+            Integer key = v.path("key").asInt();
+            String label = v.path("label").textValue();
+
             if (keys.contains(key) || labels.contains(label)) {
-                throw new Exception(); // Repeated node key or node label
+                // Repeated node key or node label
+                throw new InvalidFormatException(
+                            "Repeated vertex key and/or label.",
+                            null, null, null
+                        );
             }
 
             Vertex vertex = new Vertex(label);
             vertex.setKey(key);
+            labelKeys.put(label, key);
+            nextKey = Math.max(nextKey, key);
 
             // Optional properties
-            Point2D center = null;
-            if (v.containsKey("center")) {
-                JSONObject point = (JSONObject) v.get("center");
-                if (point.containsKey("x") && point.containsKey("y")) {
-                    double x = Double.parseDouble(point.get("x").toString());
-                    double y = Double.parseDouble(point.get("y").toString());
-                    center = new Point2D(x, y);
+            if (v.get("center") != null) {
+                JsonNode point = v.get("center");
+                if (point.get("x") != null && point.get("y") != null) {
+                    double x = point.get("x").asDouble();
+                    double y = point.get("y").asDouble();
+                    vertex.setCenter(new Point2D(x, y));
                 }
-                vertex.setCenter(center);
             }
 
-            if (v.containsKey("radius")) {
-                Double radius = Double.parseDouble(v.get("radius").toString());
-                System.out.println("Radius = " + radius);
+            if (v.get("radius") != null) {
+                Double radius = v.get("radius").asDouble();
                 vertex.setRadius(radius);
             }
 
-            String str;
-            if (v.containsKey("labelColor")) {
-                str = (String) v.get("labelColor");
-                Color labelColor = Color.decode(str);
+            if (v.get("labelColor") != null) {
+                String hex = v.get("labelColor").textValue();
+                Color labelColor = decode(hex);
                 vertex.setLabelColor(labelColor);
             }
 
-            if (v.containsKey("backgroundColor")) {
-                str = (String) v.get("backgroundColor");
-                Color backgroundColor = Color.decode(str);
+            if (v.get("backgroundColor") != null) {
+                String hex = v.get("backgroundColor").textValue();
+                Color backgroundColor = decode(hex);
                 vertex.setBackgroundColor(backgroundColor);
             }
 
-            if (v.containsKey("borderColor")) {
-                str = (String) v.get("borderColor");
-                Color borderColor = Color.decode(str);
+            if (v.get("borderColor") != null) {
+                String hex = v.get("borderColor").textValue();
+                Color borderColor = decode(hex);
                 vertex.setBorderColor(borderColor);
             }
 
@@ -338,54 +353,58 @@ public class Main extends JFrame {
             labels.add(label);
         }
 
-        JSONArray edges = (JSONArray) graphObject.get("Edges");
-        for (Object obj : edges) {
-            JSONObject e = (JSONObject) obj;
-            if (!e.containsKey("start") || !e.containsKey("end")) {
-                throw new Exception(); // Invalid edge
+        Iterator<JsonNode> E = root.get("Graph").get("Edges").elements();
+        while (E.hasNext()) {
+            JsonNode e = E.next();
+            if (e.get("start") == null || e.get("end") == null) {
+                throw new InvalidFormatException(
+                            "Edge's start and end are not optional.",
+                            null, null, null
+                        );
             }
 
-            Integer start = Integer.parseInt(e.get("start").toString());
-            Integer end = Integer.parseInt(e.get("end").toString());
+            Integer start = e.get("start").asInt();
+            Integer end = e.get("end").asInt();
 
             if (!keys.contains(start) || !keys.contains(end)) {
-                throw new Exception(); // Invalid edge
+                throw new InvalidFormatException(
+                            "Edge's start and end must exists in the graph.",
+                            null, null, null
+                        );
             }
 
             Edge edge = new Edge(start, end, "");
 
-            if (e.containsKey("label")) {
-                String label = (String) e.get("label");
+            if (e.get("label") != null) {
+                String label = e.get("label").textValue();
                 edge.setLabel(label);
             }
 
-            String str;
-            if (e.containsKey("labelColor")) {
-                str = (String) e.get("labelColor");
-                Color labelColor = Color.decode(str);
+            if (e.get("labelColor") != null) {
+                String hex = e.get("labelColor").textValue();
+                Color labelColor = decode(hex);
                 edge.setLabelColor(labelColor);
             }
 
-            if (e.containsKey("strokeColor")) {
-                str = (String) e.get("strokeColor");
-                Color strokeColor = Color.decode(str);
+            if (e.get("strokeColor") != null) {
+                String hex = e.get("strokeColor").textValue();
+                Color strokeColor = decode(hex);
                 edge.setStrokeColor(strokeColor);
             }
 
-            if (e.containsKey("strokeSize")) {
-                str = e.get("strokeSize").toString();
+            if (e.get("strokeSize") != null) {
+                String str = e.get("strokeSize").toString();
                 Float strokeSize = Float.parseFloat(str);
                 edge.setStrokeSize(strokeSize);
             }
 
             // Not supported yet.
-            if (e.containsKey("center")) {
-                JSONObject point = (JSONObject) e.get("center");
-                if (point.containsKey("x") && point.containsKey("y")) {
-                    double x = Double.parseDouble(point.get("x").toString());
-                    double y = Double.parseDouble(point.get("y").toString());
-                    Point2D center = new Point2D(x, y);
-                    edge.setLabelCenter(center);
+            if (e.get("center") != null) {
+                JsonNode point = e.get("center");
+                if (point.get("x") != null && point.get("y") != null) {
+                    double x = point.get("x").asDouble();
+                    double y = point.get("y").asDouble();
+                    edge.setLabelCenter(new Point2D(x, y));
                 }
             }
 
@@ -394,8 +413,8 @@ public class Main extends JFrame {
 
         plane.finishPendingActions();
         plane.resetZoom();
-        plane.setGraph(graph);
-        plane.setChanges(0);
+        nextKey++;
+        plane.setGraph(graph, labelKeys, nextKey);
     }
 
     private class ActionHandler implements ActionListener, WindowListener {
@@ -403,12 +422,15 @@ public class Main extends JFrame {
         public void actionPerformed(ActionEvent e)
         {
             Object source = e.getSource();
+            plane.finishPendingActions();
             if (source == openButton) {
                 open();
             } else if (source == saveButton) {
                 save();
+                plane.setChanges(0);
             } else if (source == reloadButton) {
                 reload();
+                plane.setChanges(0);
             } else if (source == exportSvgButton) {
                 exportToSvg();
             } else if (source == newNodeButton) {
@@ -484,7 +506,7 @@ public class Main extends JFrame {
             JFileChooser fc = new JFileChooser();
             FileFilter gi, lgi;
             gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
-            lgi = new FileNameExtensionFilter("Light Graph Illustrator", "lgi");
+            lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
 
             fc.addChoosableFileFilter(gi);
             fc.addChoosableFileFilter(lgi);
@@ -498,67 +520,116 @@ public class Main extends JFrame {
                     if (fileName.toLowerCase().endsWith(".gi")) {
                         readGraph();
                     } else {
-                        readLightGraph();
+                        readLaxGraph();
                     }
                     plane.updateUI();
-                } catch (ParseException pe) {
+                } catch (InvalidFormatException ife) {
                     JOptionPane.showMessageDialog(
                                     null,
-                                    "Error while parsing file.",
+                                    "Parse error: " + ife.getMessage(),
                                     "Error", JOptionPane.ERROR_MESSAGE
                                 );
                 } catch (IOException ioe) {
+                    //ioe.printStackTrace();
                     JOptionPane.showMessageDialog(
                                     null,
                                     "Couldn't open file",
                                     "Error", JOptionPane.ERROR_MESSAGE
                                 );
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
 
         }
 
-        void save()
+        private String chooseSaveFile()
         {
-            if (fileName == null) {
-                JFileChooser fc = new JFileChooser();
-                javax.swing.filechooser.FileFilter f;
-                f = new FileNameExtensionFilter("Graph Illustrator", "gi");
-                fc.addChoosableFileFilter(f);
-                fc.setFileFilter(f);
+            JFileChooser fc = new JFileChooser();
+            javax.swing.filechooser.FileFilter gi, lgi;
+            gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
+            lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
+            fc.addChoosableFileFilter(gi);
+            fc.addChoosableFileFilter(lgi);
+            fc.setFileFilter(gi);
 
-                int code = fc.showSaveDialog(null);
-                if (code == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    fileName = file.getAbsolutePath();
-                    if (!fileName.endsWith(".gi"))
-                        fileName += ".gi";
+            int code = fc.showSaveDialog(null);
+            String fn = null;
+            if (code == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                fn = file.getAbsolutePath();
+                if (!fn.endsWith(".gi") && !fn.endsWith(".lgi")) {
+                    fn += ".gi";
+                }
 
-                    file = new File(fileName);
-                    try {
-                        if (file.exists()) {
-                            int op = JOptionPane.showConfirmDialog(null,
-                                    "File already exists. Override?",
-                                    "Override?",
-                                    JOptionPane.YES_NO_OPTION);
-                            if (op == JOptionPane.YES_OPTION)
-                                saveToFile();
+                file = new File(fn);
+                if (file.exists()) {
+                    int op = JOptionPane.showConfirmDialog(
+                                null,
+                                "File already exists. Override?",
+                                "Override?",
+                                JOptionPane.YES_NO_OPTION
+                            );
 
-                        } else {
-                            saveToFile();
-                        }
-                    } catch (IOException ioe) {
-                        ioe.printStackTrace();
+                    if (op != JOptionPane.YES_OPTION) {
+                        return null;
                     }
                 }
-            } else {
-                try {
-                    saveToFile();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
+            }
+
+            return fn;
+        }
+
+        private void save()
+        {
+            if (fileName == null) {
+                fileName = chooseSaveFile();
+                if (fileName == null) {
+                    return;
                 }
+            }
+
+            if (fileName.toLowerCase().endsWith(".lgi")) {
+                int op = JOptionPane.showConfirmDialog(
+                            null,
+                            "Your current format is .lgi.\nWould you like" +
+                            " to change to .gi (recommended)?",
+                            "Change format?",
+                            JOptionPane.YES_NO_OPTION
+                        );
+
+                if (op == JOptionPane.YES_OPTION) {
+                    String tempFileName = fileName;
+                    fileName = fileName.replaceFirst(".lgi$", ".gi");
+                    File file = new File(fileName);
+                    if (file.exists()) {
+                        op = JOptionPane.showConfirmDialog(
+                                        null,
+                                        "File already exists. Override?",
+                                        "Override?",
+                                        JOptionPane.YES_NO_OPTION
+                                    );
+
+                        if (op != JOptionPane.YES_OPTION) {
+                            fileName = tempFileName;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            try {
+                if (fileName.toLowerCase().endsWith(".gi")) {
+                    saveToGi();
+                } else if (fileName.toLowerCase().endsWith(".lgi")) {
+                    saveToLgi();
+                }
+            } catch (JsonGenerationException ge) {
+                JOptionPane.showMessageDialog(
+                                null,
+                                "Generation error: " + ge.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
             }
         }
 
@@ -580,13 +651,13 @@ public class Main extends JFrame {
                     if (fileName.toLowerCase().endsWith(".gi")) {
                         readGraph();
                     } else {
-                        readLightGraph();
+                        readLaxGraph();
                     }
                     plane.updateUI();
-                } catch (ParseException pe) {
+                } catch (InvalidFormatException ife) {
                     JOptionPane.showMessageDialog(
                                     null,
-                                    "Error while parsing file.",
+                                    "Parse error: " + ife.getMessage(),
                                     "Error", JOptionPane.ERROR_MESSAGE
                                 );
                 } catch (IOException ioe) {
@@ -595,8 +666,6 @@ public class Main extends JFrame {
                                     "Couldn't open file",
                                     "Error", JOptionPane.ERROR_MESSAGE
                                 );
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -625,10 +694,10 @@ public class Main extends JFrame {
                                 "Override?",
                                 JOptionPane.YES_NO_OPTION);
                         if (op == JOptionPane.YES_OPTION)
-                            saveToSVG(file);
+                            saveToSvg(file);
 
                     } else {
-                        saveToSVG(file);
+                        saveToSvg(file);
                     }
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
@@ -674,13 +743,80 @@ public class Main extends JFrame {
         public void windowOpened(WindowEvent e) { }
     }
 
-    private void saveToFile() throws IOException
+    private void saveToGi() throws JsonGenerationException, IOException
+    {
+        Map<Integer, Vertex> graph = plane.getGraph();
+        JsonFactory factory = new JsonFactory();
+        File output = new File(fileName);
+        JsonGenerator generator = factory.createGenerator(
+                    output,
+                    JsonEncoding.UTF8
+                );
+        generator.setPrettyPrinter(new DefaultPrettyPrinter());
+        generator.writeStartObject();
+        generator.writeFieldName("Graph");
+        generator.writeStartObject();
+        generator.writeFieldName("Vertices");
+        generator.writeStartArray();
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
+            Vertex v = entry.getValue();
+            String hexLabelColor = encode(v.getLabelColor());
+            String hexBorderColor = encode(v.getBorderColor());
+            String hexBackgroundColor = encode(v.getBackgroundColor());
+            generator.writeStartObject();
+            generator.writeNumberField("key", v.getKey());
+            generator.writeStringField("label", v.getLabel());
+            generator.writeNumberField("radius", v.getRadius());
+            generator.writeStringField("labelColor", hexLabelColor);
+            generator.writeStringField("backgroundColor", hexBackgroundColor);
+            generator.writeStringField("borderColor", hexBorderColor);
+
+            generator.writeFieldName("center");
+            generator.writeStartObject();
+            generator.writeNumberField("x", v.getCenter().x());
+            generator.writeNumberField("y", v.getCenter().y());
+            generator.writeEndObject();
+
+            generator.writeEndObject();
+        }
+        generator.writeEndArray();
+
+        generator.writeFieldName("Edges");
+        generator.writeStartArray();
+        for (Entry<Integer, Vertex> vertexEntry : graph.entrySet()) {
+            Vertex v = vertexEntry.getValue();
+            for (Entry<Integer, Edge>  edgeEntry: v.getNeighbors().entrySet()) {
+                generator.writeStartObject();
+                Edge e = edgeEntry.getValue();
+                String hexLabelColor = encode(e.getLabelColor());
+                String hexStrokeColor = encode(e.getStrokeColor());
+                generator.writeNumberField("start", e.getStart());
+                generator.writeNumberField("end", e.getEnd());
+                generator.writeStringField("label", e.getLabel());
+                generator.writeStringField("labelColor", hexLabelColor);
+                generator.writeStringField("strokeColor", hexStrokeColor);
+                generator.writeNumberField("strokeSize", e.getStrokeSize());
+
+                generator.writeFieldName("center");
+                generator.writeStartObject();
+                generator.writeNumberField("x", e.getLabelCenter().x());
+                generator.writeNumberField("y", e.getLabelCenter().y());
+                generator.writeEndObject();
+
+                generator.writeEndObject();
+            }
+        }
+
+        generator.close();
+    }
+
+    private void saveToLgi() throws IOException
     {
         File file = new File(fileName);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter writer = new BufferedWriter(fw);
 
-        HashMap<Integer, Vertex> graph = plane.getGraph();
+        Map<Integer, Vertex> graph = plane.getGraph();
         writer.write("[EDGES]" + "\n");
         for (Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex u = entry.getValue();
@@ -714,14 +850,39 @@ public class Main extends JFrame {
         }
 
         writer.close();
-        plane.setChanges(0);
     }
 
-    private void saveToSVG(File file) throws IOException
+    private void saveToSvg(File file) throws IOException
     {
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(plane.exportToSVG());
+        bw.write(plane.exportToSvg());
         bw.close();
+    }
+
+    private Color decode(String hex)
+    {
+        if (!hex.matches("0x[0-9a-fA-F]{6,6}([0-9a-fA-F]{2,2})?")) {
+            return null;
+        }
+
+        int r = Integer.parseInt("" + hex.charAt(2) + hex.charAt(3), 16);
+        int g = Integer.parseInt("" + hex.charAt(4) + hex.charAt(5), 16);
+        int b = Integer.parseInt("" + hex.charAt(6) + hex.charAt(7), 16);
+        int a = 255;
+        if (hex.length() == 10) {
+            a = Integer.parseInt("" + hex.charAt(8) + hex.charAt(9), 16);
+        }
+
+        return new Color(r, g, b, a);
+    }
+
+    private String encode(Color color)
+    {
+        int r = color.getRed();
+        int g = color.getGreen();
+        int b = color.getBlue();
+        int a = color.getAlpha();
+        return String.format("0x%02x%02x%02x%02x", r, g, b, a);
     }
 }

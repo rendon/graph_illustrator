@@ -8,6 +8,7 @@
     <target name="compile" description="Compile de project">
         <mkdir dir="build" />
         <javac srcdir="src" destdir="build" includeantruntime="false" debug="true">
+            <compilerarg value="-Xlint" />
             <classpath>
                 <pathelement path="${classpath}" />
                 <fileset dir="libs">
