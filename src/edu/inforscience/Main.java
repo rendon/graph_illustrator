@@ -1,3 +1,4 @@
+package edu.inforscience;
 import edu.inforscience.graphics.*;
 import edu.inforscience.graphics.Point2D;
 import edu.inforscience.graphics.Edge;
@@ -62,6 +63,7 @@ public class Main extends JFrame {
     private final JButton zoomInButton;
     private final JButton zoomOutButton;
     private final JButton zoomResetButton;
+    private final JToolBar mainToolBar;
 
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
@@ -81,8 +83,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(actionHandler);
 
-        JToolBar toolBar = new JToolBar();
-        plane = new Plane(toolBar);
+        plane = new Plane(this);
         openButton = new JButton(getImage("open"));
         openButton.addActionListener(actionHandler);
         openButton.setToolTipText("Open file");
@@ -171,37 +172,39 @@ public class Main extends JFrame {
         zoomResetButton.addActionListener(actionHandler);
         zoomResetButton.setToolTipText("Zoom reset");
 
-        toolBar.add(openButton);
-        toolBar.add(saveButton);
-        toolBar.add(saveAsButton);
-        toolBar.add(reloadButton);
-        toolBar.add(exportSvgButton);
-        toolBar.addSeparator();
-        toolBar.add(pointerButton);
-        toolBar.add(newNodeButton);
-        toolBar.add(newEdgeButton);
-        toolBar.add(eraserButton);
-        toolBar.add(deleteButton);
-        toolBar.addSeparator();
-        toolBar.add(shapeCircleButton);
-        toolBar.add(shapeRectangleButton);
-        toolBar.add(shapeNoneButton);
-        toolBar.add(showGridButton);
-        toolBar.add(smoothLinesButton);
-        toolBar.addSeparator();
-        toolBar.add(labelColorButton);
-        toolBar.add(backgroundColorButton);
-        toolBar.add(borderColorButton);
-        toolBar.addSeparator();
-        toolBar.add(zoomInButton);
-        toolBar.add(zoomOutButton);
-        toolBar.add(zoomResetButton);
-        toolBar.addSeparator();
-        toolBar.add(quitButton);
-        add(toolBar, BorderLayout.NORTH);
+        mainToolBar = new JToolBar();
+        mainToolBar.add(openButton);
+        mainToolBar.add(saveButton);
+        mainToolBar.add(saveAsButton);
+        mainToolBar.add(reloadButton);
+        mainToolBar.add(exportSvgButton);
+        mainToolBar.addSeparator();
+        mainToolBar.add(pointerButton);
+        mainToolBar.add(newNodeButton);
+        mainToolBar.add(newEdgeButton);
+        mainToolBar.add(eraserButton);
+        mainToolBar.add(deleteButton);
+        mainToolBar.addSeparator();
+        mainToolBar.add(shapeCircleButton);
+        mainToolBar.add(shapeRectangleButton);
+        mainToolBar.add(shapeNoneButton);
+        mainToolBar.add(showGridButton);
+        mainToolBar.add(smoothLinesButton);
+        mainToolBar.addSeparator();
+        mainToolBar.add(labelColorButton);
+        mainToolBar.add(backgroundColorButton);
+        mainToolBar.add(borderColorButton);
+        mainToolBar.addSeparator();
+        mainToolBar.add(zoomInButton);
+        mainToolBar.add(zoomOutButton);
+        mainToolBar.add(zoomResetButton);
+        mainToolBar.addSeparator();
+        mainToolBar.add(quitButton);
+        add(mainToolBar, BorderLayout.NORTH);
         add(plane, BorderLayout.CENTER);
 
         revalidate();
+        plane.requestFocus();
     }
 
     private ImageIcon getImage(String name)
@@ -535,239 +538,9 @@ public class Main extends JFrame {
                plane.resetZoom();
            }
 
+           plane.requestFocus();
         }
 
-        private boolean open()
-        {
-            if (plane.hasChanges()) {
-                int op = JOptionPane.showConfirmDialog(
-                                null,
-                                "Do you want to save changes " + 
-                                "before opening a new file?", "Save?",
-                                JOptionPane.YES_NO_OPTION
-                            );
-                if (op == JOptionPane.YES_OPTION) {
-                    save();
-                }
-            }
-
-            JFileChooser fc = new JFileChooser();
-            FileFilter gi, lgi;
-            gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
-            lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
-
-            fc.addChoosableFileFilter(gi);
-            fc.addChoosableFileFilter(lgi);
-            fc.setFileFilter(gi);
-
-            int code = fc.showOpenDialog(null);
-            if (code == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                try {
-                    String tempFilePath = filePath;
-                    filePath = file.getAbsolutePath();
-                    if (filePath.toLowerCase().endsWith(".gi")) {
-                        readGraph();
-                    } else if (filePath.toLowerCase().endsWith(".lgi")) {
-                        readLaxGraph();
-                    } else {
-                        JOptionPane.showMessageDialog(
-                                        null, "Uknown file type", "Error",
-                                        JOptionPane.ERROR_MESSAGE
-                                    );
-                        filePath = tempFilePath;
-                        return false;
-                    }
-
-                    plane.updateUI();
-                    return true;
-                } catch (InvalidFormatException ife) {
-                    JOptionPane.showMessageDialog(
-                                    null,
-                                    "Parse error: " + ife.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE
-                                );
-                } catch (IOException ioe) {
-                    //ioe.printStackTrace();
-                    JOptionPane.showMessageDialog(
-                                    null, "Couldn't open file", "Error",
-                                    JOptionPane.ERROR_MESSAGE
-                                );
-                }
-            }
-
-            return false;
-        }
-
-        private String chooseSaveFile()
-        {
-            JFileChooser fc = new JFileChooser();
-            FileFilter gi, lgi;
-            gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
-            lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
-            fc.addChoosableFileFilter(gi);
-            fc.addChoosableFileFilter(lgi);
-            fc.setFileFilter(gi);
-
-            int code = fc.showSaveDialog(null);
-            String fn = null;
-            if (code == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                fn = file.getAbsolutePath();
-
-                FileFilter selectedFilter = fc.getFileFilter();
-
-                if (selectedFilter == gi) {
-                    if (!fn.toLowerCase().endsWith(".gi")) {
-                        fn += ".gi";
-                    }
-                }
-
-                if (selectedFilter == lgi) {
-                    if (!fn.toLowerCase().endsWith(".lgi")) {
-                        fn += ".lgi";
-                    }
-                }
-
-                file = new File(fn);
-                if (file.exists()) {
-                    int op = JOptionPane.showConfirmDialog(
-                                null,
-                                "File already exists. Override?",
-                                "Override?",
-                                JOptionPane.YES_NO_OPTION
-                            );
-
-                    if (op != JOptionPane.YES_OPTION) {
-                        return null;
-                    }
-                }
-            }
-
-            return fn;
-        }
-
-        private boolean save()
-        {
-            if (filePath == null) {
-                filePath = chooseSaveFile();
-                if (filePath == null) {
-                    return false;
-                }
-            }
-
-            try {
-                if (filePath.toLowerCase().endsWith(".gi")) {
-                    saveToGi();
-                } else if (filePath.toLowerCase().endsWith(".lgi")) {
-                    saveToLgi();
-                }
-                return true;
-            } catch (JsonGenerationException ge) {
-                JOptionPane.showMessageDialog(
-                                null,
-                                "Generation error: " + ge.getMessage(),
-                                "Error", JOptionPane.ERROR_MESSAGE
-                            );
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-
-            return false;
-        }
-
-        private boolean saveAs()
-        {
-            if (filePath == null) {
-                return save();
-            } else {
-                String newFileName = chooseSaveFile();
-                if (newFileName == null) {
-                    return false;
-                } else {
-                    filePath = newFileName;
-                    return save();
-                }
-            }
-        }
-
-        private boolean reload()
-        {
-            if (filePath != null) {
-                int op = JOptionPane.showConfirmDialog(
-                                null,
-                                "WARNING: All unsaved changes will be lost! " +
-                                "Are you sure?",
-                                "Confirmation",
-                                JOptionPane.YES_NO_OPTION
-                            );
-                if (op != JOptionPane.YES_OPTION) {
-                    return false;
-                }
-
-                try {
-                    if (filePath.toLowerCase().endsWith(".gi")) {
-                        readGraph();
-                    } else {
-                        readLaxGraph();
-                    }
-                    plane.updateUI();
-                    return true;
-                } catch (InvalidFormatException ife) {
-                    JOptionPane.showMessageDialog(
-                                    null,
-                                    "Parse error: " + ife.getMessage(),
-                                    "Error", JOptionPane.ERROR_MESSAGE
-                                );
-                } catch (IOException ioe) {
-                    JOptionPane.showMessageDialog(
-                                    null,
-                                    "Couldn't open file",
-                                    "Error", JOptionPane.ERROR_MESSAGE
-                                );
-                }
-            }
-
-            return false;
-        }
-
-        private boolean exportToSvg()
-
-        {
-            JFileChooser fc = new JFileChooser();
-            FileFilter f;
-            f = new FileNameExtensionFilter("Scalable Vector Graphics",
-                    "svg");
-            fc.addChoosableFileFilter(f);
-            fc.setFileFilter(f);
-
-            int code = fc.showSaveDialog(null);
-            if (code == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                String path = file.getAbsolutePath();
-                if (!path.endsWith(".svg"))
-                    path += ".svg";
-
-                file = new File(path);
-                try {
-                    if (file.exists()) {
-                        int op = JOptionPane.showConfirmDialog(null,
-                                "File already exists. Override?",
-                                "Override?",
-                                JOptionPane.YES_NO_OPTION);
-                        if (op != JOptionPane.YES_OPTION) {
-                            return false;
-                        }
-                    }
-                    saveToSvg(file);
-                    return true;
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-
-            return false;
-        }
         
         @Override
         public void windowClosing(WindowEvent e)
@@ -805,6 +578,237 @@ public class Main extends JFrame {
 
         @Override
         public void windowOpened(WindowEvent e) { }
+    }
+
+    private boolean open()
+    {
+        if (plane.hasChanges()) {
+            int op = JOptionPane.showConfirmDialog(
+                            null,
+                            "Do you want to save changes " + 
+                            "before opening a new file?", "Save?",
+                            JOptionPane.YES_NO_OPTION
+                        );
+            if (op == JOptionPane.YES_OPTION) {
+                save();
+            }
+        }
+
+        JFileChooser fc = new JFileChooser();
+        FileFilter gi, lgi;
+        gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
+        lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
+
+        fc.addChoosableFileFilter(gi);
+        fc.addChoosableFileFilter(lgi);
+        fc.setFileFilter(gi);
+
+        int code = fc.showOpenDialog(null);
+        if (code == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            try {
+                String tempFilePath = filePath;
+                filePath = file.getAbsolutePath();
+                if (filePath.toLowerCase().endsWith(".gi")) {
+                    readGraph();
+                } else if (filePath.toLowerCase().endsWith(".lgi")) {
+                    readLaxGraph();
+                } else {
+                    JOptionPane.showMessageDialog(
+                                    null, "Uknown file type", "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                                );
+                    filePath = tempFilePath;
+                    return false;
+                }
+
+                plane.updateUI();
+                return true;
+            } catch (InvalidFormatException ife) {
+                JOptionPane.showMessageDialog(
+                                null,
+                                "Parse error: " + ife.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
+            } catch (IOException ioe) {
+                //ioe.printStackTrace();
+                JOptionPane.showMessageDialog(
+                                null, "Couldn't open file", "Error",
+                                JOptionPane.ERROR_MESSAGE
+                            );
+            }
+        }
+
+        return false;
+    }
+
+    private String chooseSaveFile()
+    {
+        JFileChooser fc = new JFileChooser();
+        FileFilter gi, lgi;
+        gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
+        lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
+        fc.addChoosableFileFilter(gi);
+        fc.addChoosableFileFilter(lgi);
+        fc.setFileFilter(gi);
+
+        int code = fc.showSaveDialog(null);
+        String fn = null;
+        if (code == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            fn = file.getAbsolutePath();
+
+            FileFilter selectedFilter = fc.getFileFilter();
+
+            if (selectedFilter == gi) {
+                if (!fn.toLowerCase().endsWith(".gi")) {
+                    fn += ".gi";
+                }
+            }
+
+            if (selectedFilter == lgi) {
+                if (!fn.toLowerCase().endsWith(".lgi")) {
+                    fn += ".lgi";
+                }
+            }
+
+            file = new File(fn);
+            if (file.exists()) {
+                int op = JOptionPane.showConfirmDialog(
+                            null,
+                            "File already exists. Override?",
+                            "Override?",
+                            JOptionPane.YES_NO_OPTION
+                        );
+
+                if (op != JOptionPane.YES_OPTION) {
+                    return null;
+                }
+            }
+        }
+
+        return fn;
+    }
+
+    private boolean save()
+    {
+        if (filePath == null) {
+            filePath = chooseSaveFile();
+            if (filePath == null) {
+                return false;
+            }
+        }
+
+        try {
+            if (filePath.toLowerCase().endsWith(".gi")) {
+                saveToGi();
+            } else if (filePath.toLowerCase().endsWith(".lgi")) {
+                saveToLgi();
+            }
+            return true;
+        } catch (JsonGenerationException ge) {
+            JOptionPane.showMessageDialog(
+                            null,
+                            "Generation error: " + ge.getMessage(),
+                            "Error", JOptionPane.ERROR_MESSAGE
+                        );
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return false;
+    }
+
+    private boolean saveAs()
+    {
+        if (filePath == null) {
+            return save();
+        } else {
+            String newFileName = chooseSaveFile();
+            if (newFileName == null) {
+                return false;
+            } else {
+                filePath = newFileName;
+                return save();
+            }
+        }
+    }
+
+    private boolean reload()
+    {
+        if (filePath != null) {
+            int op = JOptionPane.showConfirmDialog(
+                            null,
+                            "WARNING: All unsaved changes will be lost! " +
+                            "Are you sure?",
+                            "Confirmation",
+                            JOptionPane.YES_NO_OPTION
+                        );
+            if (op != JOptionPane.YES_OPTION) {
+                return false;
+            }
+
+            try {
+                if (filePath.toLowerCase().endsWith(".gi")) {
+                    readGraph();
+                } else {
+                    readLaxGraph();
+                }
+                plane.updateUI();
+                return true;
+            } catch (InvalidFormatException ife) {
+                JOptionPane.showMessageDialog(
+                                null,
+                                "Parse error: " + ife.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(
+                                null,
+                                "Couldn't open file",
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
+            }
+        }
+
+        return false;
+    }
+
+    private boolean exportToSvg()
+    {
+        JFileChooser fc = new JFileChooser();
+        FileFilter f;
+        f = new FileNameExtensionFilter("Scalable Vector Graphics",
+                "svg");
+        fc.addChoosableFileFilter(f);
+        fc.setFileFilter(f);
+
+        int code = fc.showSaveDialog(null);
+        if (code == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            String path = file.getAbsolutePath();
+            if (!path.endsWith(".svg"))
+                path += ".svg";
+
+            file = new File(path);
+            try {
+                if (file.exists()) {
+                    int op = JOptionPane.showConfirmDialog(null,
+                            "File already exists. Override?",
+                            "Override?",
+                            JOptionPane.YES_NO_OPTION);
+                    if (op != JOptionPane.YES_OPTION) {
+                        return false;
+                    }
+                }
+                saveToSvg(file);
+                return true;
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+
+        return false;
     }
 
     private void saveToGi() throws JsonGenerationException, IOException
@@ -922,5 +926,20 @@ public class Main extends JFrame {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(plane.exportToSvg());
         bw.close();
+    }
+
+    public JToolBar getToolBar()
+    {
+        return mainToolBar;
+    }
+
+    public void doSave()
+    {
+        saveButton.doClick();
+    }
+
+    public void doOpen()
+    {
+        openButton.doClick();
     }
 }

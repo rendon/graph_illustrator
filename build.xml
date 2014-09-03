@@ -24,7 +24,7 @@
             <zipgroupfileset dir="libs" includes="*.jar" />
             <fileset dir="pictures" includes="**/*.png" />
             <manifest>
-                <attribute name="Main-Class" value="Main" />
+                <attribute name="Main-Class" value="edu.inforscience.Main" />
             </manifest>
         </jar>
     </target>

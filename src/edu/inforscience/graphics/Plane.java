@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ArrayList;
 
+import edu.inforscience.Main;
 import edu.inforscience.util.StringUtils;
 import edu.inforscience.util.MathUtils;
 import edu.inforscience.util.GeometryUtils;
@@ -97,11 +98,12 @@ public class Plane extends JPanel implements MouseListener,
     private boolean alignButtonsEnabled;
 
     private boolean ctrlKeyStatus;
+    private Main mainWindow;
 
-    public Plane(JToolBar toolBar)
+    public Plane(Main mainWindow)
     {
         setLayout(null);
-        mainToolBar = toolBar;
+        this.mainWindow = mainWindow;
 
         addKeyListener(this);
         addMouseListener(this);
@@ -988,16 +990,16 @@ public class Plane extends JPanel implements MouseListener,
 
         if (currentAction == ACTION_EDIT_NEW_NODE_LABEL ||
             currentAction == ACTION_EDIT_NODE_LABEL) {
-            mainToolBar.add(alignLeftButton);
-            mainToolBar.add(alignCenterButton);
-            mainToolBar.add(alignRightButton);
+            mainWindow.getToolBar().add(alignLeftButton);
+            mainWindow.getToolBar().add(alignCenterButton);
+            mainWindow.getToolBar().add(alignRightButton);
             alignButtonsEnabled = true;
         } else {
             if (alignButtonsEnabled) {
-                mainToolBar.remove(alignRightButton);
-                mainToolBar.remove(alignCenterButton);
-                mainToolBar.remove(alignLeftButton);
-                mainToolBar.updateUI();
+                mainWindow.getToolBar().remove(alignRightButton);
+                mainWindow.getToolBar().remove(alignCenterButton);
+                mainWindow.getToolBar().remove(alignLeftButton);
+                mainWindow.getToolBar().updateUI();
                 alignButtonsEnabled = false;
             }
         }
@@ -1127,6 +1129,18 @@ public class Plane extends JPanel implements MouseListener,
     {
         if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
             ctrlKeyStatus = true;
+        }
+
+        //char keyChar = event.getKeyChar();
+        int keyCode = event.getKeyCode();
+        if (event.isControlDown()) {
+            if (keyCode == 83) {        // S
+                mainWindow.doSave();
+            } else if (keyCode == 79) { // O
+                mainWindow.doOpen();
+            } else if (keyCode == 65) { // A
+                selectAll();
+            }
         }
     }
 
@@ -1573,6 +1587,14 @@ public class Plane extends JPanel implements MouseListener,
                 }
             }
         }
+    }
+
+    private void selectAll()
+    {
+        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
+            entry.getValue().setSelected(true);
+        }
+        repaint();
     }
 }
 
