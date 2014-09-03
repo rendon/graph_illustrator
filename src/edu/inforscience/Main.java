@@ -3,6 +3,7 @@ import edu.inforscience.graphics.*;
 import edu.inforscience.graphics.Point2D;
 import edu.inforscience.graphics.Edge;
 import edu.inforscience.util.Utils;
+import edu.inforscience.util.MathUtils;
 
 import java.awt.*;
 import javax.swing.*;
@@ -314,11 +315,15 @@ public class Main extends JFrame {
         HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
         HashSet<String> labels = new HashSet<String>();
+
+        // Reassign keys to preserve the key space and avoid overflow.
+        HashMap<Integer, Integer> newKeys = new HashMap<Integer, Integer>();
+        Integer nextKey = 1;
+
         File input = new File(filePath);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(input);
         Iterator<JsonNode> V = root.path("Graph").path("Vertices").elements();
-        Integer nextKey = 0;
         while (V.hasNext()) {
             JsonNode v = V.next();
             // Mandatory properties
@@ -340,10 +345,13 @@ public class Main extends JFrame {
                         );
             }
 
+
+            // Reassign keys to preserve the key space and avoid overflow.
+            newKeys.put(key, nextKey);
             Vertex vertex = new Vertex(label);
-            vertex.setKey(key);
-            labelKeys.put(label, key);
-            nextKey = Math.max(nextKey, key);
+            vertex.setKey(nextKey);
+            labelKeys.put(label, nextKey);
+            nextKey++;
 
             // Optional properties
             if (v.get("center") != null) {
@@ -378,7 +386,7 @@ public class Main extends JFrame {
                 vertex.setBorderColor(borderColor);
             }
 
-            graph.put(key, vertex);
+            graph.put(newKeys.get(key), vertex);
             keys.add(key);
             labels.add(label);
         }
@@ -403,6 +411,8 @@ public class Main extends JFrame {
                         );
             }
 
+            start = newKeys.get(start);
+            end = newKeys.get(end);
             Edge edge = new Edge(start, end, "");
 
             if (e.get("label") != null) {
@@ -443,7 +453,6 @@ public class Main extends JFrame {
 
         plane.finishPendingActions();
         plane.resetZoom();
-        nextKey++;
         plane.setGraph(graph, labelKeys, nextKey);
     }
 
@@ -834,15 +843,20 @@ public class Main extends JFrame {
             generator.writeStartObject();
             generator.writeNumberField("key", v.getKey());
             generator.writeStringField("label", v.getLabel());
-            generator.writeNumberField("radius", v.getRadius());
+
+            double r = MathUtils.round(v.getRadius(), 6);
+            generator.writeNumberField("radius", r);
+
             generator.writeStringField("labelColor", hexLabelColor);
             generator.writeStringField("backgroundColor", hexBackgroundColor);
             generator.writeStringField("borderColor", hexBorderColor);
 
+            double x = MathUtils.round(v.getCenter().x(), 6);
+            double y = MathUtils.round(v.getCenter().y(), 6);
             generator.writeFieldName("center");
             generator.writeStartObject();
-            generator.writeNumberField("x", v.getCenter().x());
-            generator.writeNumberField("y", v.getCenter().y());
+            generator.writeNumberField("x", x);
+            generator.writeNumberField("y", y);
             generator.writeEndObject();
 
             generator.writeEndObject();
@@ -865,10 +879,12 @@ public class Main extends JFrame {
                 generator.writeStringField("strokeColor", hexStrokeColor);
                 generator.writeNumberField("strokeSize", e.getStrokeSize());
 
+                double x = MathUtils.round(e.getLabelCenter().x(), 6);
+                double y = MathUtils.round(e.getLabelCenter().y(), 6);
                 generator.writeFieldName("center");
                 generator.writeStartObject();
-                generator.writeNumberField("x", e.getLabelCenter().x());
-                generator.writeNumberField("y", e.getLabelCenter().y());
+                generator.writeNumberField("x", x);
+                generator.writeNumberField("y", y);
                 generator.writeEndObject();
 
                 generator.writeEndObject();

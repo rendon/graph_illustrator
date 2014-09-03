@@ -1,4 +1,6 @@
 package edu.inforscience.util;
+import java.math.BigDecimal;
+
 public class MathUtils {
     /**
      * Returns n rounded to the nearest integer.
@@ -11,5 +13,11 @@ public class MathUtils {
     public static int round(double n)
     {
         return (int) Math.floor(n + 0.5);
+    }
+
+    public static double round(double value, int decimals)
+    {
+        BigDecimal bd = BigDecimal.valueOf(value);
+        return bd.setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 }
