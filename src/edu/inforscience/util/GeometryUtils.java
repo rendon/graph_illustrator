@@ -6,6 +6,10 @@ public class GeometryUtils {
     public static boolean onSegment(Point2D a, Point2D b,
                                     Point2D p, GraphicsContext gc)
     {
+        if (a == null || b == null || p == null || gc == null) {
+            return false;
+        }
+
         double a1 = b.x() - a.x();
         double b1 = b.y() - a.y();
         double a2 = p.x() - a.x();
@@ -31,6 +35,10 @@ public class GeometryUtils {
 
     public static boolean segInt(Point2D a, Point2D b, Point2D c, Point2D d)
     {
+        if (a == null || b == null || c == null || d == null) {
+            return false;
+        }
+
         double test1 = ccw(a, b, c) * ccw(a, b, d);
         double test2 = ccw(c, d, a) * ccw(c, d, b);
         return test1 <= 0 && test2 <= 0;
@@ -39,6 +47,10 @@ public class GeometryUtils {
     public static Point2D intersection(Point2D a, Point2D b,
                                        Point2D c, Point2D d)
     {
+        if (a == null || b == null || c == null || d == null) {
+            return null;
+        }
+
         double a1 = a.y() - b.y();
         double b1 = b.x() - a.x();
         double c1 = a1 * a.x() + b1 * a.y();
@@ -60,6 +72,10 @@ public class GeometryUtils {
 
     public static double ccw(Point2D a, Point2D b, Point2D c)
     {
+        if (a == null || b == null || c == null) {
+            return Double.NaN;
+        }
+
         double a1 = b.x() - a.x();
         double b1 = b.y() - a.y();
         double a2 = c.x() - a.x();
@@ -68,9 +84,13 @@ public class GeometryUtils {
         return a1 * b2 - a2 * b1;
     }
 
-    public static Point2D computeEndPoint(Vertex u, Vertex v, FontMetrics m,
-                                          GraphicsContext gc)
+    public static Point2D computeEndPoint(Vertex u, Vertex v,
+                                          FontMetrics m, GraphicsContext gc)
     {
+        if (u == null || v == null || m == null || gc == null) {
+            return null;
+        }
+
         Point2D cu = u.getCenter();
         Point2D cv = v.getCenter();
         int padding = 3 * m.getDescent();

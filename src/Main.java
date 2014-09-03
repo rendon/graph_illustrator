@@ -1,6 +1,7 @@
 import edu.inforscience.graphics.*;
 import edu.inforscience.graphics.Point2D;
 import edu.inforscience.graphics.Edge;
+import edu.inforscience.util.Utils;
 
 import java.awt.*;
 import javax.swing.*;
@@ -40,6 +41,7 @@ public class Main extends JFrame {
     private final JButton openButton;
     private final JButton reloadButton;
     private final JButton saveButton;
+    private final JButton saveAsButton;
     private final JButton exportSvgButton;
     private final JButton newNodeButton;
     private final JButton newEdgeButton;
@@ -60,11 +62,11 @@ public class Main extends JFrame {
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
 
-    private String fileName;
+    private String filePath;
 
     public Main()
     {
-        super("Graph Illustrator");
+        super("Graph Illustrator : Untitled");
         setSize(1200, 900);
         setLocationRelativeTo(null);
         setVisible(true);
@@ -87,7 +89,11 @@ public class Main extends JFrame {
 
         saveButton = new JButton(getImage("save"));
         saveButton.addActionListener(actionHandler);
-        saveButton.setToolTipText("Save to file");
+        saveButton.setToolTipText("Save");
+
+        saveAsButton = new JButton(getImage("saveAs"));
+        saveAsButton.addActionListener(actionHandler);
+        saveAsButton.setToolTipText("Save as");
 
         exportSvgButton = new JButton(getImage("svg"));
         exportSvgButton.addActionListener(actionHandler);
@@ -117,14 +123,6 @@ public class Main extends JFrame {
         deleteButton.addActionListener(actionHandler);
         deleteButton.setToolTipText("Delete selected nodes");
 
-        showGridButton = new JButton(getImage("show_grid"));
-        showGridButton.addActionListener(actionHandler);
-        showGridButton.setToolTipText("Toggle grid");
-
-        smoothLinesButton = new JButton(getImage("antialias"));
-        smoothLinesButton.addActionListener(actionHandler);
-        smoothLinesButton.setToolTipText("Toggle smooth lines");
-
         shapeCircleButton = new JButton(getImage("circle"));
         shapeCircleButton.addActionListener(actionHandler);
         shapeCircleButton.setToolTipText("Use circles for nodes");
@@ -136,6 +134,14 @@ public class Main extends JFrame {
         shapeNoneButton = new JButton(getImage("none"));
         shapeNoneButton.addActionListener(actionHandler);
         shapeNoneButton.setToolTipText("Remove shape from nodes");
+
+        showGridButton = new JButton(getImage("showGrid"));
+        showGridButton.addActionListener(actionHandler);
+        showGridButton.setToolTipText("Toggle grid");
+
+        smoothLinesButton = new JButton(getImage("antialias"));
+        smoothLinesButton.addActionListener(actionHandler);
+        smoothLinesButton.setToolTipText("Toggle smooth lines");
 
         labelColorButton = new JButton(getImage("labelColor"));
         labelColorButton.addActionListener(actionHandler);
@@ -151,6 +157,7 @@ public class Main extends JFrame {
 
         toolBar.add(openButton);
         toolBar.add(saveButton);
+        toolBar.add(saveAsButton);
         toolBar.add(reloadButton);
         toolBar.add(exportSvgButton);
         toolBar.addSeparator();
@@ -159,12 +166,12 @@ public class Main extends JFrame {
         toolBar.add(newEdgeButton);
         toolBar.add(eraserButton);
         toolBar.add(deleteButton);
-        toolBar.add(showGridButton);
-        toolBar.add(smoothLinesButton);
         toolBar.addSeparator();
         toolBar.add(shapeCircleButton);
         toolBar.add(shapeRectangleButton);
         toolBar.add(shapeNoneButton);
+        toolBar.add(showGridButton);
+        toolBar.add(smoothLinesButton);
         toolBar.addSeparator();
         toolBar.add(labelColorButton);
         toolBar.add(backgroundColorButton);
@@ -189,7 +196,7 @@ public class Main extends JFrame {
 
     private void readLaxGraph() throws IOException
     {
-        InputStream fis = new FileInputStream(fileName);
+        InputStream fis = new FileInputStream(filePath);
         InputStreamReader in = new InputStreamReader(fis);
         BufferedReader reader = new BufferedReader(in);
         HashMap<Integer, Vertex> G = new HashMap<Integer, Vertex>();
@@ -284,7 +291,7 @@ public class Main extends JFrame {
         HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
         HashSet<String> labels = new HashSet<String>();
-        File input = new File(fileName);
+        File input = new File(filePath);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(input);
         Iterator<JsonNode> V = root.path("Graph").path("Vertices").elements();
@@ -332,19 +339,19 @@ public class Main extends JFrame {
 
             if (v.get("labelColor") != null) {
                 String hex = v.get("labelColor").textValue();
-                Color labelColor = decode(hex);
+                Color labelColor = Utils.decode(hex);
                 vertex.setLabelColor(labelColor);
             }
 
             if (v.get("backgroundColor") != null) {
                 String hex = v.get("backgroundColor").textValue();
-                Color backgroundColor = decode(hex);
+                Color backgroundColor = Utils.decode(hex);
                 vertex.setBackgroundColor(backgroundColor);
             }
 
             if (v.get("borderColor") != null) {
                 String hex = v.get("borderColor").textValue();
-                Color borderColor = decode(hex);
+                Color borderColor = Utils.decode(hex);
                 vertex.setBorderColor(borderColor);
             }
 
@@ -382,13 +389,13 @@ public class Main extends JFrame {
 
             if (e.get("labelColor") != null) {
                 String hex = e.get("labelColor").textValue();
-                Color labelColor = decode(hex);
+                Color labelColor = Utils.decode(hex);
                 edge.setLabelColor(labelColor);
             }
 
             if (e.get("strokeColor") != null) {
                 String hex = e.get("strokeColor").textValue();
-                Color strokeColor = decode(hex);
+                Color strokeColor = Utils.decode(hex);
                 edge.setStrokeColor(strokeColor);
             }
 
@@ -424,13 +431,27 @@ public class Main extends JFrame {
             Object source = e.getSource();
             plane.finishPendingActions();
             if (source == openButton) {
-                open();
+                if (open()) {
+                    plane.setChanges(0);
+                    File file = new File(filePath);
+                    Main.this.setTitle("Graph Illustrator : " + file.getName());
+                }
             } else if (source == saveButton) {
-                save();
-                plane.setChanges(0);
+                if (save()) {
+                    plane.setChanges(0);
+                    File file = new File(filePath);
+                    Main.this.setTitle("Graph Illustrator : " + file.getName());
+                }
+            } else if (source == saveAsButton) {
+                if (saveAs()) {
+                    plane.setChanges(0);
+                    File file = new File(filePath);
+                    Main.this.setTitle("Graph Illustrator : " + file.getName());
+                }
             } else if (source == reloadButton) {
-                reload();
-                plane.setChanges(0);
+                if (reload()) {
+                    plane.setChanges(0);
+                }
             } else if (source == exportSvgButton) {
                 exportToSvg();
             } else if (source == newNodeButton) {
@@ -489,7 +510,7 @@ public class Main extends JFrame {
 
         }
 
-        void open()
+        private boolean open()
         {
             if (plane.hasChanges()) {
                 int op = JOptionPane.showConfirmDialog(
@@ -516,13 +537,23 @@ public class Main extends JFrame {
             if (code == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 try {
-                    fileName = file.getAbsolutePath();
-                    if (fileName.toLowerCase().endsWith(".gi")) {
+                    String tempFilePath = filePath;
+                    filePath = file.getAbsolutePath();
+                    if (filePath.toLowerCase().endsWith(".gi")) {
                         readGraph();
-                    } else {
+                    } else if (filePath.toLowerCase().endsWith(".lgi")) {
                         readLaxGraph();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                        null, "Uknown file type", "Error",
+                                        JOptionPane.ERROR_MESSAGE
+                                    );
+                        filePath = tempFilePath;
+                        return false;
                     }
+
                     plane.updateUI();
+                    return true;
                 } catch (InvalidFormatException ife) {
                     JOptionPane.showMessageDialog(
                                     null,
@@ -532,19 +563,19 @@ public class Main extends JFrame {
                 } catch (IOException ioe) {
                     //ioe.printStackTrace();
                     JOptionPane.showMessageDialog(
-                                    null,
-                                    "Couldn't open file",
-                                    "Error", JOptionPane.ERROR_MESSAGE
+                                    null, "Couldn't open file", "Error",
+                                    JOptionPane.ERROR_MESSAGE
                                 );
                 }
             }
 
+            return false;
         }
 
         private String chooseSaveFile()
         {
             JFileChooser fc = new JFileChooser();
-            javax.swing.filechooser.FileFilter gi, lgi;
+            FileFilter gi, lgi;
             gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
             lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
             fc.addChoosableFileFilter(gi);
@@ -556,8 +587,19 @@ public class Main extends JFrame {
             if (code == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 fn = file.getAbsolutePath();
-                if (!fn.endsWith(".gi") && !fn.endsWith(".lgi")) {
-                    fn += ".gi";
+
+                FileFilter selectedFilter = fc.getFileFilter();
+
+                if (selectedFilter == gi) {
+                    if (!fn.toLowerCase().endsWith(".gi")) {
+                        fn += ".gi";
+                    }
+                }
+
+                if (selectedFilter == lgi) {
+                    if (!fn.toLowerCase().endsWith(".lgi")) {
+                        fn += ".lgi";
+                    }
                 }
 
                 file = new File(fn);
@@ -578,50 +620,22 @@ public class Main extends JFrame {
             return fn;
         }
 
-        private void save()
+        private boolean save()
         {
-            if (fileName == null) {
-                fileName = chooseSaveFile();
-                if (fileName == null) {
-                    return;
-                }
-            }
-
-            if (fileName.toLowerCase().endsWith(".lgi")) {
-                int op = JOptionPane.showConfirmDialog(
-                            null,
-                            "Your current format is .lgi.\nWould you like" +
-                            " to change to .gi (recommended)?",
-                            "Change format?",
-                            JOptionPane.YES_NO_OPTION
-                        );
-
-                if (op == JOptionPane.YES_OPTION) {
-                    String tempFileName = fileName;
-                    fileName = fileName.replaceFirst(".lgi$", ".gi");
-                    File file = new File(fileName);
-                    if (file.exists()) {
-                        op = JOptionPane.showConfirmDialog(
-                                        null,
-                                        "File already exists. Override?",
-                                        "Override?",
-                                        JOptionPane.YES_NO_OPTION
-                                    );
-
-                        if (op != JOptionPane.YES_OPTION) {
-                            fileName = tempFileName;
-                            return;
-                        }
-                    }
+            if (filePath == null) {
+                filePath = chooseSaveFile();
+                if (filePath == null) {
+                    return false;
                 }
             }
 
             try {
-                if (fileName.toLowerCase().endsWith(".gi")) {
+                if (filePath.toLowerCase().endsWith(".gi")) {
                     saveToGi();
-                } else if (fileName.toLowerCase().endsWith(".lgi")) {
+                } else if (filePath.toLowerCase().endsWith(".lgi")) {
                     saveToLgi();
                 }
+                return true;
             } catch (JsonGenerationException ge) {
                 JOptionPane.showMessageDialog(
                                 null,
@@ -631,11 +645,28 @@ public class Main extends JFrame {
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
+
+            return false;
         }
 
-        void reload()
+        private boolean saveAs()
         {
-            if (fileName != null) {
+            if (filePath == null) {
+                return save();
+            } else {
+                String newFileName = chooseSaveFile();
+                if (newFileName == null) {
+                    return false;
+                } else {
+                    filePath = newFileName;
+                    return save();
+                }
+            }
+        }
+
+        private boolean reload()
+        {
+            if (filePath != null) {
                 int op = JOptionPane.showConfirmDialog(
                                 null,
                                 "WARNING: All unsaved changes will be lost! " +
@@ -644,16 +675,17 @@ public class Main extends JFrame {
                                 JOptionPane.YES_NO_OPTION
                             );
                 if (op != JOptionPane.YES_OPTION) {
-                    return;
+                    return false;
                 }
 
                 try {
-                    if (fileName.toLowerCase().endsWith(".gi")) {
+                    if (filePath.toLowerCase().endsWith(".gi")) {
                         readGraph();
                     } else {
                         readLaxGraph();
                     }
                     plane.updateUI();
+                    return true;
                 } catch (InvalidFormatException ife) {
                     JOptionPane.showMessageDialog(
                                     null,
@@ -668,12 +700,15 @@ public class Main extends JFrame {
                                 );
                 }
             }
+
+            return false;
         }
 
-        void exportToSvg()
+        private boolean exportToSvg()
+
         {
             JFileChooser fc = new JFileChooser();
-            javax.swing.filechooser.FileFilter f;
+            FileFilter f;
             f = new FileNameExtensionFilter("Scalable Vector Graphics",
                     "svg");
             fc.addChoosableFileFilter(f);
@@ -693,16 +728,18 @@ public class Main extends JFrame {
                                 "File already exists. Override?",
                                 "Override?",
                                 JOptionPane.YES_NO_OPTION);
-                        if (op == JOptionPane.YES_OPTION)
-                            saveToSvg(file);
-
-                    } else {
-                        saveToSvg(file);
+                        if (op != JOptionPane.YES_OPTION) {
+                            return false;
+                        }
                     }
+                    saveToSvg(file);
+                    return true;
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }
             }
+
+            return false;
         }
         
         @Override
@@ -747,7 +784,7 @@ public class Main extends JFrame {
     {
         Map<Integer, Vertex> graph = plane.getGraph();
         JsonFactory factory = new JsonFactory();
-        File output = new File(fileName);
+        File output = new File(filePath);
         JsonGenerator generator = factory.createGenerator(
                     output,
                     JsonEncoding.UTF8
@@ -760,9 +797,9 @@ public class Main extends JFrame {
         generator.writeStartArray();
         for (Entry<Integer, Vertex> entry : graph.entrySet()) {
             Vertex v = entry.getValue();
-            String hexLabelColor = encode(v.getLabelColor());
-            String hexBorderColor = encode(v.getBorderColor());
-            String hexBackgroundColor = encode(v.getBackgroundColor());
+            String hexLabelColor = Utils.encode(v.getLabelColor());
+            String hexBorderColor = Utils.encode(v.getBorderColor());
+            String hexBackgroundColor = Utils.encode(v.getBackgroundColor());
             generator.writeStartObject();
             generator.writeNumberField("key", v.getKey());
             generator.writeStringField("label", v.getLabel());
@@ -788,8 +825,8 @@ public class Main extends JFrame {
             for (Entry<Integer, Edge>  edgeEntry: v.getNeighbors().entrySet()) {
                 generator.writeStartObject();
                 Edge e = edgeEntry.getValue();
-                String hexLabelColor = encode(e.getLabelColor());
-                String hexStrokeColor = encode(e.getStrokeColor());
+                String hexLabelColor = Utils.encode(e.getLabelColor());
+                String hexStrokeColor = Utils.encode(e.getStrokeColor());
                 generator.writeNumberField("start", e.getStart());
                 generator.writeNumberField("end", e.getEnd());
                 generator.writeStringField("label", e.getLabel());
@@ -812,7 +849,7 @@ public class Main extends JFrame {
 
     private void saveToLgi() throws IOException
     {
-        File file = new File(fileName);
+        File file = new File(filePath);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter writer = new BufferedWriter(fw);
 
@@ -858,31 +895,5 @@ public class Main extends JFrame {
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(plane.exportToSvg());
         bw.close();
-    }
-
-    private Color decode(String hex)
-    {
-        if (!hex.matches("0x[0-9a-fA-F]{6,6}([0-9a-fA-F]{2,2})?")) {
-            return null;
-        }
-
-        int r = Integer.parseInt("" + hex.charAt(2) + hex.charAt(3), 16);
-        int g = Integer.parseInt("" + hex.charAt(4) + hex.charAt(5), 16);
-        int b = Integer.parseInt("" + hex.charAt(6) + hex.charAt(7), 16);
-        int a = 255;
-        if (hex.length() == 10) {
-            a = Integer.parseInt("" + hex.charAt(8) + hex.charAt(9), 16);
-        }
-
-        return new Color(r, g, b, a);
-    }
-
-    private String encode(Color color)
-    {
-        int r = color.getRed();
-        int g = color.getGreen();
-        int b = color.getBlue();
-        int a = color.getAlpha();
-        return String.format("0x%02x%02x%02x%02x", r, g, b, a);
     }
 }
