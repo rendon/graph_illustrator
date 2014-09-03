@@ -1154,9 +1154,19 @@ public class Plane extends JPanel implements MouseListener,
     public void keyTyped(KeyEvent e) { }
 
 
+    public void zoomIn()
+    {
+        gc.zoomIn(getWidth() / 2, getHeight() / 2);
+    }
+
     public void zoomIn(int x, int y)
     {
         gc.zoomIn(x, y);
+    }
+
+    public void zoomOut()
+    {
+        gc.zoomOut(getWidth() / 2, getHeight() / 2);
     }
 
     public void zoomOut(int x, int y)

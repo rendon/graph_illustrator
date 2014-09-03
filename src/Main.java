@@ -59,6 +59,10 @@ public class Main extends JFrame {
     private final JButton backgroundColorButton;
     private final JButton borderColorButton;
 
+    private final JButton zoomInButton;
+    private final JButton zoomOutButton;
+    private final JButton zoomResetButton;
+
     private static final int READ_EDGE_INFO = 1;
     private static final int READ_VERTEX_INFO = 2;
 
@@ -155,6 +159,18 @@ public class Main extends JFrame {
         borderColorButton.addActionListener(actionHandler);
         borderColorButton.setToolTipText("Set border color");
 
+        zoomInButton = new JButton(getImage("zoomIn"));
+        zoomInButton.addActionListener(actionHandler);
+        zoomInButton.setToolTipText("Zoom in");
+
+        zoomOutButton = new JButton(getImage("zoomOut"));
+        zoomOutButton.addActionListener(actionHandler);
+        zoomOutButton.setToolTipText("Zoom out");
+
+        zoomResetButton = new JButton(getImage("zoomReset"));
+        zoomResetButton.addActionListener(actionHandler);
+        zoomResetButton.setToolTipText("Zoom reset");
+
         toolBar.add(openButton);
         toolBar.add(saveButton);
         toolBar.add(saveAsButton);
@@ -176,6 +192,10 @@ public class Main extends JFrame {
         toolBar.add(labelColorButton);
         toolBar.add(backgroundColorButton);
         toolBar.add(borderColorButton);
+        toolBar.addSeparator();
+        toolBar.add(zoomInButton);
+        toolBar.add(zoomOutButton);
+        toolBar.add(zoomResetButton);
         toolBar.addSeparator();
         toolBar.add(quitButton);
         add(toolBar, BorderLayout.NORTH);
@@ -506,6 +526,13 @@ public class Main extends JFrame {
                 } else if (source == borderColorButton) {
                     plane.setBorderColorToSelectedVertices(color);
                 }
+
+           } else if (source == zoomInButton) {
+               plane.zoomIn();
+           } else if (source == zoomOutButton) {
+               plane.zoomOut();
+           } else if (source == zoomResetButton) {
+               plane.resetZoom();
            }
 
         }
