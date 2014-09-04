@@ -3,6 +3,9 @@ package edu.inforscience.graphics;
 import java.awt.Color;
 
 public class Edge {
+    public static final int EDGE_TYPE_DIRECTED      = 1;
+    public static final int EDGE_TYPE_UNDIRECTED    = 2;
+
     // Attributes
     private Integer start, end;
     private String label;    // label for edge
@@ -10,6 +13,7 @@ public class Edge {
     private Color strokeColor;
     private float strokeSize;
     private Point2D labelCenter;
+    private int type; // Directed or undirected
 
     //Constructors
     public Edge(Integer start, Integer end, String label)
@@ -21,6 +25,7 @@ public class Edge {
         labelColor = Color.BLACK;
         strokeColor = Color.BLACK;
         strokeSize = 1.0f;
+        setType(EDGE_TYPE_DIRECTED);
     }
 
     public Integer getStart()
@@ -95,6 +100,16 @@ public class Edge {
     public void setLabelCenter(Point2D center)
     {
         labelCenter = center;
+    }
+
+    public void setType(int type)
+    {
+        this.type = type;
+    }
+
+    public int getType()
+    {
+        return type;
     }
 }
 

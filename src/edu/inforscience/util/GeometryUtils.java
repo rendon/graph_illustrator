@@ -129,4 +129,10 @@ public class GeometryUtils {
         return endPoint;
     }
 
+    public static Point2D getMiddlePoint(Point2D a, Point2D b)
+    {
+        double dx = b.x() - a.x();
+        double dy = b.y() - a.y();
+        return new Point2D(a.x() + 0.5 * dx, a.y() + 0.5 * dy);
+    }
 }

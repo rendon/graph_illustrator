@@ -9,17 +9,31 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="21.999542"
-   height="21.999987"
+   width="21.999941"
+   height="22.00005"
    id="svg3805"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   inkscape:export-filename="/home/ddc/projects/GraphIllustrator/pictures/edge.png"
+   inkscape:export-filename="/home/rafa/projects/graph_illustrator/pictures/undirectedEdge.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
-   sodipodi:docname="edge.svg">
+   sodipodi:docname="undirectedEdge.svg">
   <defs
      id="defs3807">
+    <marker
+       inkscape:stockid="TriangleOutM"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="TriangleOutM"
+       style="overflow:visible">
+      <path
+         id="path3908"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="scale(0.4,0.4)"
+         inkscape:connector-curvature="0" />
+    </marker>
     <marker
        inkscape:stockid="Arrow2Lend"
        orient="auto"
@@ -42,18 +56,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="26.735121"
-     inkscape:cy="2.0766314"
+     inkscape:zoom="16"
+     inkscape:cx="12.138058"
+     inkscape:cy="3.4018565"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     fit-margin-top="-2.7755576e-17"
-     fit-margin-right="-2.7755576e-17"
-     fit-margin-bottom="-2.7755576e-17"
-     fit-margin-left="-2.7755576e-17"
+     fit-margin-top="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     fit-margin-left="0"
      inkscape:window-width="1920"
-     inkscape:window-height="1023"
+     inkscape:window-height="1030"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1" />
@@ -73,10 +87,10 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-66.463869,-763.37667)">
+     transform="translate(-66.464048,-763.37641)">
     <path
-       style="fill:none;stroke:#000000;stroke-width:1.40635657;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#Arrow2Lend)"
-       d="M 67.167047,784.67348 87.159201,764.71377"
+       style="fill:none;stroke:#000000;stroke-width:1.44680679;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:none"
+       d="m 67.187451,784.65306 20.553194,-20.5541"
        id="path3813"
        inkscape:connector-curvature="0" />
   </g>

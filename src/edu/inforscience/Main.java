@@ -46,7 +46,8 @@ public class Main extends JFrame {
     private final JButton saveAsButton;
     private final JButton exportSvgButton;
     private final JButton newNodeButton;
-    private final JButton newEdgeButton;
+    private final JButton newDirectedEdgeButton;
+    private final JButton newUndirectedEdgeButton;
     private final JButton eraserButton;
     private final JButton deleteButton;
     private final JButton showGridButton;
@@ -113,9 +114,13 @@ public class Main extends JFrame {
         newNodeButton.addActionListener(actionHandler);
         newNodeButton.setToolTipText("New node");
 
-        newEdgeButton = new JButton(getImage("edge"));
-        newEdgeButton.addActionListener(actionHandler);
-        newEdgeButton.setToolTipText("New edge");
+        newDirectedEdgeButton = new JButton(getImage("directedEdge"));
+        newDirectedEdgeButton.addActionListener(actionHandler);
+        newDirectedEdgeButton.setToolTipText("New directed edge");
+
+        newUndirectedEdgeButton = new JButton(getImage("undirectedEdge"));
+        newUndirectedEdgeButton.addActionListener(actionHandler);
+        newUndirectedEdgeButton.setToolTipText("New undirected edge");
 
         pointerButton = new JButton(getImage("pointer"));
         pointerButton.addActionListener(actionHandler);
@@ -182,7 +187,8 @@ public class Main extends JFrame {
         mainToolBar.addSeparator();
         mainToolBar.add(pointerButton);
         mainToolBar.add(newNodeButton);
-        mainToolBar.add(newEdgeButton);
+        mainToolBar.add(newDirectedEdgeButton);
+        mainToolBar.add(newUndirectedEdgeButton);
         mainToolBar.add(eraserButton);
         mainToolBar.add(deleteButton);
         mainToolBar.addSeparator();
@@ -490,9 +496,15 @@ public class Main extends JFrame {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
                 plane.setCurrentAction(Plane.ACTION_CREATE_NEW_VERTEX);
-            } else if (source == newEdgeButton) {
+            } else if (source == newDirectedEdgeButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
+                plane.setEdgeType(Edge.EDGE_TYPE_DIRECTED);
+                plane.setCurrentAction(Plane.ACTION_DRAW_NEW_EDGE);
+            } else if (source == newUndirectedEdgeButton) {
+                Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
+                plane.setCursor(c);
+                plane.setEdgeType(Edge.EDGE_TYPE_UNDIRECTED);
                 plane.setCurrentAction(Plane.ACTION_DRAW_NEW_EDGE);
             } else if (source == pointerButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);

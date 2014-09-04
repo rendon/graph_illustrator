@@ -25,20 +25,20 @@ public class Plane extends JPanel implements MouseListener,
                                              KeyListener,
                                              MouseWheelListener,
                                              MouseMotionListener {
-    public static final int ACTION_DEFAULT              = 0x01;
-    public static final int ACTION_CREATE_NEW_VERTEX    = 0x02;
-    public static final int ACTION_DRAW_NEW_EDGE        = 0x03;
-    public static final int ACTION_ERASE_OBJECT         = 0x04;
-    public static final int ACTION_EDIT_NODE_LABEL      = 0x05;
-    public static final int ACTION_EDIT_NEW_NODE_LABEL  = 0x06;
-    public static final int ACTION_EDIT_EDGE_LABEL      = 0x07;
-    public static final int ACTION_EDIT_NEW_EDGE_LABEL  = 0x08;
-    public static final int ACTION_SELECTION            = 0x09;
-    public static final int ACTION_DRAG_PLANE           = 0x10;
-    public static final int ACTION_DRAG_VERTEX          = 0x11;
-    public static final int SHAPE_CIRCLE                = 0x12;
-    public static final int SHAPE_RECTANGLE             = 0x13;
-    public static final int SHAPE_NONE                  = 0x14;
+    public static final int ACTION_DEFAULT              = 0x00;
+    public static final int ACTION_CREATE_NEW_VERTEX    = 0x01;
+    public static final int ACTION_DRAW_NEW_EDGE        = 0x02;
+    public static final int ACTION_ERASE_OBJECT         = 0x03;
+    public static final int ACTION_EDIT_NODE_LABEL      = 0x04;
+    public static final int ACTION_EDIT_NEW_NODE_LABEL  = 0x05;
+    public static final int ACTION_EDIT_EDGE_LABEL      = 0x06;
+    public static final int ACTION_EDIT_NEW_EDGE_LABEL  = 0x07;
+    public static final int ACTION_SELECTION            = 0x08;
+    public static final int ACTION_DRAG_PLANE           = 0x09;
+    public static final int ACTION_DRAG_VERTEX          = 0x0a;
+    public static final int SHAPE_CIRCLE                = 0x0b;
+    public static final int SHAPE_RECTANGLE             = 0x0c;
+    public static final int SHAPE_NONE                  = 0x0d;
 
     public static final Stroke GRID_DASH = new BasicStroke(
                                                     0.3f,
@@ -68,7 +68,8 @@ public class Plane extends JPanel implements MouseListener,
     // True if the dragging really occured, i.e, there was a displacement.
     private boolean wasDragged;
 
-    private boolean directed;
+    // Directed or undirected.
+    private int edgeType;
 
     private Point startDrag;
     private Point startSelection;
@@ -903,44 +904,46 @@ public class Plane extends JPanel implements MouseListener,
         }
         // Ends draw label
 
-        Line2D.Double line;
-        if (direction == Integer.MAX_VALUE) {
-            line = new Line2D.Double(gc.ix(ctrlX2), gc.iy(ctrlY2),
-                                     gc.ix(pxEnd), gc.iy(pyEnd));
-            angle = Math.atan2(line.y2 - gc.iy(ctrlY2),
-                               line.x2 - gc.ix(ctrlX2));
-        } else {
-            line = new Line2D.Double(gc.ix(pxStart), gc.iy(pyStart),
-                                     gc.ix(pxEnd), gc.iy(pyEnd));
-            angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+        if (edge.getType() == Edge.EDGE_TYPE_DIRECTED) {
+            Line2D.Double line;
+            if (direction == Integer.MAX_VALUE) {
+                line = new Line2D.Double(gc.ix(ctrlX2), gc.iy(ctrlY2),
+                        gc.ix(pxEnd), gc.iy(pyEnd));
+                angle = Math.atan2(line.y2 - gc.iy(ctrlY2),
+                        line.x2 - gc.ix(ctrlX2));
+            } else {
+                line = new Line2D.Double(gc.ix(pxStart), gc.iy(pyStart),
+                        gc.ix(pxEnd), gc.iy(pyEnd));
+                angle = Math.atan2(line.y2 - line.y1, line.x2 - line.x1);
+            }
+
+            int length = (gc.ix(endRadius) - gc.ix(0)) / 8;
+            Polygon arrowHead = new Polygon();
+            arrowHead.addPoint(0, length);
+            arrowHead.addPoint(-length / 2, -length);
+            arrowHead.addPoint(0, length);
+            arrowHead.addPoint(length / 2, -(length));
+            arrowHead.addPoint(0, length);
+
+            AffineTransform transform = new AffineTransform();
+            transform.setToIdentity();
+
+            // Adjust arrow head to circle outline
+            double tmpHypotenuse = length;
+            double tmpOpposite = tmpHypotenuse * Math.sin(angle);
+            double tmpAdjacent = tmpHypotenuse * Math.cos(angle);
+
+            AffineTransform tmp = g2d.getTransform();
+            transform.translate(line.x2 - tmpAdjacent, line.y2 - tmpOpposite);
+            transform.rotate((angle - Math.PI * 0.5));
+
+            g2d.setTransform(transform);
+            g2d.setStroke(new BasicStroke(edge.getStrokeSize()));
+            g2d.setColor(edge.getStrokeColor());
+            g2d.draw(arrowHead);
+            g2d.setStroke(new BasicStroke(1f));
+            g2d.setTransform(tmp);
         }
-
-        int length = (gc.ix(endRadius) - gc.ix(0)) / 8;
-        Polygon arrowHead = new Polygon();
-        arrowHead.addPoint(0, length);
-        arrowHead.addPoint(-length / 2, -length);
-        arrowHead.addPoint(0, length);
-        arrowHead.addPoint(length / 2, -(length));
-        arrowHead.addPoint(0, length);
-
-        AffineTransform transform = new AffineTransform();
-        transform.setToIdentity();
-
-        // Adjust arrow head to circle outline
-        double tmpHypotenuse = length;
-        double tmpOpposite = tmpHypotenuse * Math.sin(angle);
-        double tmpAdjacent = tmpHypotenuse * Math.cos(angle);
-
-        AffineTransform tmp = g2d.getTransform();
-        transform.translate(line.x2 - tmpAdjacent, line.y2 - tmpOpposite);
-        transform.rotate((angle - Math.PI * 0.5));
-
-        g2d.setTransform(transform);
-        g2d.setStroke(new BasicStroke(edge.getStrokeSize()));
-        g2d.setColor(edge.getStrokeColor());
-        g2d.draw(arrowHead);
-        g2d.setStroke(new BasicStroke(1f));
-        g2d.setTransform(tmp);
 
         g2d.setColor(tempColor);
     }
@@ -1263,8 +1266,14 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
+        keys.remove(graph.get(deleteKey).getLabel());
         graph.remove(deleteKey);
         changes++;
+    }
+
+    public void setEdgeType(int type)
+    {
+        edgeType = type;
     }
 
     /* -------------------- Private methods. --------------------*/
@@ -1436,29 +1445,76 @@ public class Plane extends JPanel implements MouseListener,
 
     private void connectVertices(Vertex u, Vertex v)
     {
-        Integer key = v.getKey();
-        if (u.contains(key)) {
-            JOptionPane.showMessageDialog(
-                        null,
-                        "An edge already exists!", "Error",
-                        JOptionPane.ERROR_MESSAGE
-                    );
-        } else {
-            Edge edge = u.addNeighbor(key, "");
-            Point2D a = u.getCenter();
-            Point2D b = v.getCenter();
-            double dx = b.x() - a.x();
-            double dy = b.y() - a.y();
-            Point2D c = new Point2D(a.x() + 0.5 * dx, a.y() + 0.5 * dy);
-            edge.setLabelCenter(c);
-            edgeBeingEdited = edge;
-            labelEditor.setText("");
-            resizeLabelEditor(c, "");
-            this.add(labelEditor);
-            labelEditor.grabFocus();
-            setCurrentAction(ACTION_EDIT_NEW_EDGE_LABEL);
+        Point2D c = GeometryUtils.getMiddlePoint(u.getCenter(), v.getCenter());
+        if (edgeType == Edge.EDGE_TYPE_DIRECTED) {
+            Integer key = v.getKey();
+            if (u.contains(key)) {
+                JOptionPane.showMessageDialog(
+                            null,
+                            "An edge already exists!", "Error",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+            } else {
+                Edge edge = u.addNeighbor(key, "");
+                edge.setLabelCenter(c);
+                edgeBeingEdited = edge;
+                labelEditor.setText("");
+                resizeLabelEditor(c, "");
+                this.add(labelEditor);
+                labelEditor.grabFocus();
+                setCurrentAction(ACTION_EDIT_NEW_EDGE_LABEL);
 
-            pendingActions = true;
+                pendingActions = true;
+            }
+        } else {
+            int ku = u.getKey();
+            int kv = v.getKey();
+            if (u.contains(kv) && v.contains(ku)) {
+                JOptionPane.showMessageDialog(
+                            null,
+                            "Vertices are already connected.", "Error",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                return;
+            }
+
+            if (u.contains(kv) || v.contains(ku)) {
+                int op = JOptionPane.showConfirmDialog(
+                                null,
+                                "An edge already exists.\nWould you like to " + 
+                                "convert it to an Undirected edge? ", "Error",
+                                JOptionPane.YES_NO_OPTION
+                            );
+                if (op == JOptionPane.YES_OPTION) {
+                    if (u.contains(kv)) {
+                        Edge uv = u.getNeighbors().get(kv);
+                        uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        Edge vu = v.addNeighbor(ku, uv.getLabel());
+                        vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                    } else {
+                        Edge vu = v.getNeighbors().get(ku);
+                        vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        Edge uv = u.addNeighbor(kv, vu.getLabel());
+                        uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                    }
+                }
+            } else {
+                Edge uv = u.addNeighbor(kv, "");
+                Edge vu = v.addNeighbor(ku, "");
+
+                uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+
+                uv.setLabelCenter(c);
+                edgeBeingEdited = uv;
+                labelEditor.setText("");
+                resizeLabelEditor(c, "");
+                this.add(labelEditor);
+                labelEditor.grabFocus();
+                setCurrentAction(ACTION_EDIT_NEW_EDGE_LABEL);
+
+                pendingActions = true;
+            }
         }
     }
 
@@ -1563,13 +1619,14 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         // Or delete an edge?
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
-            for (Entry<Integer, Edge> edge : v.getNeighbors().entrySet()) {
-                Integer startId = edge.getValue().getStart();
-                Integer endId = edge.getValue().getEnd();
-                Point2D a = graph.get(startId).getCenter();
-                Point2D b = graph.get(endId).getCenter();
+        for (Entry<Integer, Vertex> vertexEntry : graph.entrySet()) {
+            Vertex v = vertexEntry.getValue();
+            for (Entry<Integer, Edge> edgeEntry : v.getNeighbors().entrySet()) {
+                Edge edge = edgeEntry.getValue();
+                Integer startKey = edge.getStart();
+                Integer endKey = edge.getEnd();
+                Point2D a = graph.get(startKey).getCenter();
+                Point2D b = graph.get(endKey).getCenter();
                 if (GeometryUtils.onSegment(a, b, click, gc)) {
                     //int op = JOptionPane
                     //    .showConfirmDialog(null, "Are you sure?",
@@ -1580,7 +1637,15 @@ public class Plane extends JPanel implements MouseListener,
                     //    changes++;
                     //    repaint();
                     //}
-                    v.getNeighbors().remove(edge.getKey());
+
+                    if (edge.getType() == Edge.EDGE_TYPE_UNDIRECTED) {
+                        Vertex u = graph.get(endKey);
+                        if (u.getNeighbors().containsKey(startKey)) {
+                            u.getNeighbors().remove(startKey);
+                        }
+                    }
+
+                    v.getNeighbors().remove(endKey);
                     changes++;
                     repaint();
                     return;
