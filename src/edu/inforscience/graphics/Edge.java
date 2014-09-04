@@ -14,6 +14,7 @@ public class Edge {
     private float strokeSize;
     private Point2D labelCenter;
     private int type; // Directed or undirected
+    boolean selected;
 
     //Constructors
     public Edge(Integer start, Integer end, String label)
@@ -110,6 +111,16 @@ public class Edge {
     public int getType()
     {
         return type;
+    }
+
+    public void setSelected(boolean value)
+    {
+        selected = value;
+    }
+
+    public boolean isSelected()
+    {
+        return selected;
     }
 }
 
