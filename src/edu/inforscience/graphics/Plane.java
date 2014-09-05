@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.ArrayList;
 
+import edu.inforscience.graph.*;
 import edu.inforscience.Main;
+import edu.inforscience.InvalidOperationException;
 import edu.inforscience.util.StringUtils;
 import edu.inforscience.util.MathUtils;
 import edu.inforscience.util.GeometryUtils;
@@ -53,9 +55,7 @@ public class Plane extends JPanel implements MouseListener,
                                                     new float[]{8, 4}, 0
                                                 );
 
-    private HashMap<Integer, Vertex> graph;
-    private HashMap<String, Integer> keys;
-    private int nextKey;
+    private Graph graph;
 
     private GraphicsContext gc;
     private Vertex startVertex;
@@ -111,9 +111,7 @@ public class Plane extends JPanel implements MouseListener,
         addMouseWheelListener(this);
         addMouseMotionListener(this);
 
-        graph = new HashMap<Integer, Vertex>();
-        keys = new HashMap<String, Integer>();
-        nextKey = 1;
+        graph = new Graph();
 
         setShowGrid(false);
         setCurrentAction(ACTION_DEFAULT);
@@ -166,16 +164,14 @@ public class Plane extends JPanel implements MouseListener,
                                  RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex u = entry.getValue();
-            for (Entry<Integer, Edge> v : u.getNeighbors().entrySet()) {
-                Edge e = v.getValue();
+        for (Vertex u : graph.vertices()) {
+            for (Edge e : u.neighbors()) {
                 drawEdge(g2d, e);
             }
         }
 
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            drawVertex(g2d, entry.getValue());
+        for (Vertex v : graph.vertices()) {
+            drawVertex(g2d, v);
         }
 
         if (getCurrentAction() == ACTION_DRAW_NEW_EDGE && startVertex != null) {
@@ -224,16 +220,14 @@ public class Plane extends JPanel implements MouseListener,
                                  RenderingHints.VALUE_ANTIALIAS_ON);
         }
 
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex u = entry.getValue();
-            for (Entry<Integer, Edge> v : u.getNeighbors().entrySet()) {
-                Edge e = v.getValue();
+        for (Vertex u : graph.vertices()) {
+            for (Edge e : u.neighbors()) {
                 drawEdge(g2d, e);
             }
         }
 
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            drawVertex(g2d, entry.getValue());
+        for (Vertex v : graph.vertices()) {
+            drawVertex(g2d, v);
         }
 
         currentFont = null;
@@ -312,8 +306,7 @@ public class Plane extends JPanel implements MouseListener,
         int ca = getCurrentAction();
 
         if (ca == ACTION_DRAW_NEW_EDGE && startVertex != null) {
-            for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                Vertex vertex = entry.getValue();
+            for (Vertex vertex : graph.vertices()) {
                 String id = vertex.getLabel();
                 if (startVertex.getLabel().equals(id)) {
                     continue;
@@ -322,7 +315,7 @@ public class Plane extends JPanel implements MouseListener,
                 boolean found = false;
                 if (getShapeType() == SHAPE_CIRCLE) {
                     double distance = click.distanceTo(vertex.getCenter());
-                    if (distance <= entry.getValue().getRadius()) {
+                    if (distance <= vertex.getRadius()) {
                         found = true;
                     }
                 } else {
@@ -341,8 +334,7 @@ public class Plane extends JPanel implements MouseListener,
             double x2 = Math.max(startSelection.getX(), endSelection.getX());
             double y1 = Math.min(startSelection.getY(), endSelection.getY());
             double y2 = Math.max(startSelection.getY(), endSelection.getY());
-            for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                Vertex vertex = entry.getValue();
+            for (Vertex vertex : graph.vertices()) {
                 Point[] rect = createVertexRect(vertex);
 
                 // Test if the current node is inside the selection rectangle
@@ -362,28 +354,24 @@ public class Plane extends JPanel implements MouseListener,
                 }
             }
 
-            for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                Vertex u = entry.getValue();
-                HashMap<Integer, Edge> neighbors = u.getNeighbors();
-                for (Entry<Integer, Edge> neighbor : neighbors.entrySet()) {
-                    Edge edge = neighbor.getValue();
-                    Vertex v = graph.get(edge.getEnd());
-                    FontMetrics m = graphics2D.getFontMetrics();
-                    Point2D a = GeometryUtils.computeEndPoint(u, v, m, gc);
-                    Point2D b = GeometryUtils.computeEndPoint(v, u, m, gc);
+            for (Edge edge : graph.edges()) {
+                Vertex u = graph.getVertex(edge.getStart());
+                Vertex v = graph.getVertex(edge.getEnd());
+                FontMetrics m = graphics2D.getFontMetrics();
+                Point2D a = GeometryUtils.computeEndPoint(u, v, m, gc);
+                Point2D b = GeometryUtils.computeEndPoint(v, u, m, gc);
 
-                    double x = gc.ix(a.x());
-                    double y = gc.iy(a.y());
-                    boolean test1 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
-                    x = gc.ix(b.x());
-                    y = gc.iy(b.y());
-                    boolean test2 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
+                double x = gc.ix(a.x());
+                double y = gc.iy(a.y());
+                boolean test1 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
+                x = gc.ix(b.x());
+                y = gc.iy(b.y());
+                boolean test2 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
 
-                    if (test1 && test2) {
-                        edge.setSelected(true);
-                    } else {
-                        edge.setSelected(false);
-                    }
+                if (test1 && test2) {
+                    edge.setSelected(true);
+                } else {
+                    edge.setSelected(false);
                 }
             }
 
@@ -397,8 +385,7 @@ public class Plane extends JPanel implements MouseListener,
                 boolean isRightButton = button == MouseEvent.BUTTON3;
                 boolean isLeftButton = button == MouseEvent.BUTTON1;
                 boolean foundVertex = false;
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex v = entry.getValue();
+                for (Vertex v : graph.vertices()) {
                     Point2D center = v.getCenter();
                     boolean selected = false;
                     if (getShapeType() == SHAPE_CIRCLE) {
@@ -412,7 +399,7 @@ public class Plane extends JPanel implements MouseListener,
                         }
                     }
 
-                    if (selected) {
+                    if (!foundVertex && selected) {
                         //Use mouse's right button to flip selection in multiple
                         //selection mode (pressing Ctrl).
                         if (ctrlKeyStatus && isRightButton) {
@@ -427,24 +414,21 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 if (!foundVertex) {
-                    for (Entry<Integer, Vertex> ve : graph.entrySet()) {
-                        Vertex v = ve.getValue();
-                        HashMap<Integer, Edge> neighbors = v.getNeighbors();
-                        for (Entry<Integer, Edge> ee : neighbors.entrySet()) {
-                            Edge edge = ee.getValue();
-                            Integer startKey = edge.getStart();
-                            Integer endKey = edge.getEnd();
-                            Point2D a = graph.get(startKey).getCenter();
-                            Point2D b = graph.get(endKey).getCenter();
-                            if (GeometryUtils.onSegment(a, b, click, gc)) {
-                                if (ctrlKeyStatus && isRightButton) {
-                                    edge.setSelected(false);
-                                } else if (isLeftButton) {
-                                    edge.setSelected(true);
-                                }
-                            } else if (!ctrlKeyStatus && isLeftButton) {
+                    boolean found = false;
+                    for (Edge edge : graph.edges()) {
+                        Integer startKey = edge.getStart();
+                        Integer endKey = edge.getEnd();
+                        Point2D a = graph.getVertex(startKey).getCenter();
+                        Point2D b = graph.getVertex(endKey).getCenter();
+                        if (!found && GeometryUtils.onSegment(a, b, click, gc)){
+                            if (ctrlKeyStatus && isRightButton) {
                                 edge.setSelected(false);
+                            } else if (isLeftButton) {
+                                edge.setSelected(true);
                             }
+                            found = true;
+                        } else if (!ctrlKeyStatus && isLeftButton) {
+                            edge.setSelected(false);
                         }
                     }
                 }
@@ -517,8 +501,7 @@ public class Plane extends JPanel implements MouseListener,
             if (getCurrentAction() == ACTION_DEFAULT) {
                 wasDragged = false;
                 vertexToDrag = null;
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex v = entry.getValue();
+                for (Vertex v : graph.vertices()) {
                     if (getShapeType() == SHAPE_CIRCLE) {
                         double distance = click.distanceTo(v.getCenter());
                         if (distance <= v.getRadius()) {
@@ -549,8 +532,7 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 boolean found = false;
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex vertex = entry.getValue();
+                for (Vertex vertex : graph.vertices()) {
                     if (getShapeType() == SHAPE_CIRCLE) {
                         double distance = vertex.getCenter().distanceTo(click);
                         if (distance <= vertex.getRadius()) {
@@ -561,7 +543,7 @@ public class Plane extends JPanel implements MouseListener,
                     } else {
                         Polygon polygon = createPolygon(vertex);
                         if (polygon.contains(event.getPoint())) {
-                            startVertex = entry.getValue();
+                            startVertex = vertex;
                             found = true;
                             break;
                         }
@@ -611,8 +593,7 @@ public class Plane extends JPanel implements MouseListener,
                     vertexToDrag.setCenter(x + dx1, y + dy1);
                 }
 
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex vertex = entry.getValue();
+                for (Vertex vertex : graph.vertices()) {
                     if (!vertexToDrag.isSelected()) {
                         vertex.setSelected(false);
                     } else if (vertex.isSelected()) {
@@ -624,14 +605,9 @@ public class Plane extends JPanel implements MouseListener,
 
 
 
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex v = entry.getValue();
-                    HashMap<Integer, Edge> neighbors = v.getNeighbors();
-                    for (Entry<Integer, Edge> neighbor : neighbors.entrySet()) {
-                        Edge edge = neighbor.getValue();
-                        if (!vertexToDrag.isSelected()) {
-                            edge.setSelected(false);
-                        }
+                for (Edge edge : graph.edges()) {
+                    if (!vertexToDrag.isSelected()) {
+                        edge.setSelected(false);
                     }
                 }
 
@@ -780,8 +756,8 @@ public class Plane extends JPanel implements MouseListener,
 
     private void drawEdge(Graphics2D g2d, Edge edge)
     {
-        Vertex start = graph.get(edge.getStart());
-        Vertex end = graph.get(edge.getEnd());
+        Vertex start = graph.getVertex(edge.getStart());
+        Vertex end = graph.getVertex(edge.getEnd());
 
         Color tempColor = g2d.getColor();
         g2d.setColor(edge.getLabelColor());
@@ -890,8 +866,8 @@ public class Plane extends JPanel implements MouseListener,
                        getShapeType() == SHAPE_NONE) {
 
                 FontMetrics metrics = g2d.getFontMetrics();
-                Vertex u = graph.get(edge.getStart());
-                Vertex v = graph.get(edge.getEnd());
+                Vertex u = graph.getVertex(edge.getStart());
+                Vertex v = graph.getVertex(edge.getEnd());
                 Point2D startPoint = GeometryUtils.
                                      computeEndPoint(u, v, metrics, gc);
                 Point2D endPoint = GeometryUtils.
@@ -913,7 +889,11 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        float strokeSize = edge.isSelected() ? 3.0f : 1.0f;
+        float strokeSize = edge.isSelected() ? 2.5f : 1.0f;
+        if (edge.isHighlighted()) {
+            strokeSize = 3.5f;
+        }
+
         g2d.setStroke(new BasicStroke(strokeSize));
         g2d.setColor(edge.getStrokeColor());
         g2d.draw(curve);
@@ -955,7 +935,7 @@ public class Plane extends JPanel implements MouseListener,
         }
         // Ends draw label
 
-        if (edge.getType() == Edge.EDGE_TYPE_DIRECTED) {
+        if (edge.isDirected()) {
             Line2D.Double line;
             if (direction == Integer.MAX_VALUE) {
                 line = new Line2D.Double(
@@ -1009,34 +989,15 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(tempColor);
     }
 
-    public void setGraph(HashMap<Integer, Vertex> graph,
-                         HashMap<String, Integer> keys,
-                         Integer nextKey)
+    public void setGraph(Graph graph)
     {
         this.graph = graph;
-        if (keys != null) {
-            this.keys = keys;
-        } else {
-            this.keys.clear();
-        }
-
-        if (nextKey != null) {
-            this.nextKey = nextKey;
-        } else {
-            this.nextKey = 1;
-        }
-
         repaint();
     }
 
-    public HashMap<Integer, Vertex> getGraph()
+    public Graph getGraph()
     {
         return graph;
-    }
-
-    public void setKeys(HashMap<String, Integer> keys)
-    {
-        this.keys = keys;
     }
 
     private int getCurrentAction()
@@ -1175,17 +1136,17 @@ public class Plane extends JPanel implements MouseListener,
                 setTextAlignment(StyleConstants.ALIGN_RIGHT);
             }
         }
+    }
 
-        private void setTextAlignment(int newAlignment)
-        {
-            String text = labelEditor.getText();
-            StyledDocument document = new DefaultStyledDocument();
-            Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
-            StyleConstants.setAlignment(defaultStyle, newAlignment);
-            labelEditor.setDocument(document);
-            labelEditor.setText(text);
-            textAlignment = newAlignment;
-        }
+    private void setTextAlignment(int newAlignment)
+    {
+        String text = labelEditor.getText();
+        StyledDocument document = new DefaultStyledDocument();
+        Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
+        StyleConstants.setAlignment(defaultStyle, newAlignment);
+        labelEditor.setDocument(document);
+        labelEditor.setText(text);
+        textAlignment = newAlignment;
     }
 
     @Override
@@ -1274,8 +1235,7 @@ public class Plane extends JPanel implements MouseListener,
 
     private void setColorsToSelectedVertices(String key, Color color)
     {
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
+        for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
                 if ("labelColor".equals(key)) {
                     v.setLabelColor(color);
@@ -1297,39 +1257,18 @@ public class Plane extends JPanel implements MouseListener,
     public void deleteSelectedVertices()
     {
         ArrayList<Integer> list = new ArrayList<Integer>();
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
+        for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
                 list.add(v.getKey());
             }
         }
 
         for (Integer k : list) {
-            deleteVertex(k);
+            graph.removeVertex(k);
+            changes++;
         }
 
         repaint();
-    }
-
-    private void deleteVertex(Integer deleteKey)
-    {
-        if (deleteKey == null || !graph.containsKey(deleteKey)) {
-            return;
-        }
-
-        // Disconnect the vertex to delete from the rest of the vertices.
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
-            boolean test1 = v.getKey().equals(deleteKey);
-            boolean test2 = v.contains(deleteKey);
-            if (!test1 && test2) {
-                v.getNeighbors().remove(deleteKey);
-            }
-        }
-
-        keys.remove(graph.get(deleteKey).getLabel());
-        graph.remove(deleteKey);
-        changes++;
     }
 
     public void setEdgeType(int type)
@@ -1346,8 +1285,7 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         Point q = new Point(gc.ix(point.x()), gc.iy(point.y()));
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
+        for (Vertex v : graph.vertices()) {
             Point2D center = v.getCenter();
             if (getShapeType() == SHAPE_CIRCLE) {
                 if (center.distanceTo(point) <= v.getRadius()) {
@@ -1370,17 +1308,13 @@ public class Plane extends JPanel implements MouseListener,
             return null;
         }
 
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
-            for (Entry<Integer, Edge> neighbor : v.getNeighbors().entrySet()) {
-                Edge edge = neighbor.getValue();
-                Integer startKey = edge.getStart();
-                Integer endKey = edge.getEnd();
-                Point2D a = graph.get(startKey).getCenter();
-                Point2D b = graph.get(endKey).getCenter();
-                if (GeometryUtils.onSegment(a, b, point, gc)) {
-                    return edge;
-                }
+        for (Edge edge : graph.edges()) {
+            Integer startKey = edge.getStart();
+            Integer endKey = edge.getEnd();
+            Point2D a = graph.getVertex(startKey).getCenter();
+            Point2D b = graph.getVertex(endKey).getCenter();
+            if (GeometryUtils.onSegment(a, b, point, gc)) {
+                return edge;
             }
         }
 
@@ -1391,23 +1325,22 @@ public class Plane extends JPanel implements MouseListener,
     {
         String label = labelEditor.getText().trim();
         if (!label.isEmpty()) {
-            if (keys.containsKey(label)) {
-                JOptionPane.showMessageDialog(null,
-                        "A node with the same label already exists!",
-                        "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
+            try {
                 vertexBeingEdited.setLabel(label);
                 vertexBeingEdited.setLabelChanged(true);
                 vertexBeingEdited.setLabelAlignment(textAlignment);
-                int key = nextKey++;
-                vertexBeingEdited.setKey(key);
-                keys.put(label, key);
-                graph.put(key, vertexBeingEdited);
+                graph.addVertex(vertexBeingEdited);
                 changes++;
+            } catch (InvalidOperationException ioe) {
+                JOptionPane.showMessageDialog(
+                                null,
+                                "Error: " + ioe.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
             }
         }
-        graph.remove(0);
 
+        graph.removeDummyVertex();
         labelEditor.setText("");
         this.remove(labelEditor);
     }
@@ -1422,39 +1355,38 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         if (!oldLabel.equals(newLabel) && !newLabel.isEmpty()) {
-            if (keys.containsKey(newLabel)) {
+            if (graph.containsVertexWithLabel(newLabel)) {
                 JOptionPane.showMessageDialog(
-                            null,
-                            "A node with the same label already exists!",
-                            "Error", JOptionPane.ERROR_MESSAGE
-                        );
+                                null,
+                                "A node with the same label already exists.",
+                                "Error", JOptionPane.ERROR_MESSAGE
+                            );
             } else {
-                int oldKey = keys.get(oldLabel);
-                int newKey = nextKey++;
-                keys.put(newLabel, newKey);
-                vertexBeingEdited.setKey(newKey);
-                Map<Integer, Edge> neighbors = vertexBeingEdited.getNeighbors();
-                for (Entry<Integer, Edge> e : neighbors.entrySet()) {
-                    e.getValue().setStart(newKey);
-                }
+                try {
+                    int oldKey = vertexBeingEdited.getKey();
 
-                for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-                    Vertex v = entry.getValue();
-                    if (!v.getKey().equals(oldKey)) {
-                        Edge edge = v.getNeighbors().remove(oldKey);
-                        if (edge != null) {
-                            edge.setEnd(newKey);
-                            v.getNeighbors().put(newKey, edge);
+                    vertexBeingEdited.setLabel(newLabel);
+                    vertexBeingEdited.setLabelChanged(true);
+                    int newKey = graph.addVertex(vertexBeingEdited);
+                    for (Edge e : vertexBeingEdited.neighbors()) {
+                        e.setStart(newKey);
+                    }
+
+                    for (Vertex v : graph.vertices()) {
+                        if (!v.getKey().equals(oldKey)) {
+                            Edge edge = v.removeNeighbor(oldKey);
+                            if (edge != null) {
+                                edge.setEnd(newKey);
+                                v.addNeighbor(edge);
+                            }
                         }
                     }
-                }
 
-                graph.remove(oldKey);
-                keys.remove(oldLabel);
-                vertexBeingEdited.setLabel(newLabel);
-                vertexBeingEdited.setLabelChanged(true);
-                graph.put(newKey, vertexBeingEdited);
-                changes++;
+                    graph.removeVertex(oldKey);
+                    changes++;
+                } catch (InvalidOperationException ioe) {
+
+                }
             }
         }
         labelEditor.setText("");
@@ -1597,23 +1529,23 @@ public class Plane extends JPanel implements MouseListener,
                             );
                 if (op == JOptionPane.YES_OPTION) {
                     if (u.contains(kv)) {
-                        Edge uv = u.getNeighbors().get(kv);
-                        uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        Edge uv = u.getNeighbor(kv);
+                        uv.setDirected(false);
                         Edge vu = v.addNeighbor(ku, uv.getLabel());
-                        vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        vu.setDirected(false);
                     } else {
-                        Edge vu = v.getNeighbors().get(ku);
-                        vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        Edge vu = v.getNeighbor(ku);
+                        vu.setDirected(false);
                         Edge uv = u.addNeighbor(kv, vu.getLabel());
-                        uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                        uv.setDirected(false);
                     }
                 }
             } else {
                 Edge uv = u.addNeighbor(kv, "");
                 Edge vu = v.addNeighbor(ku, "");
 
-                uv.setType(Edge.EDGE_TYPE_UNDIRECTED);
-                vu.setType(Edge.EDGE_TYPE_UNDIRECTED);
+                uv.setDirected(false);
+                vu.setDirected(false);
 
                 uv.setLabelCenter(c);
                 edgeBeingEdited = uv;
@@ -1631,8 +1563,7 @@ public class Plane extends JPanel implements MouseListener,
     private void handleLabelEditing(Point eventPoint, Point2D click)
     {
         // Is it a node label?
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex vertex = entry.getValue();
+        for (Vertex vertex : graph.vertices()) {
             boolean found = false;
 
             if (getShapeType() == SHAPE_CIRCLE) {
@@ -1649,6 +1580,7 @@ public class Plane extends JPanel implements MouseListener,
                 vertexBeingEdited = vertex;
                 resizeLabelEditor(vertex.getCenter(), vertex.getLabel());
                 labelEditor.setText(vertex.getLabel());
+                setTextAlignment(vertex.getLabelAlignment());
                 this.add(labelEditor);
                 labelEditor.grabFocus();
                 setCurrentAction(ACTION_EDIT_NODE_LABEL);
@@ -1658,22 +1590,17 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         // Or an edge label?
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex vertex = entry.getValue();
-            HashMap<Integer, Edge> set = vertex.getNeighbors();
-            for (Entry<Integer, Edge> edge : set.entrySet()) {
-                Edge e = edge.getValue();
-                Polygon p = createPolygon(e.getLabelCenter(), e.getLabel());
-                if (p.contains(eventPoint)) {
-                    edgeBeingEdited = e;
-                    resizeLabelEditor(e.getLabelCenter(), e.getLabel());
-                    labelEditor.setText(e.getLabel());
-                    this.add(labelEditor);
-                    labelEditor.grabFocus();
-                    setCurrentAction(ACTION_EDIT_EDGE_LABEL);
-                    pendingActions = true;
-                    return;
-                }
+        for (Edge e : graph.edges()) {
+            Polygon p = createPolygon(e.getLabelCenter(), e.getLabel());
+            if (p.contains(eventPoint)) {
+                edgeBeingEdited = e;
+                resizeLabelEditor(e.getLabelCenter(), e.getLabel());
+                labelEditor.setText(e.getLabel());
+                this.add(labelEditor);
+                labelEditor.grabFocus();
+                setCurrentAction(ACTION_EDIT_EDGE_LABEL);
+                pendingActions = true;
+                return;
             }
         }
     }
@@ -1682,7 +1609,7 @@ public class Plane extends JPanel implements MouseListener,
     {
         resizeLabelEditor(click, "");
         vertexBeingEdited = new Vertex("", click);
-        graph.put(0, vertexBeingEdited);
+        graph.addDummyVertex(vertexBeingEdited);
         labelEditor.setText("");
         this.add(labelEditor);
         labelEditor.grabFocus();
@@ -1694,8 +1621,7 @@ public class Plane extends JPanel implements MouseListener,
     {
         Integer deleteKey = null;
         // Delete a vertex?
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex vertex = entry.getValue();
+        for (Vertex vertex : graph.vertices()) {
             boolean found = false;
 
             if (getShapeType() == SHAPE_CIRCLE) {
@@ -1711,64 +1637,50 @@ public class Plane extends JPanel implements MouseListener,
             if (found) {
                 deleteKey = vertex.getKey();
                 break;
-                //int op = JOptionPane
-                //    .showConfirmDialog(null, "Are you sure?", "Confirm",
-                //            JOptionPane.YES_NO_OPTION);
-                //if (op == JOptionPane.YES_OPTION) {
-                //    deleteKey = vertex.getKey();
-                //    break;
-                //} else {
-                //    return;
-                //}
+                // Are you sure?
             }
         }
 
         if (deleteKey != null) {
-            deleteVertex(deleteKey);
+            graph.removeVertex(deleteKey);
             repaint();
         }
 
         // Or delete an edge?
-        for (Entry<Integer, Vertex> vertexEntry : graph.entrySet()) {
-            Vertex v = vertexEntry.getValue();
-            for (Entry<Integer, Edge> edgeEntry : v.getNeighbors().entrySet()) {
-                Edge edge = edgeEntry.getValue();
-                Integer startKey = edge.getStart();
-                Integer endKey = edge.getEnd();
-                Point2D a = graph.get(startKey).getCenter();
-                Point2D b = graph.get(endKey).getCenter();
-                if (GeometryUtils.onSegment(a, b, click, gc)) {
-                    //int op = JOptionPane
-                    //    .showConfirmDialog(null, "Are you sure?",
-                    //            "Confirm",
-                    //            JOptionPane.YES_NO_OPTION);
-                    //if (op == JOptionPane.YES_OPTION) {
-                    //    v.getNeighbors().remove(edge.getKey());
-                    //    changes++;
-                    //    repaint();
-                    //}
+        for (Edge edge : graph.edges()) {
+            Integer startKey = edge.getStart();
+            Integer endKey = edge.getEnd();
+            Point2D a = graph.getVertex(startKey).getCenter();
+            Point2D b = graph.getVertex(endKey).getCenter();
+            if (GeometryUtils.onSegment(a, b, click, gc)) {
+                // Are you sure?
 
-                    if (edge.getType() == Edge.EDGE_TYPE_UNDIRECTED) {
-                        Vertex u = graph.get(endKey);
-                        if (u.getNeighbors().containsKey(startKey)) {
-                            u.getNeighbors().remove(startKey);
-                        }
+                if (!edge.isDirected()) {
+                    Vertex u = graph.getVertex(endKey);
+                    if (u.contains(startKey)) {
+                        u.removeNeighbor(startKey);
                     }
-
-                    v.getNeighbors().remove(endKey);
-                    changes++;
-                    repaint();
-                    return;
                 }
+
+                Vertex v = graph.getVertex(startKey);
+                v.removeNeighbor(endKey);
+                changes++;
+                repaint();
+                return;
             }
         }
     }
 
     private void selectAll()
     {
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            entry.getValue().setSelected(true);
+        for (Vertex v : graph.vertices()) {
+            v.setSelected(true);
         }
+
+        for (Edge e : graph.edges()) {
+            e.setSelected(true);
+        }
+
         repaint();
     }
 }

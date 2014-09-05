@@ -1,5 +1,6 @@
 package edu.inforscience.util;
 import edu.inforscience.graphics.*;
+import edu.inforscience.graph.*;
 import java.awt.FontMetrics;
 
 public class GeometryUtils {

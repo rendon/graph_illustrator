@@ -1,7 +1,7 @@
 package edu.inforscience;
 import edu.inforscience.graphics.*;
 import edu.inforscience.graphics.Point2D;
-import edu.inforscience.graphics.Edge;
+import edu.inforscience.graph.*;
 import edu.inforscience.util.Utils;
 import edu.inforscience.util.MathUtils;
 
@@ -21,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Iterator;
 import javax.swing.filechooser.FileFilter;
+
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -224,100 +225,53 @@ public class Main extends JFrame {
         Main test = new Main();
     }
 
-    private void readLaxGraph() throws IOException
+    private void readSimpleGraph() throws IOException
     {
-        InputStream fis = new FileInputStream(filePath);
-        InputStreamReader in = new InputStreamReader(fis);
-        BufferedReader reader = new BufferedReader(in);
-        HashMap<Integer, Vertex> G = new HashMap<Integer, Vertex>();
-        HashMap<String, Integer> keys = new HashMap<String, Integer>();
-        Integer nextKey = 1;
-        String line, u , v, label;
-
-        int operation = 0;
+        FileReader fileReader = new FileReader(filePath);
+        BufferedReader reader = new BufferedReader(fileReader);
+        String line;
+        Graph graph = new Graph();
         while ((line = reader.readLine()) != null) {
-            if (line.equals("[EDGES]")) {
-                operation = READ_EDGE_INFO;
-                continue;
-            } else if (line.equals("[VERTICES]")) {
-                operation = READ_VERTEX_INFO;
+            String[] tokens = line.trim().split("\\s");
+            if (tokens.length < 2) {
                 continue;
             }
 
-            if (operation == READ_EDGE_INFO) {
-                String[] tokens = line.split(",");
-                u = tokens[0].trim();
-                v = tokens[1].trim();
-                if (tokens.length == 3) {
-                    label = tokens[2];
+            String u = tokens[0];
+            String v = tokens[1];
+            String label = (tokens.length == 3) ? tokens[2] : "";
+            Integer ku = null, kv = null;
+            try {
+                if (!graph.containsVertexWithLabel(u)) {
+                    ku = graph.addVertex(new Vertex(u));
                 } else {
-                    label = "";
+                    ku = graph.getVertexWithLabel(u).getKey();
                 }
 
-                u = u.replace("\\n", "\n");
-                v = v.replace("\\n", "\n");
-
-                Integer ku = null, kv = null;
-                if (!keys.containsKey(u)) {
-                    ku = nextKey++;
-                    Vertex vu = new Vertex(u);
-                    vu.setKey(ku);
-                    keys.put(u, ku);
-                    G.put(ku, vu);
+                if (!graph.containsVertexWithLabel(v)) {
+                    kv = graph.addVertex(new Vertex(v));
                 } else {
-                    ku = keys.get(u);
+                    kv = graph.getVertexWithLabel(v).getKey();
                 }
+            } catch (InvalidOperationException ioe) {
 
-                if (!keys.containsKey(v)) {
-                    kv = nextKey++;
-                    Vertex vv = new Vertex(v);
-                    vv.setKey(kv);
-                    keys.put(v, kv);
-                    G.put(kv, vv);
-                } else {
-                    kv = keys.get(v);
-                }
-
-                G.get(ku).addNeighbor(kv, label);
-                //G.get(vid).addNeighbor(uid, label);
-            } else if (operation ==  READ_VERTEX_INFO) {
-                String[] tokens = line.split(":|,");
-
-                u = tokens[0].trim();
-                u = u.replace("\\n", "\n");
-                //String[] coordinates = tokens[1].split(",");
-                double x = Double.parseDouble(tokens[1]);
-                double y = Double.parseDouble(tokens[2]);
-                int align = StyleConstants.ALIGN_LEFT;
-                if (tokens.length == 4) {
-                    if (tokens[3].equals("C"))
-                        align = StyleConstants.ALIGN_CENTER;
-                    else if (tokens[3].equals("R"))
-                        align = StyleConstants.ALIGN_RIGHT;
-                }
-
-                if (keys.containsKey(u)) {
-                    G.get(keys.get(u)).setCenter(new Point2D(x, y));
-                    G.get(keys.get(u)).setLabelAlignment(align);
-                } else{
-                    Integer key = nextKey++;
-                    Vertex vertex = new Vertex(u, new Point2D(x, y));
-                    vertex.setKey(key);
-                    vertex.setLabelAlignment(align);
-                    keys.put(u, key);
-                    G.put(key, vertex);
-                }
             }
+
+            // Edges are directed
+            Vertex vertexU = graph.getVertex(ku);
+            vertexU.addNeighbor(kv, label);
         }
 
-        plane.setGraph(G, keys, nextKey);
-        plane.resetZoom();
-        fis.close();
+        reader.close();
+
+        plane.finishPendingActions();
+        plane.setChanges(0);
+        plane.setGraph(graph);
     }
 
     private void readGraph() throws InvalidFormatException, IOException
     {
-        HashMap<Integer, Vertex> graph = new HashMap<Integer, Vertex>();
+        Graph graph = new Graph();
         HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
         HashSet<String> labels = new HashSet<String>();
@@ -360,6 +314,19 @@ public class Main extends JFrame {
             nextKey++;
 
             // Optional properties
+            
+            if (v.get("labelAlignment") != null) {
+                String alignment = v.get("labelAlignment").textValue();
+                int la = StyleConstants.ALIGN_LEFT;
+                if ("right".equals(alignment.toLowerCase())) {
+                    la = StyleConstants.ALIGN_RIGHT;
+                } else if ("center".equals(alignment.toLowerCase())) {
+                    la = StyleConstants.ALIGN_CENTER;
+                }
+
+                vertex.setLabelAlignment(la);
+            }
+
             if (v.get("center") != null) {
                 JsonNode point = v.get("center");
                 if (point.get("x") != null && point.get("y") != null) {
@@ -392,7 +359,12 @@ public class Main extends JFrame {
                 vertex.setBorderColor(borderColor);
             }
 
-            graph.put(newKeys.get(key), vertex);
+            try {
+                graph.addVertex(newKeys.get(key), vertex);
+            } catch (InvalidOperationException ioe) {
+
+            }
+
             keys.add(key);
             labels.add(label);
         }
@@ -438,10 +410,12 @@ public class Main extends JFrame {
                 edge.setStrokeColor(strokeColor);
             }
 
-            if (e.get("strokeSize") != null) {
-                String str = e.get("strokeSize").toString();
-                Float strokeSize = Float.parseFloat(str);
-                edge.setStrokeSize(strokeSize);
+            if (e.get("directed") != null) {
+                edge.setDirected(e.get("directed").asBoolean());
+            }
+
+            if (e.get("highlighted") != null) {
+                edge.setHighlighted(e.get("highlighted").asBoolean());
             }
 
             // Not supported yet.
@@ -454,12 +428,13 @@ public class Main extends JFrame {
                 }
             }
 
-            graph.get(start).getNeighbors().put(end, edge);
+            graph.getVertex(start).addNeighbor(edge);
         }
 
         plane.finishPendingActions();
         plane.resetZoom();
-        plane.setGraph(graph, labelKeys, nextKey);
+        graph.setNextKey(nextKey);
+        plane.setGraph(graph);
     }
 
     private class ActionHandler implements ActionListener, WindowListener {
@@ -616,12 +591,12 @@ public class Main extends JFrame {
         }
 
         JFileChooser fc = new JFileChooser();
-        FileFilter gi, lgi;
+        FileFilter gi, sgi;
         gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
-        lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
+        sgi = new FileNameExtensionFilter("Simple Graph Illustrator", "sgi");
 
         fc.addChoosableFileFilter(gi);
-        fc.addChoosableFileFilter(lgi);
+        fc.addChoosableFileFilter(sgi);
         fc.setFileFilter(gi);
 
         int code = fc.showOpenDialog(null);
@@ -632,8 +607,8 @@ public class Main extends JFrame {
                 filePath = file.getAbsolutePath();
                 if (filePath.toLowerCase().endsWith(".gi")) {
                     readGraph();
-                } else if (filePath.toLowerCase().endsWith(".lgi")) {
-                    readLaxGraph();
+                } else if (filePath.toLowerCase().endsWith(".sgi")) {
+                    readSimpleGraph();
                 } else {
                     JOptionPane.showMessageDialog(
                                     null, "Uknown file type", "Error",
@@ -666,11 +641,11 @@ public class Main extends JFrame {
     private String chooseSaveFile()
     {
         JFileChooser fc = new JFileChooser();
-        FileFilter gi, lgi;
+        FileFilter gi, sgi;
         gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
-        lgi = new FileNameExtensionFilter("Lax Graph Illustrator", "lgi");
+        sgi = new FileNameExtensionFilter("Simple Graph Illustrator", "sgi");
         fc.addChoosableFileFilter(gi);
-        fc.addChoosableFileFilter(lgi);
+        fc.addChoosableFileFilter(sgi);
         fc.setFileFilter(gi);
 
         int code = fc.showSaveDialog(null);
@@ -687,9 +662,9 @@ public class Main extends JFrame {
                 }
             }
 
-            if (selectedFilter == lgi) {
-                if (!fn.toLowerCase().endsWith(".lgi")) {
-                    fn += ".lgi";
+            if (selectedFilter == sgi) {
+                if (!fn.toLowerCase().endsWith(".sgi")) {
+                    fn += ".sgi";
                 }
             }
 
@@ -723,8 +698,8 @@ public class Main extends JFrame {
         try {
             if (filePath.toLowerCase().endsWith(".gi")) {
                 saveToGi();
-            } else if (filePath.toLowerCase().endsWith(".lgi")) {
-                saveToLgi();
+            } else if (filePath.toLowerCase().endsWith(".sgi")) {
+                saveToSgi();
             }
             return true;
         } catch (JsonGenerationException ge) {
@@ -773,7 +748,7 @@ public class Main extends JFrame {
                 if (filePath.toLowerCase().endsWith(".gi")) {
                     readGraph();
                 } else {
-                    readLaxGraph();
+                    readSimpleGraph();
                 }
                 plane.updateUI();
                 return true;
@@ -834,7 +809,7 @@ public class Main extends JFrame {
 
     private void saveToGi() throws JsonGenerationException, IOException
     {
-        Map<Integer, Vertex> graph = plane.getGraph();
+        Graph graph = plane.getGraph();
         JsonFactory factory = new JsonFactory();
         File output = new File(filePath);
         JsonGenerator generator = factory.createGenerator(
@@ -847,14 +822,22 @@ public class Main extends JFrame {
         generator.writeStartObject();
         generator.writeFieldName("Vertices");
         generator.writeStartArray();
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex v = entry.getValue();
+        for (Vertex v : graph.vertices()) {
             String hexLabelColor = Utils.encode(v.getLabelColor());
             String hexBorderColor = Utils.encode(v.getBorderColor());
             String hexBackgroundColor = Utils.encode(v.getBackgroundColor());
             generator.writeStartObject();
             generator.writeNumberField("key", v.getKey());
             generator.writeStringField("label", v.getLabel());
+
+            String alignment = "left";
+            int la = v.getLabelAlignment();
+            if (la == StyleConstants.ALIGN_CENTER) {
+                alignment = "center";
+            } else if (la == StyleConstants.ALIGN_RIGHT) {
+                alignment = "right";
+            }
+            generator.writeStringField("labelAlignment", alignment);
 
             double r = MathUtils.round(v.getRadius(), 6);
             generator.writeNumberField("radius", r);
@@ -877,72 +860,42 @@ public class Main extends JFrame {
 
         generator.writeFieldName("Edges");
         generator.writeStartArray();
-        for (Entry<Integer, Vertex> vertexEntry : graph.entrySet()) {
-            Vertex v = vertexEntry.getValue();
-            for (Entry<Integer, Edge>  edgeEntry: v.getNeighbors().entrySet()) {
-                generator.writeStartObject();
-                Edge e = edgeEntry.getValue();
-                String hexLabelColor = Utils.encode(e.getLabelColor());
-                String hexStrokeColor = Utils.encode(e.getStrokeColor());
-                generator.writeNumberField("start", e.getStart());
-                generator.writeNumberField("end", e.getEnd());
-                generator.writeStringField("label", e.getLabel());
-                generator.writeStringField("labelColor", hexLabelColor);
-                generator.writeStringField("strokeColor", hexStrokeColor);
-                generator.writeNumberField("strokeSize", e.getStrokeSize());
+        for (Edge e : graph.edges()) {
+            generator.writeStartObject();
+            String hexLabelColor = Utils.encode(e.getLabelColor());
+            String hexStrokeColor = Utils.encode(e.getStrokeColor());
+            generator.writeNumberField("start", e.getStart());
+            generator.writeNumberField("end", e.getEnd());
+            generator.writeStringField("label", e.getLabel());
+            generator.writeStringField("labelColor", hexLabelColor);
+            generator.writeStringField("strokeColor", hexStrokeColor);
+            generator.writeBooleanField("highlighted", e.isHighlighted());
+            generator.writeBooleanField("directed", e.isDirected());
 
-                double x = MathUtils.round(e.getLabelCenter().x(), 6);
-                double y = MathUtils.round(e.getLabelCenter().y(), 6);
-                generator.writeFieldName("center");
-                generator.writeStartObject();
-                generator.writeNumberField("x", x);
-                generator.writeNumberField("y", y);
-                generator.writeEndObject();
+            double x = MathUtils.round(e.getLabelCenter().x(), 6);
+            double y = MathUtils.round(e.getLabelCenter().y(), 6);
+            generator.writeFieldName("center");
+            generator.writeStartObject();
+            generator.writeNumberField("x", x);
+            generator.writeNumberField("y", y);
+            generator.writeEndObject();
 
-                generator.writeEndObject();
-            }
+            generator.writeEndObject();
         }
 
         generator.close();
     }
 
-    private void saveToLgi() throws IOException
+    private void saveToSgi() throws IOException
     {
-        File file = new File(filePath);
-        FileWriter fw = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter writer = new BufferedWriter(fw);
-
-        Map<Integer, Vertex> graph = plane.getGraph();
-        writer.write("[EDGES]" + "\n");
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex u = entry.getValue();
-            for (Entry<Integer, Edge> e : u.getNeighbors().entrySet()) {
-                Edge edge = e.getValue();
-                Vertex v = graph.get(edge.getEnd());
-                writer.write(u.getLabel().replace("\n", "\\n") + ","
-                           + v.getLabel().replace("\n", "\\n"));
-
-                if (!edge.getLabel().isEmpty())
-                    writer.write("," + edge.getLabel().replace("\n", "\\n"));
-
-                writer.write("\n");
-            }
-        }
-
-        writer.write("[VERTICES]" + "\n");
-        for (Entry<Integer, Vertex> entry : graph.entrySet()) {
-            Vertex u = entry.getValue();
-            double x = u.getCenter().x();
-            double y = u.getCenter().y();
-            int align = u.getLabelAlignment();
-            String a = "L";
-            if (align == StyleConstants.ALIGN_CENTER)
-                a = "C";
-            else if (align == StyleConstants.ALIGN_RIGHT)
-                a = "R";
-            writer.write(u.getLabel().replace("\n", "\\n")
-                         + ":" + x + "," + y
-                         + "," + a + "\n");
+        FileWriter fileWriter = new FileWriter(filePath);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        Graph graph = plane.getGraph();
+        for (Edge e: graph.edges()) {
+            Vertex u = graph.getVertex(e.getStart());
+            Vertex v = graph.getVertex(e.getEnd());
+            writer.write(u.getLabel() + " " + v.getLabel() + " ");
+            writer.write(e.getLabel() + "\n");
         }
 
         writer.close();

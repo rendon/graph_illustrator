@@ -1,7 +1,8 @@
-package edu.inforscience.graphics;
+package edu.inforscience.graph;
 
 import java.awt.Color;
 
+import edu.inforscience.graphics.*;
 public class Edge {
     public static final int EDGE_TYPE_DIRECTED      = 1;
     public static final int EDGE_TYPE_UNDIRECTED    = 2;
@@ -11,10 +12,10 @@ public class Edge {
     private String label;    // label for edge
     private Color labelColor;
     private Color strokeColor;
-    private float strokeSize;
     private Point2D labelCenter;
-    private int type; // Directed or undirected
-    boolean selected;
+    private boolean directed;
+    private boolean selected;
+    private boolean highlighted;
 
     //Constructors
     public Edge(Integer start, Integer end, String label)
@@ -25,8 +26,7 @@ public class Edge {
         setLabel(label);
         labelColor = Color.BLACK;
         strokeColor = Color.BLACK;
-        strokeSize = 1.0f;
-        setType(EDGE_TYPE_DIRECTED);
+        directed = true;
     }
 
     public Integer getStart()
@@ -83,16 +83,6 @@ public class Edge {
         return strokeColor;
     }
 
-    public float getStrokeSize()
-    {
-        return strokeSize;
-    }
-
-    public void setStrokeSize(float stroke)
-    {
-        strokeSize = stroke;
-    }
-
     public Point2D getLabelCenter()
     {
         return labelCenter;
@@ -103,14 +93,14 @@ public class Edge {
         labelCenter = center;
     }
 
-    public void setType(int type)
+    public void setDirected(boolean value)
     {
-        this.type = type;
+        directed = value;
     }
 
-    public int getType()
+    public boolean isDirected()
     {
-        return type;
+        return directed;
     }
 
     public void setSelected(boolean value)
@@ -121,6 +111,16 @@ public class Edge {
     public boolean isSelected()
     {
         return selected;
+    }
+
+    public void setHighlighted(boolean value)
+    {
+        highlighted = value;
+    }
+
+    public boolean isHighlighted()
+    {
+        return highlighted;
     }
 }
 

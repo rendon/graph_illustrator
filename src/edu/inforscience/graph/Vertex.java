@@ -1,16 +1,22 @@
-package edu.inforscience.graphics;
+package edu.inforscience.graph;
 
 import javax.swing.text.StyleConstants;
 import java.awt.*;
+import java.util.LinkedList;;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import edu.inforscience.graphics.*;
 
 public class Vertex {
     public static final double BASE_VERTEX_RADIUS = 1;
 
     // Attributes
     private Integer key;
-    private Color labelColor;        // Vertex's label color
+    private Color labelColor;       // Vertex's label color
     private Color borderColor;      // Vertex's outline color
     private Color backgroundColor;  // Vertex's background color
     private String label;           // Label for vertex
@@ -20,7 +26,7 @@ public class Vertex {
     private boolean labelChanged;
     private boolean selected;
 
-    private HashMap<Integer, Edge> neighbors;
+    private HashMap<Integer, Edge> neighborMap;
 
 
     // This variable indicates the control point direction of the curve
@@ -42,7 +48,7 @@ public class Vertex {
         setRadius(BASE_VERTEX_RADIUS);
 
         edgeDirection = 0;
-        neighbors = new HashMap<Integer, Edge>();
+        neighborMap = new HashMap<Integer, Edge>();
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
@@ -92,30 +98,32 @@ public class Vertex {
         return edgeDirection;
     }
 
+    public void addNeighbor(Edge edge)
+    {
+        if (edge != null && edge.getEnd() != null) {
+            neighborMap.put(edge.getEnd(), edge);
+        }
+    }
+
     public Edge addNeighbor(Integer neighborKey, String label)
     {
-        if (!neighbors.containsKey(neighborKey)) {
+        if (!neighborMap.containsKey(neighborKey)) {
             Edge e = new Edge(getKey(), neighborKey, label);
-            neighbors.put(neighborKey, e);
+            neighborMap.put(neighborKey, e);
             return e;
         } else {
             return null;
         }
     }
 
-    public void removeNeighbor(Integer neighborKey)
+    public Edge getNeighbor(Integer key)
     {
-        neighbors.remove(neighborKey);
+        return neighborMap.get(key);
     }
 
     public boolean contains(Integer k)
     {
-        return neighbors.containsKey(k);
-    }
-
-    public HashMap<Integer, Edge> getNeighbors()
-    {
-        return neighbors;
+        return neighborMap.containsKey(k);
     }
 
     public Point2D getCenter()
@@ -208,6 +216,21 @@ public class Vertex {
     public Color getBackgroundColor()
     {
         return backgroundColor;
+    }
+
+    public Iterable<Edge> neighbors()
+    {
+        LinkedList<Edge> list = new LinkedList<Edge>();
+        for (Entry<Integer, Edge> entry : neighborMap.entrySet()) {
+            list.add(entry.getValue());
+        }
+
+        return list;
+    }
+
+    public Edge removeNeighbor(Integer key)
+    {
+        return neighborMap.remove(key);
     }
 }
 
