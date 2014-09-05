@@ -62,6 +62,7 @@ public class Main extends JFrame {
     private final JButton labelColorButton;
     private final JButton backgroundColorButton;
     private final JButton borderColorButton;
+    private final JButton highlightButton;;
 
     private final JButton zoomInButton;
     private final JButton zoomOutButton;
@@ -167,6 +168,10 @@ public class Main extends JFrame {
         borderColorButton.addActionListener(actionHandler);
         borderColorButton.setToolTipText("Set border color");
 
+        highlightButton = new JButton(getImage("highlight"));
+        highlightButton.addActionListener(actionHandler);
+        highlightButton.setToolTipText("Highlight edge");
+
         zoomInButton = new JButton(getImage("zoomIn"));
         zoomInButton.addActionListener(actionHandler);
         zoomInButton.setToolTipText("Zoom in");
@@ -202,6 +207,7 @@ public class Main extends JFrame {
         mainToolBar.add(labelColorButton);
         mainToolBar.add(backgroundColorButton);
         mainToolBar.add(borderColorButton);
+        mainToolBar.add(highlightButton);
         mainToolBar.addSeparator();
         mainToolBar.add(zoomInButton);
         mainToolBar.add(zoomOutButton);
@@ -519,20 +525,22 @@ public class Main extends JFrame {
                         );
 
                 if (source == labelColorButton) {
-                    plane.setLabelColorToSelectedVertices(color);
+                    plane.setLabelColorToSelectedObjects(color);
                 } else if (source == backgroundColorButton) {
-                    plane.setBackgroundColorToSelectedVertices(color);
+                    plane.setBackgroundColorToSelectedObjects(color);
                 } else if (source == borderColorButton) {
-                    plane.setBorderColorToSelectedVertices(color);
+                    plane.setBorderColorToSelectedObjects(color);
                 }
 
-           } else if (source == zoomInButton) {
+            } else if (source == highlightButton) {
+                plane.toggleEdgeHighlight();
+            } else if (source == zoomInButton) {
                plane.zoomIn();
-           } else if (source == zoomOutButton) {
+            } else if (source == zoomOutButton) {
                plane.zoomOut();
-           } else if (source == zoomResetButton) {
+            } else if (source == zoomResetButton) {
                plane.resetZoom();
-           }
+            }
 
            plane.requestFocus();
         }

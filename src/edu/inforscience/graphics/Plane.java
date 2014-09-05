@@ -414,19 +414,17 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 if (!foundVertex) {
-                    boolean found = false;
                     for (Edge edge : graph.edges()) {
                         Integer startKey = edge.getStart();
                         Integer endKey = edge.getEnd();
                         Point2D a = graph.getVertex(startKey).getCenter();
                         Point2D b = graph.getVertex(endKey).getCenter();
-                        if (!found && GeometryUtils.onSegment(a, b, click, gc)){
+                        if (GeometryUtils.onSegment(a, b, click, gc)){
                             if (ctrlKeyStatus && isRightButton) {
                                 edge.setSelected(false);
                             } else if (isLeftButton) {
                                 edge.setSelected(true);
                             }
-                            found = true;
                         } else if (!ctrlKeyStatus && isLeftButton) {
                             edge.setSelected(false);
                         }
@@ -889,8 +887,8 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        float strokeSize = edge.isSelected() ? 2.5f : 1.0f;
-        if (edge.isHighlighted()) {
+        float strokeSize = edge.isHighlighted() ? 2.5f : 1.0f;
+        if (edge.isSelected()) {
             strokeSize = 3.5f;
         }
 
@@ -1218,35 +1216,46 @@ public class Plane extends JPanel implements MouseListener,
         gc.resetZoom(getWidth(), getHeight());
     }
 
-    public void setLabelColorToSelectedVertices(Color color)
+    public void setLabelColorToSelectedObjects(Color color)
     {
-        setColorsToSelectedVertices("labelColor", color);
+        setColorsToSelectedObjects("labelColor", color);
     }
 
-    public void setBackgroundColorToSelectedVertices(Color color)
+    public void setBackgroundColorToSelectedObjects(Color color)
     {
-        setColorsToSelectedVertices("backgroundColor", color);
+        setColorsToSelectedObjects("backgroundColor", color);
     }
 
-    public void setBorderColorToSelectedVertices(Color color)
+    public void setBorderColorToSelectedObjects(Color color)
     {
-        setColorsToSelectedVertices("borderColor", color);
+        setColorsToSelectedObjects("borderColor", color);
     }
 
-    private void setColorsToSelectedVertices(String key, Color color)
+    private void setColorsToSelectedObjects(String key, Color color)
     {
         for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
                 if ("labelColor".equals(key)) {
                     v.setLabelColor(color);
-                }
-
-                if ("backgroundColor".equals(key)) {
+                    changes++;
+                } else if ("backgroundColor".equals(key)) {
                     v.setBackgroundColor(color);
-                }
-
-                if ("borderColor".equals(key)) {
+                    changes++;
+                } else if ("borderColor".equals(key)) {
                     v.setBorderColor(color);
+                    changes++;
+                }
+            }
+        }
+
+        for (Edge e : graph.edges()) {
+            if (e.isSelected()) {
+                if ("labelColor".equals(key)) {
+                    e.setLabelColor(color);
+                    changes++;
+                } else if ("borderColor".equals(key)) {
+                    e.setStrokeColor(color);
+                    changes++;
                 }
             }
         }
@@ -1276,6 +1285,18 @@ public class Plane extends JPanel implements MouseListener,
         edgeType = type;
     }
 
+
+    public void toggleEdgeHighlight()
+    {
+        for (Edge e : graph.edges()) {
+            if (e.isSelected()) {
+                e.setHighlighted(!e.isHighlighted());
+                e.setSelected(false);
+                changes++;
+            }
+        }
+        repaint();
+    }
     /* -------------------- Private methods. --------------------*/
 
     private Vertex vertexUnderPoint(Point2D point)
