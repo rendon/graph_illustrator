@@ -180,7 +180,9 @@ public class Plane extends JPanel implements MouseListener,
 
         for (Vertex u : graph.vertices()) {
             for (Edge e : u.neighbors()) {
-                drawEdge(g2d, e);
+                if (!e.isBackEdge()) {
+                    drawEdge(g2d, e);
+                }
             }
         }
 
@@ -194,6 +196,7 @@ public class Plane extends JPanel implements MouseListener,
             if (getMousePosition() != null) {
                 int x2 = (int) getMousePosition().getX();
                 int y2 = (int) getMousePosition().getY();
+                g2d.setColor(edgeStrokeColor);
                 g2d.drawLine(gc.ix(x1), gc.iy(y1), x2, y2);
             }
         }
@@ -428,22 +431,27 @@ public class Plane extends JPanel implements MouseListener,
                 }
 
                 if (!foundVertex) {
+                    boolean found = false;
                     for (Edge edge : graph.edges()) {
+                        if (edge.isBackEdge()) { continue; }
+
                         Integer startKey = edge.getStart();
                         Integer endKey = edge.getEnd();
                         Point2D a = graph.getVertex(startKey).getCenter();
                         Point2D b = graph.getVertex(endKey).getCenter();
                         boolean t1 = GeometryUtils.onSegment(a, b, click, gc);
 
+                        String label = edge.getLabel();
                         Point2D c = edge.getLabelCenter();
-                        Polygon polygon = createPolygon(c, edge.getLabel());
+                        Polygon polygon = createPolygon(c, label, false);
                         boolean t2 = polygon.contains(event.getPoint());
-                        if (t1 || t2) {
+                        if (!found && (t1 || t2)) {
                             if (ctrlKeyStatus && isRightButton) {
                                 edge.setSelected(false);
                             } else if (isLeftButton) {
                                 edge.setSelected(true);
                             }
+                            found = true;
                         } else if (!ctrlKeyStatus && isLeftButton) {
                             edge.setSelected(false);
                         }
@@ -1072,8 +1080,13 @@ public class Plane extends JPanel implements MouseListener,
 
     public Polygon createPolygon(Point2D center, String label)
     {
+        return createPolygon(center, label, true);
+    }
+
+    public Polygon createPolygon(Point2D center, String label, boolean padding)
+    {
         Polygon polygon = new Polygon();
-        Point[] rect = createTextRect(center, label, true);
+        Point[] rect = createTextRect(center, label, padding);
         polygon.addPoint((int) rect[0].getX(), (int) rect[0].getY());
         polygon.addPoint((int) rect[1].getX(), (int) rect[1].getY());
         polygon.addPoint((int) rect[2].getX(), (int) rect[2].getY());
@@ -1285,21 +1298,11 @@ public class Plane extends JPanel implements MouseListener,
         for (Edge e : graph.edges()) {
             if (e.isSelected()) {
                 Vertex v = graph.getVertex(e.getEnd());
-                Edge backEdge = null;
-                if (!e.isDirected()) {
-                    backEdge = v.getNeighbor(e.getStart());
-                }
                 if ("foregroundColor".equals(key)) {
                     e.setForegroundColor(color);
-                    if (backEdge != null) {
-                        backEdge.setForegroundColor(color);
-                    }
                     changes++;
                 } else if ("strokeColor".equals(key)) {
                     e.setStrokeColor(color);
-                    if (backEdge != null) {
-                        backEdge.setStrokeColor(color);
-                    }
                     changes++;
                 }
             }
@@ -1449,10 +1452,6 @@ public class Plane extends JPanel implements MouseListener,
             edgeBeingEdited.setLabel(newLabel);
             if (edgeBeingEdited.isDirected()) {
                 Vertex v = graph.getVertex(edgeBeingEdited.getEnd());
-                Edge backEdge = v.getNeighbor(edgeBeingEdited.getStart());
-                if (backEdge != null) {
-                    backEdge.setLabel(labelEditor.getText());
-                }
             }
             changes++;
         }
@@ -1465,10 +1464,6 @@ public class Plane extends JPanel implements MouseListener,
         edgeBeingEdited.setLabel(labelEditor.getText());
         if (edgeBeingEdited.isDirected()) {
             Vertex v = graph.getVertex(edgeBeingEdited.getEnd());
-            Edge backEdge = v.getNeighbor(edgeBeingEdited.getStart());
-            if (backEdge != null) {
-                backEdge.setLabel(labelEditor.getText());
-            }
         }
         labelEditor.setText("");
         this.remove(labelEditor);
@@ -1551,15 +1546,24 @@ public class Plane extends JPanel implements MouseListener,
     {
         Point2D c = GeometryUtils.getMiddlePoint(u.getCenter(), v.getCenter());
         if (edgeType == Edge.EDGE_TYPE_DIRECTED) {
-            Integer key = v.getKey();
-            if (u.contains(key)) {
+            Integer uk = u.getKey();
+            Integer vk = v.getKey();
+            if (u.contains(vk)) {
                 JOptionPane.showMessageDialog(
                             null,
                             "An edge already exists!", "Error",
                             JOptionPane.ERROR_MESSAGE
                         );
+            } else if (v.contains(uk)) {
+                Edge e = v.getNeighbor(uk);
+                e.setIsDirected(false);
+
+                Edge edge = new Edge(e.getEnd(), e.getStart(), "");
+                edge.setIsBackEdge(true);
+                edge.setIsDirected(false);
+                u.addNeighbor(edge);
             } else {
-                Edge edge = u.addNeighbor(key, "");
+                Edge edge = u.addNeighbor(vk, "");
                 edge.setLabelCenter(c);
                 edge.setForegroundColor(edgeForegroundColor);
                 edge.setStrokeColor(edgeStrokeColor);
@@ -1594,32 +1598,32 @@ public class Plane extends JPanel implements MouseListener,
                 if (op == JOptionPane.YES_OPTION) {
                     if (u.contains(kv)) {
                         Edge uv = u.getNeighbor(kv);
-                        uv.setDirected(false);
-                        Edge vu = v.addNeighbor(ku, uv.getLabel());
-                        vu.setForegroundColor(uv.getForegroundColor());
-                        vu.setStrokeColor(uv.getStrokeColor());
-                        vu.setDirected(false);
+                        uv.setIsDirected(false);
+
+                        // Create back edge
+                        Edge vu = v.addNeighbor(ku, "");
+                        vu.setIsDirected(false);
+                        vu.setIsBackEdge(true);
                     } else {
                         Edge vu = v.getNeighbor(ku);
-                        vu.setDirected(false);
-                        Edge uv = u.addNeighbor(kv, vu.getLabel());
-                        uv.setForegroundColor(vu.getForegroundColor());
-                        uv.setStrokeColor(vu.getStrokeColor());
-                        uv.setDirected(false);
+                        vu.setIsDirected(false);
+
+                        // Create back edge
+                        Edge uv = u.addNeighbor(kv, "");
+                        uv.setIsDirected(false);
+                        uv.setIsBackEdge(true);
                     }
                 }
             } else {
                 Edge uv = u.addNeighbor(kv, "");
                 Edge vu = v.addNeighbor(ku, "");
+                vu.setIsBackEdge(true);
+
+                uv.setIsDirected(false);
+                vu.setIsDirected(false);
 
                 uv.setForegroundColor(edgeForegroundColor);
                 uv.setStrokeColor(edgeStrokeColor);
-
-                vu.setForegroundColor(edgeForegroundColor);
-                vu.setStrokeColor(edgeStrokeColor);
-
-                uv.setDirected(false);
-                vu.setDirected(false);
 
                 uv.setLabelCenter(c);
                 edgeBeingEdited = uv;
@@ -1665,6 +1669,8 @@ public class Plane extends JPanel implements MouseListener,
 
         // Or an edge label?
         for (Edge e : graph.edges()) {
+            if (e.isBackEdge()) { continue; }
+
             Point2D a = graph.getVertex(e.getStart()).getCenter();
             Point2D b = graph.getVertex(e.getEnd()).getCenter();
 

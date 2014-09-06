@@ -16,7 +16,7 @@ public class Vertex {
 
     // Attributes
     private Integer key;
-    private Color foregroundColor;       // Vertex's label color
+    private Color foregroundColor;  // Vertex's label color
     private Color borderColor;      // Vertex's outline color
     private Color backgroundColor;  // Vertex's background color
     private String label;           // Label for vertex

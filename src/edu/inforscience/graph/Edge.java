@@ -16,6 +16,7 @@ public class Edge {
     private boolean directed;
     private boolean selected;
     private boolean highlighted;
+    private boolean isBackEdge;
 
     //Constructors
     public Edge(Integer start, Integer end, String label)
@@ -27,6 +28,17 @@ public class Edge {
         foregroundColor = Color.BLACK;
         strokeColor = Color.BLACK;
         directed = true;
+        isBackEdge = false;
+    }
+
+    public boolean isBackEdge()
+    {
+        return isBackEdge;
+    }
+
+    public void setIsBackEdge(boolean value)
+    {
+        isBackEdge = value;
     }
 
     public Integer getStart()
@@ -93,7 +105,7 @@ public class Edge {
         labelCenter = center;
     }
 
-    public void setDirected(boolean value)
+    public void setIsDirected(boolean value)
     {
         directed = value;
     }

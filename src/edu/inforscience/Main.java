@@ -432,7 +432,11 @@ public class Main extends JFrame {
             }
 
             if (e.get("directed") != null) {
-                edge.setDirected(e.get("directed").asBoolean());
+                edge.setIsDirected(e.get("directed").asBoolean());
+            }
+
+            if (e.get("backEdge") != null) {
+                edge.setIsBackEdge(e.get("backEdge").asBoolean());
             }
 
             if (e.get("highlighted") != null) {
@@ -910,6 +914,7 @@ public class Main extends JFrame {
             generator.writeStringField("strokeColor", hexStrokeColor);
             generator.writeBooleanField("highlighted", e.isHighlighted());
             generator.writeBooleanField("directed", e.isDirected());
+            generator.writeBooleanField("backEdge", e.isBackEdge());
 
             double x = MathUtils.round(e.getLabelCenter().x(), 6);
             double y = MathUtils.round(e.getLabelCenter().y(), 6);
