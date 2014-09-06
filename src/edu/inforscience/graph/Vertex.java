@@ -16,7 +16,7 @@ public class Vertex {
 
     // Attributes
     private Integer key;
-    private Color labelColor;       // Vertex's label color
+    private Color foregroundColor;       // Vertex's label color
     private Color borderColor;      // Vertex's outline color
     private Color backgroundColor;  // Vertex's background color
     private String label;           // Label for vertex
@@ -40,7 +40,7 @@ public class Vertex {
 
     public Vertex(String label, Point2D pos)
     {
-        setLabelColor(Color.BLACK);
+        setForegroundColor(Color.BLACK);
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
         setLabel(label);
@@ -182,16 +182,16 @@ public class Vertex {
         selected = value;
     }
 
-    public void setLabelColor(Color color)
+    public void setForegroundColor(Color color)
     {
         if (color != null) {
-            labelColor = color;
+            foregroundColor = color;
         }
     }
 
-    public Color getLabelColor()
+    public Color getForegroundColor()
     {
-        return labelColor;
+        return foregroundColor;
     }
 
     public void setBorderColor(Color color)

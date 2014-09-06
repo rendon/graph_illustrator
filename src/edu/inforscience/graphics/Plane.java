@@ -101,6 +101,13 @@ public class Plane extends JPanel implements MouseListener,
     private boolean ctrlKeyStatus;
     private Main mainWindow;
 
+    private Color vertexForegroundColor;
+    private Color vertexBackgroundColor;
+    private Color vertexBorderColor;
+
+    private Color edgeForegroundColor;
+    private Color edgeStrokeColor;
+
     public Plane(Main mainWindow)
     {
         setLayout(null);
@@ -130,6 +137,13 @@ public class Plane extends JPanel implements MouseListener,
         alignCenterButton.addActionListener(actionHandler);
         alignRightButton.addActionListener(actionHandler);
         alignButtonsEnabled = false;
+
+        vertexForegroundColor = Color.BLACK;
+        vertexBorderColor = Color.BLACK;
+        vertexBackgroundColor = Color.WHITE;
+
+        edgeForegroundColor = Color.BLACK;
+        edgeStrokeColor = Color.BLACK;
 
         changes = 0;
         pendingActions = false;
@@ -738,7 +752,7 @@ public class Plane extends JPanel implements MouseListener,
 
         if (getCurrentAction() != ACTION_EDIT_NODE_LABEL ||
             vertex != vertexBeingEdited) {
-            g2d.setColor(vertex.getLabelColor());
+            g2d.setColor(vertex.getForegroundColor());
             y = y - stringHeight / 2 + (fontHeight  * 3 / 4);
             x = x - fontWidth / 2;
             for (int i = 0; i < lines.length; i++) {
@@ -758,7 +772,7 @@ public class Plane extends JPanel implements MouseListener,
         Vertex end = graph.getVertex(edge.getEnd());
 
         Color tempColor = g2d.getColor();
-        g2d.setColor(edge.getLabelColor());
+        g2d.setColor(edge.getForegroundColor());
         CubicCurve2D curve = new CubicCurve2D.Float();
 
         double startRadius = start.getRadius();
@@ -901,7 +915,7 @@ public class Plane extends JPanel implements MouseListener,
         // Draw label
         int ca = getCurrentAction();
         if (ca != ACTION_EDIT_EDGE_LABEL || edgeBeingEdited != edge) {
-            g2d.setColor(edge.getLabelColor());
+            g2d.setColor(edge.getForegroundColor());
             FontMetrics m = g2d.getFontMetrics();
             double width = gc.fx(m.stringWidth(edge.getLabel())) - gc.fx(0);
             double height = gc.fy(m.getAscent() + m.getDescent()) -gc.fy(0);
@@ -1216,27 +1230,30 @@ public class Plane extends JPanel implements MouseListener,
         gc.resetZoom(getWidth(), getHeight());
     }
 
-    public void setLabelColorToSelectedObjects(Color color)
+    public void setVertexForegroundColor(Color color)
     {
-        setColorsToSelectedObjects("labelColor", color);
+        vertexForegroundColor = color;
+        setColorsToSelectedVertices("foregroundColor", color);
     }
 
-    public void setBackgroundColorToSelectedObjects(Color color)
+    public void setVertexBackgroundColor(Color color)
     {
-        setColorsToSelectedObjects("backgroundColor", color);
+        vertexBackgroundColor = color;
+        setColorsToSelectedVertices("backgroundColor", color);
     }
 
-    public void setBorderColorToSelectedObjects(Color color)
+    public void setVertexBorderColor(Color color)
     {
-        setColorsToSelectedObjects("borderColor", color);
+        vertexBorderColor = color;
+        setColorsToSelectedVertices("borderColor", color);
     }
 
-    private void setColorsToSelectedObjects(String key, Color color)
+    private void setColorsToSelectedVertices(String key, Color color)
     {
         for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
-                if ("labelColor".equals(key)) {
-                    v.setLabelColor(color);
+                if ("foregroundColor".equals(key)) {
+                    v.setForegroundColor(color);
                     changes++;
                 } else if ("backgroundColor".equals(key)) {
                     v.setBackgroundColor(color);
@@ -1248,12 +1265,29 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
+        repaint();
+    }
+
+    public void setEdgeForegroundColor(Color color)
+    {
+        edgeForegroundColor = color;
+        setColorsToSelectedEdges("foregroundColor", color);
+    }
+
+    public void setEdgeStrokeColor(Color color)
+    {
+        edgeStrokeColor = color;
+        setColorsToSelectedEdges("strokeColor", color);
+    }
+
+    private void setColorsToSelectedEdges(String key, Color color)
+    {
         for (Edge e : graph.edges()) {
             if (e.isSelected()) {
-                if ("labelColor".equals(key)) {
-                    e.setLabelColor(color);
+                if ("foregroundColor".equals(key)) {
+                    e.setForegroundColor(color);
                     changes++;
-                } else if ("borderColor".equals(key)) {
+                } else if ("strokeColor".equals(key)) {
                     e.setStrokeColor(color);
                     changes++;
                 }
@@ -1297,6 +1331,7 @@ public class Plane extends JPanel implements MouseListener,
         }
         repaint();
     }
+
     /* -------------------- Private methods. --------------------*/
 
     private Vertex vertexUnderPoint(Point2D point)
@@ -1349,6 +1384,9 @@ public class Plane extends JPanel implements MouseListener,
             try {
                 vertexBeingEdited.setLabel(label);
                 vertexBeingEdited.setLabelChanged(true);
+                vertexBeingEdited.setForegroundColor(vertexForegroundColor);
+                vertexBeingEdited.setBorderColor(vertexBorderColor);
+                vertexBeingEdited.setBackgroundColor(vertexBackgroundColor);
                 vertexBeingEdited.setLabelAlignment(textAlignment);
                 graph.addVertex(vertexBeingEdited);
                 changes++;
@@ -1520,6 +1558,8 @@ public class Plane extends JPanel implements MouseListener,
             } else {
                 Edge edge = u.addNeighbor(key, "");
                 edge.setLabelCenter(c);
+                edge.setForegroundColor(edgeForegroundColor);
+                edge.setStrokeColor(edgeStrokeColor);
                 edgeBeingEdited = edge;
                 labelEditor.setText("");
                 resizeLabelEditor(c, "");
@@ -1553,17 +1593,27 @@ public class Plane extends JPanel implements MouseListener,
                         Edge uv = u.getNeighbor(kv);
                         uv.setDirected(false);
                         Edge vu = v.addNeighbor(ku, uv.getLabel());
+                        vu.setForegroundColor(uv.getForegroundColor());
+                        vu.setStrokeColor(uv.getStrokeColor());
                         vu.setDirected(false);
                     } else {
                         Edge vu = v.getNeighbor(ku);
                         vu.setDirected(false);
                         Edge uv = u.addNeighbor(kv, vu.getLabel());
+                        uv.setForegroundColor(vu.getForegroundColor());
+                        uv.setStrokeColor(vu.getStrokeColor());
                         uv.setDirected(false);
                     }
                 }
             } else {
                 Edge uv = u.addNeighbor(kv, "");
                 Edge vu = v.addNeighbor(ku, "");
+
+                uv.setForegroundColor(edgeForegroundColor);
+                uv.setStrokeColor(edgeStrokeColor);
+
+                vu.setForegroundColor(edgeForegroundColor);
+                vu.setStrokeColor(edgeStrokeColor);
 
                 uv.setDirected(false);
                 vu.setDirected(false);
@@ -1630,6 +1680,9 @@ public class Plane extends JPanel implements MouseListener,
     {
         resizeLabelEditor(click, "");
         vertexBeingEdited = new Vertex("", click);
+        vertexBeingEdited.setForegroundColor(vertexForegroundColor);
+        vertexBeingEdited.setBackgroundColor(vertexBackgroundColor);
+        vertexBeingEdited.setBorderColor(vertexBorderColor);
         graph.addDummyVertex(vertexBeingEdited);
         labelEditor.setText("");
         this.add(labelEditor);

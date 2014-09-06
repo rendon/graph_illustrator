@@ -10,7 +10,7 @@ public class Edge {
     // Attributes
     private Integer start, end;
     private String label;    // label for edge
-    private Color labelColor;
+    private Color foregroundColor;
     private Color strokeColor;
     private Point2D labelCenter;
     private boolean directed;
@@ -24,7 +24,7 @@ public class Edge {
         setEnd(end);
 
         setLabel(label);
-        labelColor = Color.BLACK;
+        foregroundColor = Color.BLACK;
         strokeColor = Color.BLACK;
         directed = true;
     }
@@ -59,16 +59,16 @@ public class Edge {
         return label;
     }
 
-    public void setLabelColor(Color color)
+    public void setForegroundColor(Color color)
     {
         if (color != null) {
-            labelColor = color;
+            foregroundColor = color;
         }
     }
 
-    public Color getLabelColor()
+    public Color getForegroundColor()
     {
-        return labelColor;
+        return foregroundColor;
     }
 
     public void setStrokeColor(Color color)

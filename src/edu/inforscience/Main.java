@@ -59,10 +59,14 @@ public class Main extends JFrame {
     private final JButton shapeNoneButton;
     private final JButton quitButton;
 
-    private final JButton labelColorButton;
-    private final JButton backgroundColorButton;
-    private final JButton borderColorButton;
+    private final JButton vertexFgColor;
+    private final JButton vertexBgColorButton;
+    private final JButton vertexBorderColorButton;
+
     private final JButton highlightButton;;
+
+    private final JButton edgeFgColorButton;
+    private final JButton edgeStrokeColorButton;
 
     private final JButton zoomInButton;
     private final JButton zoomOutButton;
@@ -156,17 +160,26 @@ public class Main extends JFrame {
         smoothLinesButton.addActionListener(actionHandler);
         smoothLinesButton.setToolTipText("Toggle smooth lines");
 
-        labelColorButton = new JButton(getImage("labelColor"));
-        labelColorButton.addActionListener(actionHandler);
-        labelColorButton.setToolTipText("Set text color");
+        vertexFgColor = new JButton(getImage("vertexForegroundColor"));
+        vertexFgColor.addActionListener(actionHandler);
+        vertexFgColor.setToolTipText("Set vertex label color");
 
-        backgroundColorButton = new JButton(getImage("backgroundColor"));
-        backgroundColorButton.addActionListener(actionHandler);
-        backgroundColorButton.setToolTipText("Set background color");
+        vertexBgColorButton = new JButton(getImage("vertexBackgroundColor"));
+        vertexBgColorButton.addActionListener(actionHandler);
+        vertexBgColorButton.setToolTipText("Set vertex's background color");
 
-        borderColorButton = new JButton(getImage("borderColor"));
-        borderColorButton.addActionListener(actionHandler);
-        borderColorButton.setToolTipText("Set border color");
+        vertexBorderColorButton = new JButton(getImage("vertexBorderColor"));
+        vertexBorderColorButton.addActionListener(actionHandler);
+        vertexBorderColorButton.setToolTipText("Set vertex's border color");
+
+        edgeFgColorButton = new JButton(getImage("edgeForegroundColor"));
+        edgeFgColorButton.addActionListener(actionHandler);
+        edgeFgColorButton.setToolTipText("Set edge's label color");
+
+        edgeStrokeColorButton = new JButton(getImage("edgeStrokeColor"));
+        edgeStrokeColorButton.addActionListener(actionHandler);
+        edgeStrokeColorButton.setToolTipText("Set edge's stroke color");
+
 
         highlightButton = new JButton(getImage("highlight"));
         highlightButton.addActionListener(actionHandler);
@@ -204,10 +217,12 @@ public class Main extends JFrame {
         mainToolBar.add(showGridButton);
         mainToolBar.add(smoothLinesButton);
         mainToolBar.addSeparator();
-        mainToolBar.add(labelColorButton);
-        mainToolBar.add(backgroundColorButton);
-        mainToolBar.add(borderColorButton);
+        mainToolBar.add(vertexFgColor);
+        mainToolBar.add(vertexBgColorButton);
+        mainToolBar.add(vertexBorderColorButton);
         mainToolBar.add(highlightButton);
+        mainToolBar.add(edgeFgColorButton);
+        mainToolBar.add(edgeStrokeColorButton);
         mainToolBar.addSeparator();
         mainToolBar.add(zoomInButton);
         mainToolBar.add(zoomOutButton);
@@ -347,10 +362,10 @@ public class Main extends JFrame {
                 vertex.setRadius(radius);
             }
 
-            if (v.get("labelColor") != null) {
-                String hex = v.get("labelColor").textValue();
-                Color labelColor = Utils.decode(hex);
-                vertex.setLabelColor(labelColor);
+            if (v.get("foregroundColor") != null) {
+                String hex = v.get("foregroundColor").textValue();
+                Color foregroundColor = Utils.decode(hex);
+                vertex.setForegroundColor(foregroundColor);
             }
 
             if (v.get("backgroundColor") != null) {
@@ -404,10 +419,10 @@ public class Main extends JFrame {
                 edge.setLabel(label);
             }
 
-            if (e.get("labelColor") != null) {
-                String hex = e.get("labelColor").textValue();
-                Color labelColor = Utils.decode(hex);
-                edge.setLabelColor(labelColor);
+            if (e.get("foregroundColor") != null) {
+                String hex = e.get("foregroundColor").textValue();
+                Color foregroundColor = Utils.decode(hex);
+                edge.setForegroundColor(foregroundColor);
             }
 
             if (e.get("strokeColor") != null) {
@@ -515,23 +530,39 @@ public class Main extends JFrame {
                 plane.repaint();
             } else if (source == quitButton) {
                 windowClosing(null);
-            } else if (source == labelColorButton ||
-                       source == backgroundColorButton ||
-                       source == borderColorButton) {
+            } else if (source == vertexFgColor ||
+                       source == vertexBgColorButton ||
+                       source == vertexBorderColorButton) {
                 Color color = JColorChooser.showDialog(
                             Main.this,
                             "Choose a color",
                             null
                         );
 
-                if (source == labelColorButton) {
-                    plane.setLabelColorToSelectedObjects(color);
-                } else if (source == backgroundColorButton) {
-                    plane.setBackgroundColorToSelectedObjects(color);
-                } else if (source == borderColorButton) {
-                    plane.setBorderColorToSelectedObjects(color);
+                if (color != null) {
+                    if (source == vertexFgColor) {
+                        plane.setVertexForegroundColor(color);
+                    } else if (source == vertexBgColorButton) {
+                        plane.setVertexBackgroundColor(color);
+                    } else if (source == vertexBorderColorButton) {
+                        plane.setVertexBorderColor(color);
+                    }
                 }
+            } else if (source == edgeFgColorButton ||
+                       source == edgeStrokeColorButton) {
+                Color color = JColorChooser.showDialog(
+                            Main.this,
+                            "Choose a color",
+                            null
+                        );
 
+                if (color != null) {
+                    if (source == edgeFgColorButton) {
+                        plane.setEdgeForegroundColor(color);
+                    } else if (source == edgeStrokeColorButton) {
+                        plane.setEdgeStrokeColor(color);
+                    }
+                }
             } else if (source == highlightButton) {
                 plane.toggleEdgeHighlight();
             } else if (source == zoomInButton) {
@@ -831,7 +862,7 @@ public class Main extends JFrame {
         generator.writeFieldName("Vertices");
         generator.writeStartArray();
         for (Vertex v : graph.vertices()) {
-            String hexLabelColor = Utils.encode(v.getLabelColor());
+            String hexLabelColor = Utils.encode(v.getForegroundColor());
             String hexBorderColor = Utils.encode(v.getBorderColor());
             String hexBackgroundColor = Utils.encode(v.getBackgroundColor());
             generator.writeStartObject();
@@ -850,7 +881,7 @@ public class Main extends JFrame {
             double r = MathUtils.round(v.getRadius(), 6);
             generator.writeNumberField("radius", r);
 
-            generator.writeStringField("labelColor", hexLabelColor);
+            generator.writeStringField("foregroundColor", hexLabelColor);
             generator.writeStringField("backgroundColor", hexBackgroundColor);
             generator.writeStringField("borderColor", hexBorderColor);
 
@@ -870,12 +901,12 @@ public class Main extends JFrame {
         generator.writeStartArray();
         for (Edge e : graph.edges()) {
             generator.writeStartObject();
-            String hexLabelColor = Utils.encode(e.getLabelColor());
+            String hexLabelColor = Utils.encode(e.getForegroundColor());
             String hexStrokeColor = Utils.encode(e.getStrokeColor());
             generator.writeNumberField("start", e.getStart());
             generator.writeNumberField("end", e.getEnd());
             generator.writeStringField("label", e.getLabel());
-            generator.writeStringField("labelColor", hexLabelColor);
+            generator.writeStringField("foregroundColor", hexLabelColor);
             generator.writeStringField("strokeColor", hexStrokeColor);
             generator.writeBooleanField("highlighted", e.isHighlighted());
             generator.writeBooleanField("directed", e.isDirected());
