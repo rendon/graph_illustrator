@@ -1432,31 +1432,9 @@ public class Plane extends JPanel implements MouseListener,
                                 "Error", JOptionPane.ERROR_MESSAGE
                             );
             } else {
-                try {
-                    int oldKey = vertexBeingEdited.getKey();
-
-                    vertexBeingEdited.setLabel(newLabel);
-                    vertexBeingEdited.setLabelChanged(true);
-                    int newKey = graph.addVertex(vertexBeingEdited);
-                    for (Edge e : vertexBeingEdited.neighbors()) {
-                        e.setStart(newKey);
-                    }
-
-                    for (Vertex v : graph.vertices()) {
-                        if (!v.getKey().equals(oldKey)) {
-                            Edge edge = v.removeNeighbor(oldKey);
-                            if (edge != null) {
-                                edge.setEnd(newKey);
-                                v.addNeighbor(edge);
-                            }
-                        }
-                    }
-
-                    graph.removeVertex(oldKey);
-                    changes++;
-                } catch (InvalidOperationException ioe) {
-
-                }
+                vertexBeingEdited.setLabel(newLabel);
+                vertexBeingEdited.setLabelChanged(true);
+                changes++;
             }
         }
         labelEditor.setText("");
