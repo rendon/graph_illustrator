@@ -37,7 +37,7 @@ This format uses JSON to represent the graph and all the necessary properties, i
 ##Example 0
 ![Example 0](https://github.com/rendon/graph_illustrator/blob/master/doc/screenshots/example_0.png)
 
-This are the file contents of the previous example:
+This is how a grah in GI format looks like:
 
     {
         "Graph": {

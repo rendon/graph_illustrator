@@ -3,5 +3,4 @@ tags
 build/*
 GraphIllustrator.jar
 TODO.txt
-*.gi
 *.directory
