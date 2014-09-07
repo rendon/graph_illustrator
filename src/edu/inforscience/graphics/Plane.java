@@ -1435,6 +1435,8 @@ public class Plane extends JPanel implements MouseListener,
                                 "Error", JOptionPane.ERROR_MESSAGE
                             );
             } else {
+                int key = vertexBeingEdited.getKey();
+                graph.updateLabelKey(oldLabel, newLabel, key);
                 vertexBeingEdited.setLabel(newLabel);
                 vertexBeingEdited.setLabelChanged(true);
                 changes++;

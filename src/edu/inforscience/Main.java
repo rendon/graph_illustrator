@@ -304,8 +304,18 @@ public class Main extends JFrame {
         File input = new File(filePath);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(input);
-        Iterator<JsonNode> V = root.path("Graph").path("Vertices").elements();
-        while (V.hasNext()) {
+        if (root.path("Graph") == null) {
+            throw new InvalidFormatException("Invalid input file", null, null);
+        }
+
+        Iterator<JsonNode> V = null;
+        if (root.path("Graph").get("Vertices") != null) {
+            V = root.path("Graph").get("Vertices").elements();
+        } else {
+            throw new InvalidFormatException("Invalid input file", null, null);
+        }
+
+        while (V != null && V.hasNext()) {
             JsonNode v = V.next();
             // Mandatory properties
             if (v.get("key") == null || v.get("label") == null) {
@@ -390,8 +400,12 @@ public class Main extends JFrame {
             labels.add(label);
         }
 
-        Iterator<JsonNode> E = root.get("Graph").get("Edges").elements();
-        while (E.hasNext()) {
+        Iterator<JsonNode> E = null;
+        if (root.path("Graph").get("Edges") != null) {
+            E = root.path("Graph").get("Edges").elements();
+        }
+
+        while (E != null && E.hasNext()) {
             JsonNode e = E.next();
             if (e.get("start") == null || e.get("end") == null) {
                 throw new InvalidFormatException(
@@ -909,20 +923,23 @@ public class Main extends JFrame {
             String hexStrokeColor = Utils.encode(e.getStrokeColor());
             generator.writeNumberField("start", e.getStart());
             generator.writeNumberField("end", e.getEnd());
-            generator.writeStringField("label", e.getLabel());
-            generator.writeStringField("foregroundColor", hexLabelColor);
-            generator.writeStringField("strokeColor", hexStrokeColor);
-            generator.writeBooleanField("highlighted", e.isHighlighted());
+            if (!e.isBackEdge()) {
+                generator.writeStringField("label", e.getLabel());
+                generator.writeStringField("foregroundColor", hexLabelColor);
+                generator.writeStringField("strokeColor", hexStrokeColor);
+                generator.writeBooleanField("highlighted", e.isHighlighted());
+
+                double x = MathUtils.round(e.getLabelCenter().x(), 6);
+                double y = MathUtils.round(e.getLabelCenter().y(), 6);
+                generator.writeFieldName("center");
+                generator.writeStartObject();
+                generator.writeNumberField("x", x);
+                generator.writeNumberField("y", y);
+                generator.writeEndObject();
+            }
+
             generator.writeBooleanField("directed", e.isDirected());
             generator.writeBooleanField("backEdge", e.isBackEdge());
-
-            double x = MathUtils.round(e.getLabelCenter().x(), 6);
-            double y = MathUtils.round(e.getLabelCenter().y(), 6);
-            generator.writeFieldName("center");
-            generator.writeStartObject();
-            generator.writeNumberField("x", x);
-            generator.writeNumberField("y", y);
-            generator.writeEndObject();
 
             generator.writeEndObject();
         }

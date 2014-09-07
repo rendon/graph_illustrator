@@ -130,5 +130,9 @@ public class Graph {
         return list;
     }
 
-
+    public void updateLabelKey(String oldLabel, String newLabel, Integer key)
+    {
+        keys.remove(oldLabel);
+        keys.put(newLabel, key);
+    }
 }
