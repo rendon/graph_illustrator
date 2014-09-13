@@ -86,7 +86,8 @@ public class GeometryUtils {
     }
 
     public static Point2D computeEndPoint(Vertex u, Vertex v,
-                                          FontMetrics m, GraphicsContext gc)
+                                          FontMetrics m,
+                                          GraphicsContext gc)
     {
         if (u == null || v == null || m == null || gc == null) {
             return null;

@@ -108,17 +108,18 @@ public class Plane extends JPanel implements MouseListener,
     private Color edgeForegroundColor;
     private Color edgeStrokeColor;
 
-    public Plane(Main mainWindow)
+    public Plane(Main mainWindow, Graph graph, GraphicsContext gc)
     {
         setLayout(null);
         this.mainWindow = mainWindow;
+        this.graph = graph;
+        this.gc = gc;
 
         addKeyListener(this);
         addMouseListener(this);
         addMouseWheelListener(this);
         addMouseMotionListener(this);
 
-        graph = new Graph();
 
         setShowGrid(false);
         setCurrentAction(ACTION_DEFAULT);
@@ -138,23 +139,21 @@ public class Plane extends JPanel implements MouseListener,
         alignRightButton.addActionListener(actionHandler);
         alignButtonsEnabled = false;
 
-        vertexForegroundColor = Color.BLACK;
         vertexBorderColor = Color.BLACK;
+        vertexForegroundColor = Color.BLACK;
         vertexBackgroundColor = Color.WHITE;
 
-        edgeForegroundColor = Color.BLACK;
         edgeStrokeColor = Color.BLACK;
+        edgeForegroundColor = Color.BLACK;
 
         changes = 0;
-        pendingActions = false;
-        smoothLines = true;
         firstTime = true;
-        ctrlKeyStatus = false;
+        smoothLines = true;
         wasDragged = false;
+        ctrlKeyStatus = false;
+        pendingActions = false;
         vertexToDrag = null;
         log = System.out;
-
-        gc = new GraphicsContext();
     }
 
     @Override
@@ -163,6 +162,7 @@ public class Plane extends JPanel implements MouseListener,
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         graphics2D = g2d;
+        this.setBackground(new Color(153, 153, 153));
 
         if (firstTime) {
             gc.init(getWidth(), getHeight());

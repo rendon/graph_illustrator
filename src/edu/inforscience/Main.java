@@ -91,7 +91,9 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(actionHandler);
 
-        plane = new Plane(this);
+        GraphicsContext gc = new GraphicsContext();
+        Graph graph = new Graph();
+        plane = new Plane(this, graph, gc);
         openButton = new JButton(getImage("open"));
         openButton.addActionListener(actionHandler);
         openButton.setToolTipText("Open file");
