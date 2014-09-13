@@ -98,7 +98,7 @@ This is how a grah in GI format looks like:
 [Source](https://github.com/rendon/graph_illustrator/blob/master/doc/examples/example_2.gi)
 
 ##Example 3
-![Example 3](http://rendon.x10.mx/pictures/example_3.png)
+![Example 3](https://github.com/rendon/graph_illustrator/blob/master/doc/screenshots/example_3.png)
 [Source](https://github.com/rendon/graph_illustrator/blob/master/doc/examples/example_3.gi)
 
 Contributions and Bug reports
