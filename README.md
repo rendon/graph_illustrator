@@ -18,11 +18,13 @@ SGI Format
 ==========
 Two formats are supported, GI (Graph Illustrator) and SGI (Simple Graph Illustrator), the latter is supported for convenience, many problems in competitive programming represent a graph in the form `<from> <to> [weight]`, for example:
 
-    0 1 5
-    1 2 1
-    3 1 8
-    0 3 7
-    4 0 9
+```
+0 1 5
+1 2 1
+3 1 8
+0 3 7
+4 0 9
+```
 
 Save this in a file with extension `.sgi` and this is the result:
 
@@ -39,54 +41,56 @@ This format uses JSON to represent the graph and all the necessary properties, i
 
 This is how a grah in GI format looks like:
 
-    {
-        "Graph": {
-            "Edges": [
-                {
-                    "backEdge": false,
-                    "center": {
-                        "x": -2.29741,
-                        "y": 1.666831
-                    },
-                    "directed": true,
-                    "end": 2,
-                    "foregroundColor": "0x000000ff",
-                    "highlighted": false,
-                    "label": "from a to b",
-                    "start": 1,
-                    "strokeColor": "0x000000ff"
-                }
-            ],
-            "Vertices": [
-                {
-                    "backgroundColor": "0xffffffff",
-                    "borderColor": "0x000000ff",
-                    "center": {
-                        "x": -10.31746,
-                        "y": 1.211362
-                    },
-                    "foregroundColor": "0x000000ff",
-                    "key": 1,
-                    "label": "a",
-                    "labelAlignment": "left",
-                    "radius": 1.428791
+```json
+{
+    "Graph": {
+        "Edges": [
+            {
+                "backEdge": false,
+                "center": {
+                    "x": -2.29741,
+                    "y": 1.666831
                 },
-                {
-                    "backgroundColor": "0xffffffff",
-                    "borderColor": "0x000000ff",
-                    "center": {
-                        "x": 5.72264,
-                        "y": 1.12782
-                    },
-                    "foregroundColor": "0x000000ff",
-                    "key": 2,
-                    "label": "b",
-                    "labelAlignment": "left",
-                    "radius": 1.428791
-                }
-            ]
-        }
+                "directed": true,
+                "end": 2,
+                "foregroundColor": "0x000000ff",
+                "highlighted": false,
+                "label": "from a to b",
+                "start": 1,
+                "strokeColor": "0x000000ff"
+            }
+        ],
+        "Vertices": [
+            {
+                "backgroundColor": "0xffffffff",
+                "borderColor": "0x000000ff",
+                "center": {
+                    "x": -10.31746,
+                    "y": 1.211362
+                },
+                "foregroundColor": "0x000000ff",
+                "key": 1,
+                "label": "a",
+                "labelAlignment": "left",
+                "radius": 1.428791
+            },
+            {
+                "backgroundColor": "0xffffffff",
+                "borderColor": "0x000000ff",
+                "center": {
+                    "x": 5.72264,
+                    "y": 1.12782
+                },
+                "foregroundColor": "0x000000ff",
+                "key": 2,
+                "label": "b",
+                "labelAlignment": "left",
+                "radius": 1.428791
+            }
+        ]
     }
+}
+```
 
 ##Example 1
 ![Example 1](https://github.com/rendon/graph_illustrator/blob/master/doc/screenshots/example_1.png)
