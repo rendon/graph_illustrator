@@ -81,6 +81,7 @@ public class Main extends JFrame {
     public Main()
     {
         super("Graph Illustrator : Untitled");
+        setIconImage(getImage("gi").getImage());
         setSize(1200, 900);
         setLocationRelativeTo(null);
         setVisible(true);

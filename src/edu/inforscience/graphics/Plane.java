@@ -160,9 +160,9 @@ public class Plane extends JPanel implements MouseListener,
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
+        setBackground(Color.WHITE);
         Graphics2D g2d = (Graphics2D) g;
         graphics2D = g2d;
-        this.setBackground(new Color(153, 153, 153));
 
         if (firstTime) {
             gc.init(getWidth(), getHeight());
