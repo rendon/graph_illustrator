@@ -6,30 +6,25 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-;
-
 public class Graph {
     private HashMap<Integer, Vertex> V;
     private HashMap<String, Integer> keys;
     private HashMap<String, Integer> labelKeys;
     private Integer nextKey;
 
-    public Graph()
-    {
+    public Graph() {
         V = new HashMap<Integer, Vertex>();
         keys = new HashMap<String, Integer>();
         labelKeys = new HashMap<String, Integer>();
         nextKey = 1;
     }
 
-    public void addDummyVertex(Vertex v)
-    {
+    public void addDummyVertex(Vertex v) {
         v.setKey(0);
         V.put(0, v);
     }
 
-    public void removeDummyVertex()
-    {
+    public void removeDummyVertex() {
         V.remove(0);
     }
 
@@ -67,13 +62,11 @@ public class Graph {
         return v.getKey();
     }
 
-    public Vertex getVertex(Integer key)
-    {
+    public Vertex getVertex(Integer key) {
         return V.get(key);
     }
 
-    public void removeVertex(Integer key)
-    {
+    public void removeVertex(Integer key) {
         if (key == null || !V.containsKey(key)) {
             return;
         }
@@ -92,23 +85,19 @@ public class Graph {
         V.remove(key);
     }
 
-    public boolean containsVertexWithLabel(String label)
-    {
+    public boolean containsVertexWithLabel(String label) {
         return keys.containsKey(label);
     }
 
-    public Vertex getVertexWithLabel(String label)
-    {
+    public Vertex getVertexWithLabel(String label) {
         return V.get(keys.get(label));
     }
 
-    public void setNextKey(Integer key)
-    {
+    public void setNextKey(Integer key) {
         nextKey = key;
     }
 
-    public Iterable<Vertex> vertices()
-    {
+    public Iterable<Vertex> vertices() {
         LinkedList<Vertex> list = new LinkedList<Vertex>();
         for (Entry<Integer, Vertex> entry : V.entrySet()) {
             list.add(entry.getValue());
@@ -117,8 +106,7 @@ public class Graph {
         return list;
     }
 
-    public Iterable<Edge> edges()
-    {
+    public Iterable<Edge> edges() {
         LinkedList<Edge> list = new LinkedList<Edge>();
         for (Entry<Integer, Vertex> entryVertex : V.entrySet()) {
             Vertex v = entryVertex.getValue();
@@ -130,8 +118,7 @@ public class Graph {
         return list;
     }
 
-    public void updateLabelKey(String oldLabel, String newLabel, Integer key)
-    {
+    public void updateLabelKey(String oldLabel, String newLabel, Integer key) {
         keys.remove(oldLabel);
         keys.put(newLabel, key);
     }

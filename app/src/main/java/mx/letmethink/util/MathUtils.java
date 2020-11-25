@@ -11,13 +11,11 @@ public class MathUtils {
      * @param n a double number
      * @return an integer rounded to the nearest integer
      */
-    public static int round(double n)
-    {
+    public static int round(double n) {
         return (int) Math.floor(n + 0.5);
     }
 
-    public static double round(double value, int decimals)
-    {
+    public static double round(double value, int decimals) {
         BigDecimal bd = BigDecimal.valueOf(value);
         return bd.setScale(decimals, BigDecimal.ROUND_HALF_UP).doubleValue();
     }

@@ -8,120 +8,99 @@ public class Vector2D {
     private double xComponent;
     private double yComponent;
 
-    public Vector2D()
-    {
+    public Vector2D() {
         setX(0);
         setY(0);
     }
 
-    public Vector2D(double x, double y)
-    {
+    public Vector2D(double x, double y) {
         setX(x);
         setY(y);
     }
 
-    public Vector2D(Point2D p)
-    {
+    public Vector2D(Point2D p) {
         setX(p.x());
         setY(p.y());
     }
 
-    public void setX(double x)
-    {
+    public void setX(double x) {
         xComponent = x;
     }
 
-    public void setY(double y)
-    {
+    public void setY(double y) {
         yComponent = y;
     }
 
-    public double x()
-    {
+    public double x() {
         return xComponent;
     }
 
-    public double y()
-    {
+    public double y() {
         return yComponent;
     }
 
-    public Point2D point()
-    {
+    public Point2D point() {
         return new Point2D(x(), y());
     }
 
     // Operations with vectors
-    public double length()
-    {
+    public double length() {
         return Math.sqrt(x() * x() + y() * y());
     }
 
-    public Vector2D unit()
-    {
+    public Vector2D unit() {
         return new Vector2D(x() / length(), y() / length());
     }
 
-    public void sum(Vector2D u)
-    {
+    public void sum(Vector2D u) {
         setX(x() + u.x());
         setY(y() + u.y());
     }
 
-    public void sum(Point2D p)
-    {
+    public void sum(Point2D p) {
         setX(x() + p.x());
         setY(y() + p.y());
     }
 
-    public void sub(Vector2D u)
-    {
+    public void sub(Vector2D u) {
         setX(x() - u.x());
         setY(y() - u.y());
     }
 
-    public void product(double factor)
-    {
+    public void product(double factor) {
         setX(factor * x());
         setY(factor * y());
     }
 
-    public void dotProduct(Vector2D u)
-    {
+    public void dotProduct(Vector2D u) {
         setX(x() * u.x());
         setY(y() * u.y());
     }
 
-    public void div(double divisor)
-    {
+    public void div(double divisor) {
         setX(x() / divisor);
         setY(y() / divisor);
     }
 
 // Static methods
 
-    public static Vector2D sum(Vector2D u, Vector2D v)
-    {
+    public static Vector2D sum(Vector2D u, Vector2D v) {
         return new Vector2D(u.x() + v.x(), u.y() + v.y());
     }
 
-    public static Vector2D sub(Vector2D u, Vector2D v)
-    {
+    public static Vector2D sub(Vector2D u, Vector2D v) {
         return new Vector2D(u.x() - v.x(), u.y() - v.y());
     }
 
-    public static Vector2D div(Vector2D u, double denominator)
-    {
+    public static Vector2D div(Vector2D u, double denominator) {
         return new Vector2D(u.x() / denominator, u.y() / denominator);
     }
 
-    public static Vector2D mult(Vector2D u, double factor)
-    {
+    public static Vector2D mult(Vector2D u, double factor) {
         return new Vector2D(u.x() * factor, u.y() * factor);
     }
 
-    public static double dotProduct(Vector2D u, Vector2D v)
-    {
+    public static double dotProduct(Vector2D u, Vector2D v) {
         return u.x() * v.x() + u.y() * v.y();
     }
 
@@ -134,8 +113,7 @@ public class Vector2D {
      * clockwise arrangement.
      * This method returns the double of the area formed by two vectors.
      */
-    public static double area2(Point2D p, Point2D q, Point2D r)
-    {
+    public static double area2(Point2D p, Point2D q, Point2D r) {
         double a1 = q.x() - p.x();
         double a2 = q.y() - p.y();
 

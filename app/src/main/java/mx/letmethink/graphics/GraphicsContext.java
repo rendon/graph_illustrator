@@ -18,8 +18,7 @@ public class GraphicsContext {
     private int maxX;
     private int maxY;
 
-    public GraphicsContext()
-    {
+    public GraphicsContext() {
         setRealWidth(DEFAULT_REAL_WIDTH);
         setRealHeight(DEFAULT_REAL_HEIGHT);
 
@@ -35,8 +34,7 @@ public class GraphicsContext {
      * (Computer Graphics for Java Programmers, 2nd. Edition, Leen Ammeraaland,
      * Kang Zhang).
      **/
-    public void init(int panelWidth, int panelHeight)
-    {
+    public void init(int panelWidth, int panelHeight) {
         maxX = panelWidth - 1;
         maxY = panelHeight - 1;
 
@@ -69,8 +67,7 @@ public class GraphicsContext {
      * @param x x-coordinate in logical-coordinates
      * @return an integer with the device-coordinate of x
      */
-    public int ix(double x)
-    {
+    public int ix(double x) {
         return MathUtils.round(centerX + x / pixelSize);
     }
 
@@ -80,8 +77,7 @@ public class GraphicsContext {
      * @param y y-coordinate in logical-coordinates
      * @return an integer with the device-coordinate of y
      */
-    public int iy(double y)
-    {
+    public int iy(double y) {
         return MathUtils.round(centerY - y / pixelSize);
     }
 
@@ -92,8 +88,7 @@ public class GraphicsContext {
      * @param ps pixel size
      * @return an integer with the device-coordinate of x
      */
-    public int ix(double x, double ps)
-    {
+    public int ix(double x, double ps) {
         return MathUtils.round(centerX + x / ps);
     }
 
@@ -104,8 +99,7 @@ public class GraphicsContext {
      * @param ps pixel size
      * @return an integer with the device-coordinate of y
      */
-    public int iy(double y, double ps)
-    {
+    public int iy(double y, double ps) {
         return MathUtils.round(centerY - y / ps);
     }
 
@@ -115,8 +109,7 @@ public class GraphicsContext {
      * @param x x-coordinate in device-coordinates
      * @return double, logical coordinate of x
      */
-    public double fx(int x)
-    {
+    public double fx(int x) {
         return (double) (x - centerX) * pixelSize;
     }
 
@@ -126,8 +119,7 @@ public class GraphicsContext {
      * @param y y-coordinate in device-coordinates
      * @return double, logical coordinate of y
      */
-    public double fy(int y)
-    {
+    public double fy(int y) {
         return (double) (centerY - y) * pixelSize;
     }
 
@@ -137,8 +129,7 @@ public class GraphicsContext {
      * @param mx X coordinate of mouse click.
      * @param my Y coordinate of mouse click.
      */
-    public void zoomOut(int mx, int my)
-    {
+    public void zoomOut(int mx, int my) {
         if (pixelSize > 0.5) {
             return;
         }
@@ -161,8 +152,7 @@ public class GraphicsContext {
      * @param mx X coordinate of mouse click.
      * @param my Y coordinate of mouse click.
      */
-    public void zoomIn(int mx, int my)
-    {
+    public void zoomIn(int mx, int my) {
         if (pixelSize < 1e-2) {
             return;
         }
@@ -181,45 +171,37 @@ public class GraphicsContext {
     /**
      * Restore the original scale.
      */
-    public void resetZoom(int width, int height)
-    {
+    public void resetZoom(int width, int height) {
         setRealWidth(DEFAULT_REAL_WIDTH);
         setRealWidth(DEFAULT_REAL_HEIGHT);
         init(width, height);
     }
 
-    public void setRealWidth(double rw)
-    {
+    public void setRealWidth(double rw) {
         realWidth = rw;
     }
 
-    public void setRealHeight(double rh)
-    {
+    public void setRealHeight(double rh) {
         realHeight = rh;
     }
 
-    public int getCenterX()
-    {
+    public int getCenterX() {
         return centerX;
     }
 
-    public int getCenterY()
-    {
+    public int getCenterY() {
         return centerY;
     }
 
-    public void setCenterX(int value)
-    {
+    public void setCenterX(int value) {
         centerX = value;
     }
 
-    public void setCenterY(int value)
-    {
+    public void setCenterY(int value) {
         centerY = value;
     }
 
-    public double[] computeGridParams(int panelWidth, int panelHeight)
-    {
+    public double[] computeGridParams(int panelWidth, int panelHeight) {
         double left = fx(0);
         double top = fy(0);
         double right = fx(panelWidth - 1);

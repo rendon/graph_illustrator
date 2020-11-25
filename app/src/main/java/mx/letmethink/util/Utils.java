@@ -3,8 +3,7 @@ package mx.letmethink.util;
 import java.awt.Color;
 
 public class Utils {
-    public static Color decode(String hex)
-    {
+    public static Color decode(String hex) {
         if (hex == null) {
             return null;
         }
@@ -24,8 +23,7 @@ public class Utils {
         return new Color(r, g, b, a);
     }
 
-    public static String encode(Color color)
-    {
+    public static String encode(Color color) {
         if (color == null) {
             return null;
         }

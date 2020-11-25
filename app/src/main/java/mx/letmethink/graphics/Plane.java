@@ -1,26 +1,51 @@
 package mx.letmethink.graphics;
 
-import javax.swing.*;
-import javax.swing.text.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.math.BigDecimal;
-import java.math.MathContext;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ArrayList;
-
-import mx.letmethink.graph.*;
-import mx.letmethink.Main;
 import mx.letmethink.InvalidOperationException;
-import mx.letmethink.util.StringUtils;
-import mx.letmethink.util.MathUtils;
+import mx.letmethink.Main;
+import mx.letmethink.graph.Edge;
+import mx.letmethink.graph.Graph;
+import mx.letmethink.graph.Vertex;
 import mx.letmethink.util.GeometryUtils;
+import mx.letmethink.util.StringUtils;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextPane;
+import javax.swing.JToolBar;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.CubicCurve2D;
+import java.awt.geom.Line2D;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class Plane extends JPanel implements MouseListener,
@@ -108,8 +133,7 @@ public class Plane extends JPanel implements MouseListener,
     private Color edgeForegroundColor;
     private Color edgeStrokeColor;
 
-    public Plane(Main mainWindow, Graph graph, GraphicsContext gc)
-    {
+    public Plane(Main mainWindow, Graph graph, GraphicsContext gc) {
         setLayout(null);
         this.mainWindow = mainWindow;
         this.graph = graph;
@@ -157,8 +181,7 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     @Override
-    public void paintComponent(Graphics g)
-    {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         setBackground(Color.WHITE);
         Graphics2D g2d = (Graphics2D) g;
@@ -217,8 +240,7 @@ public class Plane extends JPanel implements MouseListener,
     }
 
 
-    public String exportToSvg()
-    {
+    public String exportToSvg() {
         SVGGraphics2D g2d = new SVGGraphics2D(getWidth(), getHeight());
         exportingToSVG = true;
 
@@ -258,8 +280,7 @@ public class Plane extends JPanel implements MouseListener,
      *
      * @return true or false, draw or not draw grid
      */
-    public boolean isShowGrid()
-    {
+    public boolean isShowGrid() {
         return showGrid;
     }
 
@@ -268,8 +289,7 @@ public class Plane extends JPanel implements MouseListener,
      *
      * @param showGrid boolean, true to draw grid, false if not.
      */
-    public void setShowGrid(boolean showGrid)
-    {
+    public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
         repaint();
     }
@@ -277,8 +297,7 @@ public class Plane extends JPanel implements MouseListener,
     /**
      * Toggle showGrid state.
      */
-    public void toggleShowGrid()
-    {
+    public void toggleShowGrid() {
         showGrid = !showGrid;
         repaint();
     }
@@ -288,8 +307,7 @@ public class Plane extends JPanel implements MouseListener,
      *
      * @param g2d Graphics2D object
      */
-    private void drawGrid(Graphics2D g2d)
-    {
+    private void drawGrid(Graphics2D g2d) {
         Stroke tempStroke = g2d.getStroke();
         g2d.setStroke(GRID_DASH);
         Color tempColor = g2d.getColor();
@@ -317,8 +335,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /* MouseListener methods. */
     @Override
-    public void mouseReleased(MouseEvent event)
-    {
+    public void mouseReleased(MouseEvent event) {
         Point2D click = new Point2D(event.getPoint(), gc);
         int ca = getCurrentAction();
 
@@ -475,8 +492,7 @@ public class Plane extends JPanel implements MouseListener,
     public void mouseExited(MouseEvent event) { }
 
     @Override
-    public void mouseClicked(MouseEvent event)
-    {
+    public void mouseClicked(MouseEvent event) {
         this.requestFocus();
         Point2D click = new Point2D(event.getPoint(), gc);
         int ca = getCurrentAction();
@@ -509,8 +525,7 @@ public class Plane extends JPanel implements MouseListener,
     public void mouseEntered(MouseEvent event) { }
 
     @Override
-    public void mousePressed(MouseEvent event)
-    {
+    public void mousePressed(MouseEvent event) {
         this.requestFocus();
         Point2D click = new Point2D(event.getPoint(), gc);
         if (event.getButton() == MouseEvent.BUTTON3) {
@@ -592,8 +607,7 @@ public class Plane extends JPanel implements MouseListener,
      * @param e MouseEvent with coordinates of mouse position
      */
     @Override
-    public void mouseDragged(MouseEvent event)
-    {
+    public void mouseDragged(MouseEvent event) {
         int dx = event.getX() - (int) startDrag.getX();
         int dy = event.getY() - (int) startDrag.getY();
 
@@ -656,8 +670,7 @@ public class Plane extends JPanel implements MouseListener,
      * @param event a MouseWheelEvent object
      */
     @Override
-    public void mouseWheelMoved(MouseWheelEvent event)
-    {
+    public void mouseWheelMoved(MouseWheelEvent event) {
         int rotation = event.getWheelRotation();
         int x = event.getX();
         int y = event.getY();
@@ -683,8 +696,7 @@ public class Plane extends JPanel implements MouseListener,
         repaint();
     }
 
-    private void drawVertex(Graphics2D g2d, Vertex vertex)
-    {
+    private void drawVertex(Graphics2D g2d, Vertex vertex) {
         Stroke tempStroke = g2d.getStroke();
         Color tempColor = g2d.getColor();
 
@@ -781,8 +793,7 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setStroke(tempStroke);
     }
 
-    private void drawEdge(Graphics2D g2d, Edge edge)
-    {
+    private void drawEdge(Graphics2D g2d, Edge edge) {
         Vertex start = graph.getVertex(edge.getStart());
         Vertex end = graph.getVertex(edge.getEnd());
 
@@ -1022,24 +1033,20 @@ public class Plane extends JPanel implements MouseListener,
         g2d.setColor(tempColor);
     }
 
-    public void setGraph(Graph graph)
-    {
+    public void setGraph(Graph graph) {
         this.graph = graph;
         repaint();
     }
 
-    public Graph getGraph()
-    {
+    public Graph getGraph() {
         return graph;
     }
 
-    private int getCurrentAction()
-    {
+    private int getCurrentAction() {
         return currentAction;
     }
 
-    public void setCurrentAction(int currentAction)
-    {
+    public void setCurrentAction(int currentAction) {
         if (pendingActions) {
             finishPendingActions();
         }
@@ -1063,13 +1070,11 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    public int getShapeType()
-    {
+    public int getShapeType() {
         return shapeType;
     }
 
-    public void setShapeType(int shapeType)
-    {
+    public void setShapeType(int shapeType) {
         this.shapeType = shapeType;
     }
 
@@ -1078,13 +1083,11 @@ public class Plane extends JPanel implements MouseListener,
         return createPolygon(v.getCenter(), label);
     }
 
-    public Polygon createPolygon(Point2D center, String label)
-    {
+    public Polygon createPolygon(Point2D center, String label) {
         return createPolygon(center, label, true);
     }
 
-    public Polygon createPolygon(Point2D center, String label, boolean padding)
-    {
+    public Polygon createPolygon(Point2D center, String label, boolean padding) {
         Polygon polygon = new Polygon();
         Point[] rect = createTextRect(center, label, padding);
         polygon.addPoint((int) rect[0].getX(), (int) rect[0].getY());
@@ -1095,8 +1098,7 @@ public class Plane extends JPanel implements MouseListener,
         return polygon;
     }
 
-    private Point[] createTextRect(Point2D center, String label,boolean padding)
-    {
+    private Point[] createTextRect(Point2D center, String label,boolean padding) {
         int x2 = gc.ix(center.x());
         int y2 = gc.iy(center.y());
 
@@ -1125,8 +1127,7 @@ public class Plane extends JPanel implements MouseListener,
         return rect;
     }
 
-    private Point[] createVertexRect(Vertex v)
-    {
+    private Point[] createVertexRect(Vertex v) {
         if (getShapeType() == SHAPE_RECTANGLE) {
             return createTextRect(v.getCenter(), v.getLabel(), true);
         } else {
@@ -1144,18 +1145,15 @@ public class Plane extends JPanel implements MouseListener,
     }
 
 
-    public boolean hasChanges()
-    {
+    public boolean hasChanges() {
         return changes > 0;
     }
 
-    public void setChanges(int value)
-    {
+    public void setChanges(int value) {
         changes = value;
     }
 
-    public void toggleSmoothLines()
-    {
+    public void toggleSmoothLines() {
         smoothLines = !smoothLines;
         repaint();
     }
@@ -1163,8 +1161,7 @@ public class Plane extends JPanel implements MouseListener,
 
     private class ActionHandler implements ActionListener {
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
             JButton source = (JButton) e.getSource();
             if (source == alignLeftButton) {
                 setTextAlignment(StyleConstants.ALIGN_LEFT);
@@ -1176,8 +1173,7 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void setTextAlignment(int newAlignment)
-    {
+    private void setTextAlignment(int newAlignment) {
         String text = labelEditor.getText();
         StyledDocument document = new DefaultStyledDocument();
         Style defaultStyle = document.getStyle(StyleContext.DEFAULT_STYLE);
@@ -1188,8 +1184,7 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     @Override
-    public void keyPressed(KeyEvent event)
-    {
+    public void keyPressed(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.VK_CONTROL) {
             ctrlKeyStatus = true;
         }
@@ -1218,51 +1213,42 @@ public class Plane extends JPanel implements MouseListener,
     public void keyTyped(KeyEvent e) { }
 
 
-    public void zoomIn()
-    {
+    public void zoomIn() {
         gc.zoomIn(getWidth() / 2, getHeight() / 2);
     }
 
-    public void zoomIn(int x, int y)
-    {
+    public void zoomIn(int x, int y) {
         gc.zoomIn(x, y);
     }
 
-    public void zoomOut()
-    {
+    public void zoomOut() {
         gc.zoomOut(getWidth() / 2, getHeight() / 2);
     }
 
-    public void zoomOut(int x, int y)
-    {
+    public void zoomOut(int x, int y) {
         gc.zoomOut(x, y);
     }
 
-    public void resetZoom()
-    {
+    public void resetZoom() {
         gc.resetZoom(getWidth(), getHeight());
     }
 
-    public void setVertexForegroundColor(Color color)
-    {
+    public void setVertexForegroundColor(Color color) {
         vertexForegroundColor = color;
         setColorsToSelectedVertices("foregroundColor", color);
     }
 
-    public void setVertexBackgroundColor(Color color)
-    {
+    public void setVertexBackgroundColor(Color color) {
         vertexBackgroundColor = color;
         setColorsToSelectedVertices("backgroundColor", color);
     }
 
-    public void setVertexBorderColor(Color color)
-    {
+    public void setVertexBorderColor(Color color) {
         vertexBorderColor = color;
         setColorsToSelectedVertices("borderColor", color);
     }
 
-    private void setColorsToSelectedVertices(String key, Color color)
-    {
+    private void setColorsToSelectedVertices(String key, Color color) {
         for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
                 if ("foregroundColor".equals(key)) {
@@ -1281,20 +1267,17 @@ public class Plane extends JPanel implements MouseListener,
         repaint();
     }
 
-    public void setEdgeForegroundColor(Color color)
-    {
+    public void setEdgeForegroundColor(Color color) {
         edgeForegroundColor = color;
         setColorsToSelectedEdges("foregroundColor", color);
     }
 
-    public void setEdgeStrokeColor(Color color)
-    {
+    public void setEdgeStrokeColor(Color color) {
         edgeStrokeColor = color;
         setColorsToSelectedEdges("strokeColor", color);
     }
 
-    private void setColorsToSelectedEdges(String key, Color color)
-    {
+    private void setColorsToSelectedEdges(String key, Color color) {
         for (Edge e : graph.edges()) {
             if (e.isSelected()) {
                 Vertex v = graph.getVertex(e.getEnd());
@@ -1311,8 +1294,7 @@ public class Plane extends JPanel implements MouseListener,
         repaint();
     }
 
-    public void deleteSelectedVertices()
-    {
+    public void deleteSelectedVertices() {
         ArrayList<Integer> list = new ArrayList<Integer>();
         for (Vertex v : graph.vertices()) {
             if (v.isSelected()) {
@@ -1328,14 +1310,12 @@ public class Plane extends JPanel implements MouseListener,
         repaint();
     }
 
-    public void setEdgeType(int type)
-    {
+    public void setEdgeType(int type) {
         edgeType = type;
     }
 
 
-    public void toggleEdgeHighlight()
-    {
+    public void toggleEdgeHighlight() {
         for (Edge e : graph.edges()) {
             if (e.isSelected()) {
                 e.setHighlighted(!e.isHighlighted());
@@ -1348,8 +1328,7 @@ public class Plane extends JPanel implements MouseListener,
 
     /* -------------------- Private methods. --------------------*/
 
-    private Vertex vertexUnderPoint(Point2D point)
-    {
+    private Vertex vertexUnderPoint(Point2D point) {
         if (point == null) {
             return null;
         }
@@ -1372,8 +1351,7 @@ public class Plane extends JPanel implements MouseListener,
         return null;
     }
 
-    private Edge edgeUnderPoint(Point2D point)
-    {
+    private Edge edgeUnderPoint(Point2D point) {
         if (point == null) {
             return null;
         }
@@ -1391,8 +1369,7 @@ public class Plane extends JPanel implements MouseListener,
         return null;
     }
 
-    private void finishNewNodeLabelEditing()
-    {
+    private void finishNewNodeLabelEditing() {
         String label = labelEditor.getText().trim();
         if (!label.isEmpty()) {
             try {
@@ -1418,8 +1395,7 @@ public class Plane extends JPanel implements MouseListener,
         this.remove(labelEditor);
     }
 
-    private void finishNodeLabelEditing()
-    {
+    private void finishNodeLabelEditing() {
         String oldLabel = vertexBeingEdited.getLabel();
         String newLabel = labelEditor.getText().trim();
         int oldAlignment = vertexBeingEdited.getLabelAlignment();
@@ -1446,8 +1422,7 @@ public class Plane extends JPanel implements MouseListener,
         this.remove(labelEditor);
     }
 
-    private void finishEdgeLabelEditing()
-    {
+    private void finishEdgeLabelEditing() {
         String oldLabel = edgeBeingEdited.getLabel();
         String newLabel = labelEditor.getText();
         if (!oldLabel.equals(newLabel)) {
@@ -1461,8 +1436,7 @@ public class Plane extends JPanel implements MouseListener,
         this.remove(labelEditor);
     }
 
-    private void finishNewEdgeLabelEditing()
-    {
+    private void finishNewEdgeLabelEditing() {
         edgeBeingEdited.setLabel(labelEditor.getText());
         if (edgeBeingEdited.isDirected()) {
             Vertex v = graph.getVertex(edgeBeingEdited.getEnd());
@@ -1472,8 +1446,7 @@ public class Plane extends JPanel implements MouseListener,
     }
 
 
-    public void finishPendingActions()
-    {
+    public void finishPendingActions() {
         switch (getCurrentAction()) {
             case ACTION_EDIT_NEW_NODE_LABEL:
                 finishNewNodeLabelEditing();
@@ -1496,13 +1469,11 @@ public class Plane extends JPanel implements MouseListener,
         repaint();
     }
 
-    private ImageIcon getImage(String name)
-    {
+    private ImageIcon getImage(String name) {
         return new ImageIcon(getClass().getResource("/" + name + ".png"));
     }
 
-    private void calculateFontSize(Graphics2D g2d)
-    {
+    private void calculateFontSize(Graphics2D g2d) {
         int desiredHeight = gc.ix((int) Vertex.BASE_VERTEX_RADIUS) - gc.ix(0);
         if (currentFont == null) {
             // Search a font size(in points) such that its height in pixels
@@ -1530,9 +1501,8 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void resizeLabelEditor(Point2D center, String text)
-    {
-        // prevent the TextPane to disappear in case of empty string
+    private void resizeLabelEditor(Point2D center, String text) {
+// prevent the TextPane to disappear in case of empty string
         text += " ";
 
         Point[] rect = createTextRect(center, text, false);
@@ -1544,8 +1514,7 @@ public class Plane extends JPanel implements MouseListener,
         labelEditor.setBounds(a, b, w, h);
     }
 
-    private void connectVertices(Vertex u, Vertex v)
-    {
+    private void connectVertices(Vertex u, Vertex v) {
         Point2D c = GeometryUtils.getMiddlePoint(u.getCenter(), v.getCenter());
         if (edgeType == Edge.EDGE_TYPE_DIRECTED) {
             Integer uk = u.getKey();
@@ -1640,9 +1609,8 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void handleLabelEditing(Point eventPoint, Point2D click)
-    {
-        // Is it a node label?
+    private void handleLabelEditing(Point eventPoint, Point2D click) {
+// Is it a node label?
         for (Vertex vertex : graph.vertices()) {
             boolean found = false;
 
@@ -1692,8 +1660,7 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void handleNewNodeLabel(Point2D click)
-    {
+    private void handleNewNodeLabel(Point2D click) {
         resizeLabelEditor(click, "");
         vertexBeingEdited = new Vertex("", click);
         vertexBeingEdited.setForegroundColor(vertexForegroundColor);
@@ -1707,8 +1674,7 @@ public class Plane extends JPanel implements MouseListener,
         pendingActions = true;
     }
 
-    private void handleEraseObject(Point eventPoint, Point2D click)
-    {
+    private void handleEraseObject(Point eventPoint, Point2D click) {
         Integer deleteKey = null;
         // Delete a vertex?
         for (Vertex vertex : graph.vertices()) {
@@ -1761,8 +1727,7 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void selectAll()
-    {
+    private void selectAll() {
         for (Vertex v : graph.vertices()) {
             v.setSelected(true);
         }
@@ -1802,4 +1767,3 @@ public class Plane extends JPanel implements MouseListener,
         public void keyTyped(KeyEvent e) { }
     }
 }
-

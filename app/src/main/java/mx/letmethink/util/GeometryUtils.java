@@ -1,13 +1,15 @@
 package mx.letmethink.util;
 
-import mx.letmethink.graphics.*;
-import mx.letmethink.graph.*;
+import mx.letmethink.graph.Vertex;
+import mx.letmethink.graphics.GraphicsContext;
+import mx.letmethink.graphics.Point2D;
+import mx.letmethink.graphics.Vector2D;
+
 import java.awt.FontMetrics;
 
 public class GeometryUtils {
     public static boolean onSegment(Point2D a, Point2D b,
-                                    Point2D p, GraphicsContext gc)
-    {
+                                    Point2D p, GraphicsContext gc) {
         if (a == null || b == null || p == null || gc == null) {
             return false;
         }
@@ -35,8 +37,7 @@ public class GeometryUtils {
         return dist < eps;
     }
 
-    public static boolean segInt(Point2D a, Point2D b, Point2D c, Point2D d)
-    {
+    public static boolean segInt(Point2D a, Point2D b, Point2D c, Point2D d) {
         if (a == null || b == null || c == null || d == null) {
             return false;
         }
@@ -47,8 +48,7 @@ public class GeometryUtils {
     }
 
     public static Point2D intersection(Point2D a, Point2D b,
-                                       Point2D c, Point2D d)
-    {
+                                       Point2D c, Point2D d) {
         if (a == null || b == null || c == null || d == null) {
             return null;
         }
@@ -72,8 +72,7 @@ public class GeometryUtils {
         return new Point2D(d1 / det, d2 / det);
     }
 
-    public static double ccw(Point2D a, Point2D b, Point2D c)
-    {
+    public static double ccw(Point2D a, Point2D b, Point2D c) {
         if (a == null || b == null || c == null) {
             return Double.NaN;
         }
@@ -88,8 +87,7 @@ public class GeometryUtils {
 
     public static Point2D computeEndPoint(Vertex u, Vertex v,
                                           FontMetrics m,
-                                          GraphicsContext gc)
-    {
+                                          GraphicsContext gc) {
         if (u == null || v == null || m == null || gc == null) {
             return null;
         }
@@ -132,8 +130,7 @@ public class GeometryUtils {
         return endPoint;
     }
 
-    public static Point2D getMiddlePoint(Point2D a, Point2D b)
-    {
+    public static Point2D getMiddlePoint(Point2D a, Point2D b) {
         double dx = b.x() - a.x();
         double dy = b.y() - a.y();
         return new Point2D(a.x() + 0.5 * dx, a.y() + 0.5 * dy);

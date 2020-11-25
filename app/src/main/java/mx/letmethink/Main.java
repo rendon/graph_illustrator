@@ -1,40 +1,49 @@
 package mx.letmethink;
 
-import mx.letmethink.graphics.*;
-import mx.letmethink.graphics.Point2D;
-import mx.letmethink.graph.*;
-import mx.letmethink.util.Utils;
-import mx.letmethink.util.MathUtils;
-
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.StyleConstants;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowListener;
-import java.awt.event.WindowEvent;
-import java.io.*;
-import java.util.HashSet;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Map;
-import java.util.Iterator;
-import javax.swing.filechooser.FileFilter;
-
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import mx.letmethink.graph.Edge;
+import mx.letmethink.graph.Graph;
+import mx.letmethink.graph.Vertex;
+import mx.letmethink.graphics.GraphicsContext;
+import mx.letmethink.graphics.Plane;
+import mx.letmethink.graphics.Point2D;
+import mx.letmethink.util.MathUtils;
+import mx.letmethink.util.Utils;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JToolBar;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.StyleConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 
 @SuppressWarnings("serial")
 public class Main extends JFrame {
@@ -79,8 +88,7 @@ public class Main extends JFrame {
 
     private String filePath;
 
-    public Main()
-    {
+    public Main() {
         super("Graph Illustrator : Untitled");
         setIconImage(getImage("gi").getImage());
         setSize(1200, 900);
@@ -240,18 +248,15 @@ public class Main extends JFrame {
         plane.requestFocus();
     }
 
-    private ImageIcon getImage(String name)
-    {
+    private ImageIcon getImage(String name) {
         return new ImageIcon(getClass().getResource("/" + name + ".png"));
     }
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
         Main test = new Main();
     }
 
-    private void readSimpleGraph() throws IOException
-    {
+    private void readSimpleGraph() throws IOException {
         FileReader fileReader = new FileReader(filePath);
         BufferedReader reader = new BufferedReader(fileReader);
         String line;
@@ -294,8 +299,7 @@ public class Main extends JFrame {
         plane.setGraph(graph);
     }
 
-    private void readGraph() throws InvalidFormatException, IOException
-    {
+    private void readGraph() throws InvalidFormatException, IOException {
         Graph graph = new Graph();
         HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
@@ -482,8 +486,7 @@ public class Main extends JFrame {
 
     private class ActionHandler implements ActionListener, WindowListener {
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
+        public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             plane.finishPendingActions();
             if (source == openButton) {
@@ -600,8 +603,7 @@ public class Main extends JFrame {
 
 
         @Override
-        public void windowClosing(WindowEvent e)
-        {
+        public void windowClosing(WindowEvent e) {
             if (plane.hasChanges()) {
                 int op = JOptionPane
                         .showConfirmDialog(null, "Save changes?", "Save?",
@@ -637,8 +639,7 @@ public class Main extends JFrame {
         public void windowOpened(WindowEvent e) { }
     }
 
-    private boolean open()
-    {
+    private boolean open() {
         if (plane.hasChanges()) {
             int op = JOptionPane.showConfirmDialog(
                     null,
@@ -699,8 +700,7 @@ public class Main extends JFrame {
         return false;
     }
 
-    private String chooseSaveFile()
-    {
+    private String chooseSaveFile() {
         JFileChooser fc = new JFileChooser();
         FileFilter gi, sgi;
         gi = new FileNameExtensionFilter("Graph Illustrator", "gi");
@@ -747,8 +747,7 @@ public class Main extends JFrame {
         return fn;
     }
 
-    private boolean save()
-    {
+    private boolean save() {
         if (filePath == null) {
             filePath = chooseSaveFile();
             if (filePath == null) {
@@ -776,8 +775,7 @@ public class Main extends JFrame {
         return false;
     }
 
-    private boolean saveAs()
-    {
+    private boolean saveAs() {
         if (filePath == null) {
             return save();
         } else {
@@ -791,8 +789,7 @@ public class Main extends JFrame {
         }
     }
 
-    private boolean reload()
-    {
+    private boolean reload() {
         if (filePath != null) {
             int op = JOptionPane.showConfirmDialog(
                     null,
@@ -831,8 +828,7 @@ public class Main extends JFrame {
         return false;
     }
 
-    private boolean exportToSvg()
-    {
+    private boolean exportToSvg() {
         JFileChooser fc = new JFileChooser();
         FileFilter f;
         f = new FileNameExtensionFilter("Scalable Vector Graphics",
@@ -974,18 +970,15 @@ public class Main extends JFrame {
         bw.close();
     }
 
-    public JToolBar getToolBar()
-    {
+    public JToolBar getToolBar() {
         return mainToolBar;
     }
 
-    public void doSave()
-    {
+    public void doSave() {
         saveButton.doClick();
     }
 
-    public void doOpen()
-    {
+    public void doOpen() {
         openButton.doClick();
     }
 }

@@ -1,6 +1,6 @@
 package mx.letmethink.graphics;
 
-import java.awt.*;
+import java.awt.Point;
 
 /**
  * A 2D Point class to use with logical coordinates.
@@ -9,41 +9,34 @@ public class Point2D {
     private double px;
     private double py;
 
-    public Point2D(Point p, GraphicsContext gc)
-    {
+    public Point2D(Point p, GraphicsContext gc) {
         px = gc.fx((int) p.getX());
         py = gc.fy((int) p.getY());
     }
 
-    public Point2D(double x, double y)
-    {
+    public Point2D(double x, double y) {
         px = x;
         py = y;
     }
 
-    public Point2D(Point2D point)
-    {
+    public Point2D(Point2D point) {
         px = point.x();
         py = point.y();
     }
 
-    public void setX(double x)
-    {
+    public void setX(double x) {
         px = x;
     }
 
-    public void setY(double y)
-    {
+    public void setY(double y) {
         py = y;
     }
 
-    public double x()
-    {
+    public double x() {
         return px;
     }
 
-    public double y()
-    {
+    public double y() {
         return py;
     }
 
@@ -53,8 +46,7 @@ public class Point2D {
      * @param point Point2D object
      * @return double, distance between this and point
      */
-    public double distanceTo(Point2D point)
-    {
+    public double distanceTo(Point2D point) {
         return Math.sqrt((px - point.x()) * (px - point.x()) +
                 (py - point.y()) * (py - point.y()));
     }
@@ -62,8 +54,7 @@ public class Point2D {
     /**
      * Returns the distance from origin to this point
      */
-    public double distance()
-    {
+    public double distance() {
         return Math.sqrt(x() * x() + y() * y());
     }
 }

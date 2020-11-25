@@ -4,8 +4,7 @@ import javax.swing.text.StyleConstants;
 
 public class StringUtils {
 
-    public static String align(String text, int alignment)
-    {
+    public static String align(String text, int alignment) {
         if (alignment == StyleConstants.ALIGN_CENTER) {
             return justifyCenter(text);
         } else if (alignment == StyleConstants.ALIGN_RIGHT) {
@@ -15,8 +14,7 @@ public class StringUtils {
         }
 
     }
-    public static String justifyCenter(String text)
-    {
+    public static String justifyCenter(String text) {
         String[] lines = text.split("\n", -1);
         int n = lines.length;
         int maxLength = 0;
@@ -52,8 +50,7 @@ public class StringUtils {
         return centered.toString();
     }
 
-    public static String justifyRight(String text)
-    {
+    public static String justifyRight(String text) {
         String[] lines = text.split("\n", -1);
         int n = lines.length;
         int maxLength = 0;

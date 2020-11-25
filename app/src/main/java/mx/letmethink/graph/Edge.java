@@ -2,7 +2,7 @@ package mx.letmethink.graph;
 
 import mx.letmethink.graphics.Point2D;
 
-import java.awt.*;
+import java.awt.Color;
 public class Edge {
     public static final int EDGE_TYPE_DIRECTED      = 1;
     public static final int EDGE_TYPE_UNDIRECTED    = 2;
@@ -19,8 +19,7 @@ public class Edge {
     private boolean isBackEdge;
 
     //Constructors
-    public Edge(Integer start, Integer end, String label)
-    {
+    public Edge(Integer start, Integer end, String label) {
         setStart(start);
         setEnd(end);
 
@@ -31,107 +30,87 @@ public class Edge {
         isBackEdge = false;
     }
 
-    public boolean isBackEdge()
-    {
+    public boolean isBackEdge() {
         return isBackEdge;
     }
 
-    public void setIsBackEdge(boolean value)
-    {
+    public void setIsBackEdge(boolean value) {
         isBackEdge = value;
     }
 
-    public Integer getStart()
-    {
+    public Integer getStart() {
         return start;
     }
 
-    public void setStart(Integer start)
-    {
+    public void setStart(Integer start) {
         this.start = start;
     }
 
-    public Integer getEnd()
-    {
+    public Integer getEnd() {
         return end;
     }
 
-    public void setEnd(Integer end)
-    {
+    public void setEnd(Integer end) {
         this.end = end;
     }
 
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
-    public void setForegroundColor(Color color)
-    {
+    public void setForegroundColor(Color color) {
         if (color != null) {
             foregroundColor = color;
         }
     }
 
-    public Color getForegroundColor()
-    {
+    public Color getForegroundColor() {
         return foregroundColor;
     }
 
-    public void setStrokeColor(Color color)
-    {
+    public void setStrokeColor(Color color) {
         if (color != null) {
             strokeColor = color;
         }
     }
 
-    public Color getStrokeColor()
-    {
+    public Color getStrokeColor() {
         return strokeColor;
     }
 
-    public Point2D getLabelCenter()
-    {
+    public Point2D getLabelCenter() {
         return labelCenter;
     }
 
-    public void setLabelCenter(Point2D center)
-    {
+    public void setLabelCenter(Point2D center) {
         labelCenter = center;
     }
 
-    public void setIsDirected(boolean value)
-    {
+    public void setIsDirected(boolean value) {
         directed = value;
     }
 
-    public boolean isDirected()
-    {
+    public boolean isDirected() {
         return directed;
     }
 
-    public void setSelected(boolean value)
-    {
+    public void setSelected(boolean value) {
         selected = value;
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         return selected;
     }
 
-    public void setHighlighted(boolean value)
-    {
+    public void setHighlighted(boolean value) {
         highlighted = value;
     }
 
-    public boolean isHighlighted()
-    {
+    public boolean isHighlighted() {
         return highlighted;
     }
 }

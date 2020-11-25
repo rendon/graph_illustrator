@@ -4,13 +4,11 @@ import mx.letmethink.graphics.GraphicsContext;
 import mx.letmethink.graphics.Point2D;
 
 import javax.swing.text.StyleConstants;
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Random;
-
-;
 
 public class Vertex {
     public static final double BASE_VERTEX_RADIUS = 1;
@@ -34,13 +32,11 @@ public class Vertex {
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
     private int edgeDirection;
 
-    public Vertex(String label)
-    {
+    public Vertex(String label) {
         this(label, null);
     }
 
-    public Vertex(String label, Point2D pos)
-    {
+    public Vertex(String label, Point2D pos) {
         setForegroundColor(Color.BLACK);
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
@@ -69,45 +65,37 @@ public class Vertex {
         setSelected(false);
     }
 
-    public void setKey(Integer key)
-    {
+    public void setKey(Integer key) {
         this.key = key;
     }
 
-    public Integer getKey()
-    {
+    public Integer getKey() {
         return key;
     }
 
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
-    public void setEdgeDirection(int direction)
-    {
+    public void setEdgeDirection(int direction) {
         edgeDirection = direction;
     }
 
-    public int getEdgeDirection()
-    {
+    public int getEdgeDirection() {
         return edgeDirection;
     }
 
-    public void addNeighbor(Edge edge)
-    {
+    public void addNeighbor(Edge edge) {
         if (edge != null && edge.getEnd() != null) {
             neighborMap.put(edge.getEnd(), edge);
         }
     }
 
-    public Edge addNeighbor(Integer neighborKey, String label)
-    {
+    public Edge addNeighbor(Integer neighborKey, String label) {
         if (!neighborMap.containsKey(neighborKey)) {
             Edge e = new Edge(getKey(), neighborKey, label);
             neighborMap.put(neighborKey, e);
@@ -117,110 +105,90 @@ public class Vertex {
         }
     }
 
-    public Edge getNeighbor(Integer key)
-    {
+    public Edge getNeighbor(Integer key) {
         return neighborMap.get(key);
     }
 
-    public boolean contains(Integer k)
-    {
+    public boolean contains(Integer k) {
         return neighborMap.containsKey(k);
     }
 
-    public Point2D getCenter()
-    {
+    public Point2D getCenter() {
         return center;
     }
 
-    public void setCenter(Point2D center)
-    {
+    public void setCenter(Point2D center) {
         this.center = center;
     }
 
-    public void setCenter(double x, double y)
-    {
+    public void setCenter(double x, double y) {
         center.setX(x);
         center.setY(y);
     }
 
-    public double getRadius()
-    {
+    public double getRadius() {
         return radius;
     }
 
-    public void setRadius(double radius)
-    {
+    public void setRadius(double radius) {
         this.radius = radius;
     }
 
-    public int getLabelAlignment()
-    {
+    public int getLabelAlignment() {
         return labelAlignment;
     }
 
-    public void setLabelAlignment(int labelAlignment)
-    {
+    public void setLabelAlignment(int labelAlignment) {
         this.labelAlignment = labelAlignment;
     }
 
-    public boolean hasLabelChanged()
-    {
+    public boolean hasLabelChanged() {
         return labelChanged;
     }
 
-    public void setLabelChanged(boolean value)
-    {
+    public void setLabelChanged(boolean value) {
         labelChanged = value;
     }
 
-    public boolean isSelected()
-    {
+    public boolean isSelected() {
         return selected;
     }
 
-    public void setSelected(boolean value)
-    {
+    public void setSelected(boolean value) {
         selected = value;
     }
 
-    public void setForegroundColor(Color color)
-    {
+    public void setForegroundColor(Color color) {
         if (color != null) {
             foregroundColor = color;
         }
     }
 
-    public Color getForegroundColor()
-    {
+    public Color getForegroundColor() {
         return foregroundColor;
     }
 
-    public void setBorderColor(Color color)
-    {
+    public void setBorderColor(Color color) {
         if (color != null) {
             borderColor = color;
         }
     }
 
-    public Color getBorderColor()
-    {
+    public Color getBorderColor() {
         return borderColor;
     }
 
-    public void setBackgroundColor(Color color)
-    {
+    public void setBackgroundColor(Color color) {
         if (color != null) {
             backgroundColor = color;
         }
     }
 
-    public Color getBackgroundColor()
-    {
+    public Color getBackgroundColor() {
         return backgroundColor;
     }
 
-    public Iterable<Edge> neighbors()
-    {
+    public Iterable<Edge> neighbors() {
         LinkedList<Edge> list = new LinkedList<Edge>();
         for (Entry<Integer, Edge> entry : neighborMap.entrySet()) {
             list.add(entry.getValue());
@@ -229,8 +197,7 @@ public class Vertex {
         return list;
     }
 
-    public Edge removeNeighbor(Integer key)
-    {
+    public Edge removeNeighbor(Integer key) {
         return neighborMap.remove(key);
     }
 }
