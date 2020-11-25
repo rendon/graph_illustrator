@@ -50,5 +50,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'mx.letmethink.App'
+    mainClass = 'mx.letmethink.Main'
 }
