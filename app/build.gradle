@@ -9,6 +9,14 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id "java"
+    id "idea"
+}
+
+idea {
+    module {
+        downloadSources = true
+    }
 }
 
 repositories {
@@ -22,9 +30,25 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:29.0-jre'
+
+
+    // https://mvnrepository.com/artifact/org.jfree/jfreesvg
+    compile group: 'org.jfree', name: 'jfreesvg', version: '3.4'
+
+    // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '2.2'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.11.3'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.11.3'
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'gi.App'
+    mainClass = 'mx.letmethink.App'
 }
