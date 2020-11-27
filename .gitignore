@@ -7,3 +7,4 @@ TODO.txt
 bin/
 .idea/
 .gradle/
+app/lombok.config
