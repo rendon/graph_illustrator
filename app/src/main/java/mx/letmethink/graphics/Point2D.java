@@ -24,6 +24,10 @@ public class Point2D {
         py = point.y();
     }
 
+    public static Point2D of(double x, double y) {
+        return new Point2D(x, y);
+    }
+
     public void setX(double x) {
         px = x;
     }

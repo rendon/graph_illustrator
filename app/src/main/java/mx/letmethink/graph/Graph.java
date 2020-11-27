@@ -13,9 +13,9 @@ public class Graph {
     private Integer nextKey;
 
     public Graph() {
-        V = new HashMap<Integer, Vertex>();
-        keys = new HashMap<String, Integer>();
-        labelKeys = new HashMap<String, Integer>();
+        V = new HashMap<>();
+        keys = new HashMap<>();
+        labelKeys = new HashMap<>();
         nextKey = 1;
     }
 

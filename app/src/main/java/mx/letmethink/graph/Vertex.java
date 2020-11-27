@@ -45,7 +45,7 @@ public class Vertex {
         setRadius(BASE_VERTEX_RADIUS);
 
         edgeDirection = 0;
-        neighborMap = new HashMap<Integer, Edge>();
+        neighborMap = new HashMap<>();
 
         Random random = new Random();
         double[] signs = new double[]{-1, 1};
@@ -63,6 +63,10 @@ public class Vertex {
 
         setLabelChanged(true);
         setSelected(false);
+    }
+
+    public static Vertex of(final String label) {
+        return new Vertex(label, null);
     }
 
     public void setKey(Integer key) {
@@ -189,7 +193,7 @@ public class Vertex {
     }
 
     public Iterable<Edge> neighbors() {
-        LinkedList<Edge> list = new LinkedList<Edge>();
+        LinkedList<Edge> list = new LinkedList<>();
         for (Entry<Integer, Edge> entry : neighborMap.entrySet()) {
             list.add(entry.getValue());
         }

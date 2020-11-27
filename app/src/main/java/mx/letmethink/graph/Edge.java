@@ -4,12 +4,11 @@ import mx.letmethink.graphics.Point2D;
 
 import java.awt.Color;
 public class Edge {
-    public static final int EDGE_TYPE_DIRECTED      = 1;
-    public static final int EDGE_TYPE_UNDIRECTED    = 2;
+    public static final int EDGE_TYPE_DIRECTED = 1;
+    public static final int EDGE_TYPE_UNDIRECTED = 2;
 
-    // Attributes
     private Integer start, end;
-    private String label;    // label for edge
+    private String label; // label for edge
     private Color foregroundColor;
     private Color strokeColor;
     private Point2D labelCenter;
@@ -18,7 +17,6 @@ public class Edge {
     private boolean highlighted;
     private boolean isBackEdge;
 
-    //Constructors
     public Edge(Integer start, Integer end, String label) {
         setStart(start);
         setEnd(end);
@@ -28,6 +26,10 @@ public class Edge {
         strokeColor = Color.BLACK;
         directed = true;
         isBackEdge = false;
+    }
+
+    public static Edge of(Integer start, Integer end, String label) {
+        return new Edge(start, end, label);
     }
 
     public boolean isBackEdge() {

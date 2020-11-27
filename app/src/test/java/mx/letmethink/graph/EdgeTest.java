@@ -1,4 +1,4 @@
-package mx.letmethink;
+package mx.letmethink.graph;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
