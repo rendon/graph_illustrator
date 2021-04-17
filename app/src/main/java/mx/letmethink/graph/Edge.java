@@ -1,14 +1,15 @@
 package mx.letmethink.graph;
 
+import java.awt.Color;
 import mx.letmethink.graphics.Point2D;
 
-import java.awt.Color;
 public class Edge {
     public static final int EDGE_TYPE_DIRECTED = 1;
     public static final int EDGE_TYPE_UNDIRECTED = 2;
 
-    private Integer start, end;
-    private String label; // label for edge
+    private Integer start;
+    private Integer end;
+    private String label;
     private Color foregroundColor;
     private Color strokeColor;
     private Point2D labelCenter;
@@ -26,6 +27,7 @@ public class Edge {
         strokeColor = Color.BLACK;
         directed = true;
         isBackEdge = false;
+        labelCenter = Point2D.ORIGIN;
     }
 
     public static Edge of(Integer start, Integer end, String label) {
@@ -89,7 +91,9 @@ public class Edge {
     }
 
     public void setLabelCenter(Point2D center) {
-        labelCenter = center;
+        if (center != null) {
+            labelCenter = center;
+        }
     }
 
     public void setIsDirected(boolean value) {
@@ -116,4 +120,3 @@ public class Edge {
         return highlighted;
     }
 }
-

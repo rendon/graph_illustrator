@@ -40,7 +40,7 @@ public class Vector2D {
     }
 
     public Point2D point() {
-        return new Point2D(x(), y());
+        return Point2D.of(x(), y());
     }
 
     // Operations with vectors

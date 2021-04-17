@@ -57,7 +57,7 @@ public class Vertex {
             int b = random.nextInt(height);
             double x = a * signs[random.nextInt(2)];
             double y = b * signs[random.nextInt(2)];
-            setCenter(new Point2D(x, y));
+            setCenter(Point2D.of(x, y));
         }
         setLabelAlignment(StyleConstants.ALIGN_LEFT);
 

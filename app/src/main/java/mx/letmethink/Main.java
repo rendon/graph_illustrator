@@ -371,7 +371,7 @@ public class Main extends JFrame {
                 if (point.get("x") != null && point.get("y") != null) {
                     double x = point.get("x").asDouble();
                     double y = point.get("y").asDouble();
-                    vertex.setCenter(new Point2D(x, y));
+                    vertex.setCenter(Point2D.of(x, y));
                 }
             }
 
@@ -471,7 +471,7 @@ public class Main extends JFrame {
                 if (point.get("x") != null && point.get("y") != null) {
                     double x = point.get("x").asDouble();
                     double y = point.get("y").asDouble();
-                    edge.setLabelCenter(new Point2D(x, y));
+                    edge.setLabelCenter(Point2D.of(x, y));
                 }
             }
 

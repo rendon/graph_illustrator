@@ -69,7 +69,7 @@ public class GeometryUtils {
         double d1 = b2 * c1 - b1 * c2;
         double d2 = a1 * c2 - a2 * c1;
 
-        return new Point2D(d1 / det, d2 / det);
+        return Point2D.of(d1 / det, d2 / det);
     }
 
     public static double ccw(Point2D a, Point2D b, Point2D c) {
@@ -111,10 +111,10 @@ public class GeometryUtils {
         double height = gc.fy(h) - gc.fy(0);
         double x = cu.x();
         double y = cu.y();
-        Point2D a = new Point2D(x - width * 0.5, y + height * 0.5);
-        Point2D b = new Point2D(x + width * 0.5, y + height * 0.5);
-        Point2D c = new Point2D(x + width * 0.5, y - height * 0.5);
-        Point2D d = new Point2D(x - width * 0.5, y - height * 0.5);
+        Point2D a = Point2D.of(x - width * 0.5, y + height * 0.5);
+        Point2D b = Point2D.of(x + width * 0.5, y + height * 0.5);
+        Point2D c = Point2D.of(x + width * 0.5, y - height * 0.5);
+        Point2D d = Point2D.of(x - width * 0.5, y - height * 0.5);
 
         Point2D endPoint = cv;
         if (segInt(a, b, cu, cv)) {
@@ -133,6 +133,6 @@ public class GeometryUtils {
     public static Point2D getMiddlePoint(Point2D a, Point2D b) {
         double dx = b.x() - a.x();
         double dy = b.y() - a.y();
-        return new Point2D(a.x() + 0.5 * dx, a.y() + 0.5 * dy);
+        return Point2D.of(a.x() + 0.5 * dx, a.y() + 0.5 * dy);
     }
 }

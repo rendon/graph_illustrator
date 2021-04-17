@@ -336,7 +336,7 @@ public class Plane extends JPanel implements MouseListener,
     /* MouseListener methods. */
     @Override
     public void mouseReleased(MouseEvent event) {
-        Point2D click = new Point2D(event.getPoint(), gc);
+        Point2D click = Point2D.from(event.getPoint(), gc);
         int ca = getCurrentAction();
 
         if (ca == ACTION_DRAW_NEW_EDGE && startVertex != null) {
@@ -494,7 +494,7 @@ public class Plane extends JPanel implements MouseListener,
     @Override
     public void mouseClicked(MouseEvent event) {
         this.requestFocus();
-        Point2D click = new Point2D(event.getPoint(), gc);
+        Point2D click = Point2D.from(event.getPoint(), gc);
         int ca = getCurrentAction();
         if (event.getClickCount() == 2 && ca == ACTION_DEFAULT) {
             handleLabelEditing(event.getPoint(), click);
@@ -527,7 +527,7 @@ public class Plane extends JPanel implements MouseListener,
     @Override
     public void mousePressed(MouseEvent event) {
         this.requestFocus();
-        Point2D click = new Point2D(event.getPoint(), gc);
+        Point2D click = Point2D.from(event.getPoint(), gc);
         if (event.getButton() == MouseEvent.BUTTON3) {
             Vertex v = vertexUnderPoint(click);
             if (vertexUnderPoint(click) != null) {
@@ -704,10 +704,10 @@ public class Plane extends JPanel implements MouseListener,
             Point[] rect = createTextRect(vertex.getCenter(),
                     vertex.getLabel(), true);
             Point2D c = vertex.getCenter();
-            double d1 = c.distanceTo(new Point2D(rect[0], gc));
-            double d2 = c.distanceTo(new Point2D(rect[1], gc));
-            double d3 = c.distanceTo(new Point2D(rect[2], gc));
-            double d4 = c.distanceTo(new Point2D(rect[3], gc));
+            double d1 = c.distanceTo(Point2D.from(rect[0], gc));
+            double d2 = c.distanceTo(Point2D.from(rect[1], gc));
+            double d3 = c.distanceTo(Point2D.from(rect[2], gc));
+            double d4 = c.distanceTo(Point2D.from(rect[3], gc));
             double max = Math.max(Math.max(d1, d2), Math.max(d3, d4));
             vertex.setRadius(Math.max(max, Vertex.BASE_VERTEX_RADIUS));
             vertex.setLabelChanged(false);
@@ -890,7 +890,7 @@ public class Plane extends JPanel implements MouseListener,
                 pxEnd -= endAS;
                 pyEnd -= endOS;
 
-                Point2D tmp = new Point2D(pxEnd - pxStart, pyEnd - pyStart);
+                Point2D tmp = Point2D.of(pxEnd - pxStart, pyEnd - pyStart);
                 double xx = tmp.x() * 0.5;
                 double yy = tmp.y() * 0.5;
                 ctrlX = pxStart + xx;
@@ -915,7 +915,7 @@ public class Plane extends JPanel implements MouseListener,
                 pyStart = startPoint.y();
                 pxEnd = endPoint.x();
                 pyEnd = endPoint.y();
-                Point2D tmp = new Point2D(pxEnd - pxStart, pyEnd - pyStart);
+                Point2D tmp = Point2D.of(pxEnd - pxStart, pyEnd - pyStart);
                 double xx = tmp.x() * 0.5;
                 double yy = tmp.y() * 0.5;
                 ctrlX = pxStart + xx;
@@ -950,10 +950,10 @@ public class Plane extends JPanel implements MouseListener,
             if (direction == Integer.MAX_VALUE) {
                 g2d.drawString(edge.getLabel(), gc.ix(pxStart + 2),
                         gc.iy(pyStart));
-                edge.setLabelCenter(new Point2D(pxStart + 0.5 * width,
+                edge.setLabelCenter(Point2D.of(pxStart + 0.5 * width,
                         pyStart + 0.5 * height));
             } else {
-                Point2D c = new Point2D(ctrlX, ctrlY + 0.5 * height);
+                Point2D c = Point2D.of(ctrlX, ctrlY + 0.5 * height);
                 int x = gc.ix(c.x());
                 int y = gc.iy(c.y());
                 int fontHeight = m.getAscent() + m.getDescent();

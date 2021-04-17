@@ -135,7 +135,7 @@ public class GraphicsContext {
         }
 
         double ps = pixelSize;
-        Point2D previous = new Point2D(fx(mx), fy(my));
+        Point2D previous = Point2D.of(fx(mx), fy(my));
 
         pixelSize += pixelSize / 10;
 
@@ -158,7 +158,7 @@ public class GraphicsContext {
         }
 
         double ps = pixelSize;
-        Point2D previous = new Point2D(fx(mx), fy(my));
+        Point2D previous = Point2D.of(fx(mx), fy(my));
         pixelSize -= pixelSize / 10;
 
         int dx = ix(previous.x()) - ix(previous.x(), ps);
