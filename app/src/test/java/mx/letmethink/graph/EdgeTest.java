@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public class EdgeTest {
     private Edge makeEdge() {
-        return Edge.of(5, 7, "edge");
+        return Edge.create(5, 7, "edge");
     }
 
     @Test

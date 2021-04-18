@@ -102,7 +102,7 @@ public class Main extends JFrame {
         addWindowListener(actionHandler);
 
         GraphicsContext gc = new GraphicsContext();
-        Graph graph = new Graph();
+        Graph graph = Graph.create();
         plane = new Plane(this, graph, gc);
         openButton = new JButton(getImage("open"));
         openButton.addActionListener(actionHandler);
@@ -260,7 +260,7 @@ public class Main extends JFrame {
         FileReader fileReader = new FileReader(filePath);
         BufferedReader reader = new BufferedReader(fileReader);
         String line;
-        Graph graph = new Graph();
+        Graph graph = Graph.create();
         while ((line = reader.readLine()) != null) {
             String[] tokens = line.trim().split("\\s");
             if (tokens.length < 2) {
@@ -273,13 +273,13 @@ public class Main extends JFrame {
             Integer ku = null, kv = null;
             try {
                 if (!graph.containsVertexWithLabel(u)) {
-                    ku = graph.addVertex(new Vertex(u));
+                    ku = graph.addVertex(Vertex.create(u));
                 } else {
                     ku = graph.getVertexWithLabel(u).getKey();
                 }
 
                 if (!graph.containsVertexWithLabel(v)) {
-                    kv = graph.addVertex(new Vertex(v));
+                    kv = graph.addVertex(Vertex.create(v));
                 } else {
                     kv = graph.getVertexWithLabel(v).getKey();
                 }
@@ -300,7 +300,7 @@ public class Main extends JFrame {
     }
 
     private void readGraph() throws InvalidFormatException, IOException {
-        Graph graph = new Graph();
+        Graph graph = Graph.create();
         HashMap<String, Integer> labelKeys = new HashMap<String, Integer>();
         HashSet<Integer> keys = new HashSet<Integer>();
         HashSet<String> labels = new HashSet<String>();
@@ -347,7 +347,7 @@ public class Main extends JFrame {
 
             // Reassign keys to preserve the key space and avoid overflow.
             newKeys.put(key, nextKey);
-            Vertex vertex = new Vertex(label);
+            Vertex vertex = Vertex.create(label);
             vertex.setKey(nextKey);
             labelKeys.put(label, nextKey);
             nextKey++;
@@ -879,7 +879,7 @@ public class Main extends JFrame {
         generator.writeStartObject();
         generator.writeFieldName("Vertices");
         generator.writeStartArray();
-        for (Vertex v : graph.vertices()) {
+        for (Vertex v : graph.getVertices()) {
             String hexLabelColor = Utils.encode(v.getForegroundColor());
             String hexBorderColor = Utils.encode(v.getBorderColor());
             String hexBackgroundColor = Utils.encode(v.getBackgroundColor());
@@ -917,7 +917,7 @@ public class Main extends JFrame {
 
         generator.writeFieldName("Edges");
         generator.writeStartArray();
-        for (Edge e : graph.edges()) {
+        for (Edge e : graph.getEdges()) {
             generator.writeStartObject();
             String hexLabelColor = Utils.encode(e.getForegroundColor());
             String hexStrokeColor = Utils.encode(e.getStrokeColor());
@@ -952,7 +952,7 @@ public class Main extends JFrame {
         FileWriter fileWriter = new FileWriter(filePath);
         BufferedWriter writer = new BufferedWriter(fileWriter);
         Graph graph = plane.getGraph();
-        for (Edge e: graph.edges()) {
+        for (Edge e: graph.getEdges()) {
             Vertex u = graph.getVertex(e.getStart());
             Vertex v = graph.getVertex(e.getEnd());
             writer.write(u.getLabel() + " " + v.getLabel() + " ");

@@ -1,5 +1,6 @@
 package mx.letmethink.graph;
 
+import lombok.EqualsAndHashCode;
 import mx.letmethink.graphics.GraphicsContext;
 import mx.letmethink.graphics.Point2D;
 
@@ -10,6 +11,7 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Random;
 
+@EqualsAndHashCode
 public class Vertex {
     public static final double BASE_VERTEX_RADIUS = 1;
 
@@ -25,18 +27,17 @@ public class Vertex {
     private boolean labelChanged;
     private boolean selected;
 
-    private HashMap<Integer, Edge> neighborMap;
+    private final HashMap<Integer, Edge> neighborMap;
 
 
     // This variable indicates the control point direction of the curve
     // that goes from this vertex to another(-1 = down, 0 = straight, 1 = up).
     private int edgeDirection;
 
-    public Vertex(String label) {
-        this(label, null);
+    public static Vertex create(final String label) {
+        return new Vertex(label, null);
     }
-
-    public Vertex(String label, Point2D pos) {
+    private Vertex(String label, Point2D pos) {
         setForegroundColor(Color.BLACK);
         setBorderColor(Color.BLACK);
         setBackgroundColor(Color.WHITE);
@@ -65,8 +66,8 @@ public class Vertex {
         setSelected(false);
     }
 
-    public static Vertex of(final String label) {
-        return new Vertex(label, null);
+    public static Vertex from(String label, Point2D pos) {
+        return new Vertex(label, pos);
     }
 
     public void setKey(Integer key) {
@@ -99,10 +100,11 @@ public class Vertex {
         }
     }
 
-    public Edge addNeighbor(Integer neighborKey, String label) {
+    public Edge addNeighbor(Integer neighborKey, String edgeLabel) {
         if (!neighborMap.containsKey(neighborKey)) {
-            Edge e = new Edge(getKey(), neighborKey, label);
+            Edge e = new Edge(getKey(), neighborKey, edgeLabel);
             neighborMap.put(neighborKey, e);
+
             return e;
         } else {
             return null;
@@ -113,8 +115,8 @@ public class Vertex {
         return neighborMap.get(key);
     }
 
-    public boolean contains(Integer k) {
-        return neighborMap.containsKey(k);
+    public boolean contains(Integer key) {
+        return neighborMap.containsKey(key);
     }
 
     public Point2D getCenter() {

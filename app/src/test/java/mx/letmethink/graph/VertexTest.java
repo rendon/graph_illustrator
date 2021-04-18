@@ -22,7 +22,7 @@ public class VertexTest {
 
     @BeforeEach
     void setUp() {
-        vertex = Vertex.of("vertex");
+        vertex = Vertex.create("vertex");
     }
 
     @Test
@@ -51,14 +51,14 @@ public class VertexTest {
     @Test
     @DisplayName("addNeighbor() should add valid neighbors")
     void addNeighbor() {
-        vertex.addNeighbor(Edge.of(1, 2, "-->"));
+        vertex.addNeighbor(Edge.create(1, 2, "-->"));
         assertTrue(vertex.contains(2));
     }
 
     @Test
     @DisplayName("addNeighbor() should NOT add null edges")
     void addNeighbor_nullEdge() {
-        val vertex = new Vertex("vertex");
+        val vertex = Vertex.create("vertex");
         vertex.addNeighbor(null);
         assertFalse(vertex.contains(2));
     }
@@ -66,8 +66,8 @@ public class VertexTest {
     @Test
     @DisplayName("addNeighbor() should NOT add edges without an end")
     void addNeighbor_edgesWithoutEnd() {
-        val vertex = new Vertex("vertex");
-        vertex.addNeighbor(Edge.of(1, null, ""));
+        val vertex = Vertex.create("vertex");
+        vertex.addNeighbor(Edge.create(1, null, ""));
         assertFalse(vertex.contains(2));
     }
 

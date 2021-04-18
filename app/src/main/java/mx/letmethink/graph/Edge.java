@@ -1,8 +1,11 @@
 package mx.letmethink.graph;
 
 import java.awt.Color;
+
+import lombok.ToString;
 import mx.letmethink.graphics.Point2D;
 
+@ToString
 public class Edge {
     public static final int EDGE_TYPE_DIRECTED = 1;
     public static final int EDGE_TYPE_UNDIRECTED = 2;
@@ -30,7 +33,7 @@ public class Edge {
         labelCenter = Point2D.ORIGIN;
     }
 
-    public static Edge of(Integer start, Integer end, String label) {
+    public static Edge create(Integer start, Integer end, String label) {
         return new Edge(start, end, label);
     }
 
