@@ -7,7 +7,5 @@
 <suppressions>
     <suppress checks="MethodName" files=".*Test\.java" />
     <suppress checks="JavadocMethod" files=".*Test\.java" />
-
-    <!-- This check prevents us from using protected fields when using inheritance. -->
-    <suppress checks="VisibilityModifier" files=".*\.java" />
+    <suppress checks="CustomImportOrder" files=".*\.java" />
 </suppressions>

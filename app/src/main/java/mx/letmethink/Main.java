@@ -689,7 +689,7 @@ public class Main extends JFrame {
                         "Error", JOptionPane.ERROR_MESSAGE
                 );
             } catch (IOException ioe) {
-                //ioe.printStackTrace();
+                // ioe.printStackTrace();
                 JOptionPane.showMessageDialog(
                         null, "Couldn't open file", "Error",
                         JOptionPane.ERROR_MESSAGE
