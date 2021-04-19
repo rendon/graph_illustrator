@@ -214,8 +214,8 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         if (getCurrentAction() == ACTION_DRAW_NEW_EDGE && startVertex != null) {
-            double x1 = startVertex.getCenter().x();
-            double y1 = startVertex.getCenter().y();
+            double x1 = startVertex.getCenter().getX();
+            double y1 = startVertex.getCenter().getY();
             if (getMousePosition() != null) {
                 int x2 = (int) getMousePosition().getX();
                 int y2 = (int) getMousePosition().getY();
@@ -395,11 +395,11 @@ public class Plane extends JPanel implements MouseListener,
                 Point2D a = GeometryUtils.computeEndPoint(u, v, m, gc);
                 Point2D b = GeometryUtils.computeEndPoint(v, u, m, gc);
 
-                double x = gc.ix(a.x());
-                double y = gc.iy(a.y());
+                double x = gc.ix(a.getX());
+                double y = gc.iy(a.getY());
                 boolean test1 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
-                x = gc.ix(b.x());
-                y = gc.iy(b.y());
+                x = gc.ix(b.getX());
+                y = gc.iy(b.getY());
                 boolean test2 = x1 <= x && x <= x2 && y1 <= y && y <= y2;
 
                 if (test1 && test2) {
@@ -627,8 +627,8 @@ public class Plane extends JPanel implements MouseListener,
                 double dy1 = gc.fy(dy) - gc.fy(0);
                 double x, y;
                 if (!vertexToDrag.isSelected()) {
-                    x = vertexToDrag.getCenter().x();
-                    y = vertexToDrag.getCenter().y();
+                    x = vertexToDrag.getCenter().getX();
+                    y = vertexToDrag.getCenter().getY();
                     vertexToDrag.setCenter(x + dx1, y + dy1);
                 }
 
@@ -636,8 +636,8 @@ public class Plane extends JPanel implements MouseListener,
                     if (!vertexToDrag.isSelected()) {
                         vertex.setSelected(false);
                     } else if (vertex.isSelected()) {
-                        x = vertex.getCenter().x();
-                        y = vertex.getCenter().y();
+                        x = vertex.getCenter().getX();
+                        y = vertex.getCenter().getY();
                         vertex.setCenter(x + dx1, y + dy1);
                     }
                 }
@@ -716,8 +716,8 @@ public class Plane extends JPanel implements MouseListener,
         int radius = gc.ix(vertex.getRadius()) - gc.ix(0);
         int width = 2 * radius;
         int height = 2 * radius;
-        int x = gc.ix(vertex.getCenter().x());
-        int y = gc.iy(vertex.getCenter().y());
+        int x = gc.ix(vertex.getCenter().getX());
+        int y = gc.iy(vertex.getCenter().getY());
 
         Font tempFont = g2d.getFont();
         calculateFontSize(g2d);
@@ -803,10 +803,10 @@ public class Plane extends JPanel implements MouseListener,
 
         double startRadius = start.getRadius();
         double endRadius = end.getRadius();
-        double pxStart = start.getCenter().x();
-        double pyStart = start.getCenter().y();
-        double pxEnd = end.getCenter().x();
-        double pyEnd = end.getCenter().y();
+        double pxStart = start.getCenter().getX();
+        double pyStart = start.getCenter().getY();
+        double pxEnd = end.getCenter().getX();
+        double pyEnd = end.getCenter().getY();
 
         //By default the edge is a straight line
         double angle;
@@ -891,8 +891,8 @@ public class Plane extends JPanel implements MouseListener,
                 pyEnd -= endOS;
 
                 Point2D tmp = Point2D.of(pxEnd - pxStart, pyEnd - pyStart);
-                double xx = tmp.x() * 0.5;
-                double yy = tmp.y() * 0.5;
+                double xx = tmp.getX() * 0.5;
+                double yy = tmp.getY() * 0.5;
                 ctrlX = pxStart + xx;
                 ctrlY =  pyStart + yy;
 
@@ -911,13 +911,13 @@ public class Plane extends JPanel implements MouseListener,
                 Point2D endPoint = GeometryUtils.
                         computeEndPoint(v, u, metrics, gc);
 
-                pxStart = startPoint.x();
-                pyStart = startPoint.y();
-                pxEnd = endPoint.x();
-                pyEnd = endPoint.y();
+                pxStart = startPoint.getX();
+                pyStart = startPoint.getY();
+                pxEnd = endPoint.getX();
+                pyEnd = endPoint.getY();
                 Point2D tmp = Point2D.of(pxEnd - pxStart, pyEnd - pyStart);
-                double xx = tmp.x() * 0.5;
-                double yy = tmp.y() * 0.5;
+                double xx = tmp.getX() * 0.5;
+                double yy = tmp.getY() * 0.5;
                 ctrlX = pxStart + xx;
                 ctrlY =  pyStart + yy;
 
@@ -954,8 +954,8 @@ public class Plane extends JPanel implements MouseListener,
                         pyStart + 0.5 * height));
             } else {
                 Point2D c = Point2D.of(ctrlX, ctrlY + 0.5 * height);
-                int x = gc.ix(c.x());
-                int y = gc.iy(c.y());
+                int x = gc.ix(c.getX());
+                int y = gc.iy(c.getY());
                 int fontHeight = m.getAscent() + m.getDescent();
                 int fontWidth = m.stringWidth(edge.getLabel());
 
@@ -1099,8 +1099,8 @@ public class Plane extends JPanel implements MouseListener,
     }
 
     private Point[] createTextRect(Point2D center, String label,boolean padding) {
-        int x2 = gc.ix(center.x());
-        int y2 = gc.iy(center.y());
+        int x2 = gc.ix(center.getX());
+        int y2 = gc.iy(center.getY());
 
         calculateFontSize(graphics2D);
         graphics2D.setFont(currentFont);
@@ -1132,8 +1132,8 @@ public class Plane extends JPanel implements MouseListener,
             return createTextRect(v.getCenter(), v.getLabel(), true);
         } else {
             Point[] rect = new Point[4];
-            int x = gc.ix(v.getCenter().x());
-            int y = gc.iy(v.getCenter().y());
+            int x = gc.ix(v.getCenter().getX());
+            int y = gc.iy(v.getCenter().getY());
             int r = gc.ix(v.getRadius()) - gc.ix(0);
             rect[0] = new Point(x - r, y - r);
             rect[1] = new Point(x + r, y - r);
@@ -1333,7 +1333,7 @@ public class Plane extends JPanel implements MouseListener,
             return null;
         }
 
-        Point q = new Point(gc.ix(point.x()), gc.iy(point.y()));
+        Point q = new Point(gc.ix(point.getX()), gc.iy(point.getY()));
         for (Vertex v : graph.getVertices()) {
             Point2D center = v.getCenter();
             if (getShapeType() == SHAPE_CIRCLE) {

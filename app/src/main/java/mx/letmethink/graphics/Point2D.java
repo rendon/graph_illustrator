@@ -1,6 +1,7 @@
 package mx.letmethink.graphics;
 
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.awt.Point;
 
@@ -8,6 +9,7 @@ import java.awt.Point;
  * A 2D Point class to use with logical coordinates.
  */
 @EqualsAndHashCode
+@ToString
 public class Point2D {
     public static final Point2D ORIGIN = new Point2D(0, 0);
     private double px;
@@ -32,8 +34,8 @@ public class Point2D {
     }
 
     private Point2D(Point2D point) {
-        px = point.x();
-        py = point.y();
+        px = point.getX();
+        py = point.getY();
     }
 
     public static Point2D from(Point2D point) {
@@ -48,11 +50,11 @@ public class Point2D {
         py = y;
     }
 
-    public double x() {
+    public double getX() {
         return px;
     }
 
-    public double y() {
+    public double getY() {
         return py;
     }
 
@@ -63,15 +65,15 @@ public class Point2D {
      * @return double, distance between this and point
      */
     public double distanceTo(Point2D point) {
-        return Math.sqrt((px - point.x()) * (px - point.x()) +
-                (py - point.y()) * (py - point.y()));
+        return Math.sqrt((px - point.getX()) * (px - point.getX()) +
+                (py - point.getY()) * (py - point.getY()));
     }
 
     /**
      * Returns the distance from origin to this point
      */
     public double distance() {
-        return Math.sqrt(x() * x() + y() * y());
+        return Math.sqrt(getX() * getX() + getY() * getY());
     }
 }
 

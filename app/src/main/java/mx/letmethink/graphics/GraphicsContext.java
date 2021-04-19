@@ -18,7 +18,7 @@ public class GraphicsContext {
     private int maxX;
     private int maxY;
 
-    public GraphicsContext() {
+    private GraphicsContext() {
         setRealWidth(DEFAULT_REAL_WIDTH);
         setRealHeight(DEFAULT_REAL_HEIGHT);
 
@@ -27,6 +27,10 @@ public class GraphicsContext {
 
         factors = new double[] {2, 2, 2.5};
         factorIndex = 0;
+    }
+
+    public static GraphicsContext create() {
+        return new GraphicsContext();
     }
 
     /**
@@ -139,8 +143,8 @@ public class GraphicsContext {
 
         pixelSize += pixelSize / 10;
 
-        int dx = ix(previous.x()) - ix(previous.x(), ps);
-        int dy = iy(previous.y()) - iy(previous.y(), ps);
+        int dx = ix(previous.getX()) - ix(previous.getX(), ps);
+        int dy = iy(previous.getY()) - iy(previous.getY(), ps);
 
         centerX -= dx;
         centerY -= dy;
@@ -161,8 +165,8 @@ public class GraphicsContext {
         Point2D previous = Point2D.of(fx(mx), fy(my));
         pixelSize -= pixelSize / 10;
 
-        int dx = ix(previous.x()) - ix(previous.x(), ps);
-        int dy = iy(previous.y()) - iy(previous.y(), ps);
+        int dx = ix(previous.getX()) - ix(previous.getX(), ps);
+        int dy = iy(previous.getY()) - iy(previous.getY(), ps);
 
         centerX -= dx;
         centerY -= dy;

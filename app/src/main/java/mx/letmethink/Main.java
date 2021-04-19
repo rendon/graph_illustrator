@@ -101,7 +101,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(actionHandler);
 
-        GraphicsContext gc = new GraphicsContext();
+        GraphicsContext gc = GraphicsContext.create();
         Graph graph = Graph.create();
         plane = new Plane(this, graph, gc);
         openButton = new JButton(getImage("open"));
@@ -903,8 +903,8 @@ public class Main extends JFrame {
             generator.writeStringField("backgroundColor", hexBackgroundColor);
             generator.writeStringField("borderColor", hexBorderColor);
 
-            double x = MathUtils.round(v.getCenter().x(), 6);
-            double y = MathUtils.round(v.getCenter().y(), 6);
+            double x = MathUtils.round(v.getCenter().getX(), 6);
+            double y = MathUtils.round(v.getCenter().getY(), 6);
             generator.writeFieldName("center");
             generator.writeStartObject();
             generator.writeNumberField("x", x);
@@ -929,8 +929,8 @@ public class Main extends JFrame {
                 generator.writeStringField("strokeColor", hexStrokeColor);
                 generator.writeBooleanField("highlighted", e.isHighlighted());
 
-                double x = MathUtils.round(e.getLabelCenter().x(), 6);
-                double y = MathUtils.round(e.getLabelCenter().y(), 6);
+                double x = MathUtils.round(e.getLabelCenter().getX(), 6);
+                double y = MathUtils.round(e.getLabelCenter().getY(), 6);
                 generator.writeFieldName("center");
                 generator.writeStartObject();
                 generator.writeNumberField("x", x);

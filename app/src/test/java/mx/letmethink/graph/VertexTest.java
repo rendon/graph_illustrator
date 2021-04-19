@@ -105,8 +105,8 @@ public class VertexTest {
     @DisplayName("setCenter() should accept a point")
     void setCenter_fromPoint() {
         vertex.setCenter(Point2D.of(1, 2));
-        assertEquals(1, vertex.getCenter().x());
-        assertEquals(2, vertex.getCenter().y());
+        assertEquals(1, vertex.getCenter().getX());
+        assertEquals(2, vertex.getCenter().getY());
     }
 
 
@@ -114,8 +114,8 @@ public class VertexTest {
     @DisplayName("setCenter() should accept coordinates")
     void setCenter_fromTwoValues() {
         vertex.setCenter(1, 2);
-        assertEquals(1, vertex.getCenter().x());
-        assertEquals(2, vertex.getCenter().y());
+        assertEquals(1, vertex.getCenter().getX());
+        assertEquals(2, vertex.getCenter().getY());
     }
 
     @Test

@@ -19,8 +19,8 @@ public class Vector2D {
     }
 
     public Vector2D(Point2D p) {
-        setX(p.x());
-        setY(p.y());
+        setX(p.getX());
+        setY(p.getY());
     }
 
     public void setX(double x) {
@@ -58,8 +58,8 @@ public class Vector2D {
     }
 
     public void sum(Point2D p) {
-        setX(x() + p.x());
-        setY(y() + p.y());
+        setX(x() + p.getX());
+        setY(y() + p.getY());
     }
 
     public void sub(Vector2D u) {
@@ -114,11 +114,11 @@ public class Vector2D {
      * This method returns the double of the area formed by two vectors.
      */
     public static double area2(Point2D p, Point2D q, Point2D r) {
-        double a1 = q.x() - p.x();
-        double a2 = q.y() - p.y();
+        double a1 = q.getX() - p.getX();
+        double a2 = q.getY() - p.getY();
 
-        double b1 = r.x() - p.x();
-        double b2 = r.y() - p.y();
+        double b1 = r.getX() - p.getX();
+        double b2 = r.getY() - p.getY();
 
         return a1 * b2 - a2 * b1;
     }

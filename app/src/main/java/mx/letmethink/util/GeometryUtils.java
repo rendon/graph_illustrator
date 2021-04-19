@@ -14,10 +14,10 @@ public class GeometryUtils {
             return false;
         }
 
-        double a1 = b.x() - a.x();
-        double b1 = b.y() - a.y();
-        double a2 = p.x() - a.x();
-        double b2 = p.y() - a.y();
+        double a1 = b.getX() - a.getX();
+        double b1 = b.getY() - a.getY();
+        double a2 = p.getX() - a.getX();
+        double b2 = p.getY() - a.getY();
 
         double alpha = Math.atan2(b1, a1);
         double beta = Math.atan2(b2, a2);
@@ -53,13 +53,13 @@ public class GeometryUtils {
             return null;
         }
 
-        double a1 = a.y() - b.y();
-        double b1 = b.x() - a.x();
-        double c1 = a1 * a.x() + b1 * a.y();
+        double a1 = a.getY() - b.getY();
+        double b1 = b.getX() - a.getX();
+        double c1 = a1 * a.getX() + b1 * a.getY();
 
-        double a2 = c.y() - d.y();
-        double b2 = d.x() - c.x();
-        double c2 = a2 * c.x() + b2 * c.y();
+        double a2 = c.getY() - d.getY();
+        double b2 = d.getX() - c.getX();
+        double c2 = a2 * c.getX() + b2 * c.getY();
 
         double det = a1 * b2 - a2 * b1;
         if (det == 0) {
@@ -77,10 +77,10 @@ public class GeometryUtils {
             return Double.NaN;
         }
 
-        double a1 = b.x() - a.x();
-        double b1 = b.y() - a.y();
-        double a2 = c.x() - a.x();
-        double b2 = c.y() - a.y();
+        double a1 = b.getX() - a.getX();
+        double b1 = b.getY() - a.getY();
+        double a2 = c.getX() - a.getX();
+        double b2 = c.getY() - a.getY();
 
         return a1 * b2 - a2 * b1;
     }
@@ -109,8 +109,8 @@ public class GeometryUtils {
         int h = (m.getAscent() + m.getDescent()) * lines.length + padding;
         double width = gc.fx(w) - gc.fx(0);
         double height = gc.fy(h) - gc.fy(0);
-        double x = cu.x();
-        double y = cu.y();
+        double x = cu.getX();
+        double y = cu.getY();
         Point2D a = Point2D.of(x - width * 0.5, y + height * 0.5);
         Point2D b = Point2D.of(x + width * 0.5, y + height * 0.5);
         Point2D c = Point2D.of(x + width * 0.5, y - height * 0.5);
@@ -131,8 +131,8 @@ public class GeometryUtils {
     }
 
     public static Point2D getMiddlePoint(Point2D a, Point2D b) {
-        double dx = b.x() - a.x();
-        double dy = b.y() - a.y();
-        return Point2D.of(a.x() + 0.5 * dx, a.y() + 0.5 * dy);
+        double dx = b.getX() - a.getX();
+        double dy = b.getY() - a.getY();
+        return Point2D.of(a.getX() + 0.5 * dx, a.getY() + 0.5 * dy);
     }
 }
