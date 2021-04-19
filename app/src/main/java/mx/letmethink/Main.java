@@ -56,7 +56,7 @@ public class Main extends JFrame {
     private final JButton saveButton;
     private final JButton saveAsButton;
     private final JButton exportSvgButton;
-    private final JButton newNodeButton;
+    private final JButton newWordButton;
     private final JButton newDirectedEdgeButton;
     private final JButton newUndirectedEdgeButton;
     private final JButton eraserButton;
@@ -128,9 +128,9 @@ public class Main extends JFrame {
         quitButton.addActionListener(actionHandler);
         quitButton.setToolTipText("Quit");
 
-        newNodeButton = new JButton(getImage("node"));
-        newNodeButton.addActionListener(actionHandler);
-        newNodeButton.setToolTipText("New node");
+        newWordButton = new JButton(getImage("word"));
+        newWordButton.addActionListener(actionHandler);
+        newWordButton.setToolTipText("New word");
 
         newDirectedEdgeButton = new JButton(getImage("directedEdge"));
         newDirectedEdgeButton.addActionListener(actionHandler);
@@ -217,7 +217,7 @@ public class Main extends JFrame {
         mainToolBar.add(exportSvgButton);
         mainToolBar.addSeparator();
         mainToolBar.add(pointerButton);
-        mainToolBar.add(newNodeButton);
+        mainToolBar.add(newWordButton);
         mainToolBar.add(newDirectedEdgeButton);
         mainToolBar.add(newUndirectedEdgeButton);
         mainToolBar.add(eraserButton);
@@ -376,7 +376,7 @@ public class Main extends JFrame {
             }
 
             if (v.get("radius") != null) {
-                Double radius = v.get("radius").asDouble();
+                double radius = v.get("radius").asDouble();
                 vertex.setRadius(radius);
             }
 
@@ -513,10 +513,10 @@ public class Main extends JFrame {
                 }
             } else if (source == exportSvgButton) {
                 exportToSvg();
-            } else if (source == newNodeButton) {
+            } else if (source == newWordButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
-                plane.setCurrentAction(Plane.ACTION_CREATE_NEW_VERTEX);
+                plane.setCurrentAction(Plane.ACTION_CREATE_NEW_WORD);
             } else if (source == newDirectedEdgeButton) {
                 Cursor c  = Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR);
                 plane.setCursor(c);
@@ -569,7 +569,7 @@ public class Main extends JFrame {
                         plane.setVertexForegroundColor(color);
                     } else if (source == vertexBgColorButton) {
                         plane.setVertexBackgroundColor(color);
-                    } else if (source == vertexBorderColorButton) {
+                    } else {
                         plane.setVertexBorderColor(color);
                     }
                 }
@@ -584,7 +584,7 @@ public class Main extends JFrame {
                 if (color != null) {
                     if (source == edgeFgColorButton) {
                         plane.setEdgeForegroundColor(color);
-                    } else if (source == edgeStrokeColorButton) {
+                    } else {
                         plane.setEdgeStrokeColor(color);
                     }
                 }

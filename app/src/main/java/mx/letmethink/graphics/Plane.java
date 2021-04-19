@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
@@ -53,11 +54,11 @@ public class Plane extends JPanel implements MouseListener,
         MouseWheelListener,
         MouseMotionListener {
     public static final int ACTION_DEFAULT              = 0x00;
-    public static final int ACTION_CREATE_NEW_VERTEX    = 0x01;
+    public static final int ACTION_CREATE_NEW_WORD      = 0x01;
     public static final int ACTION_DRAW_NEW_EDGE        = 0x02;
     public static final int ACTION_ERASE_OBJECT         = 0x03;
-    public static final int ACTION_EDIT_NODE_LABEL      = 0x04;
-    public static final int ACTION_EDIT_NEW_NODE_LABEL  = 0x05;
+    public static final int ACTION_EDIT_WORD_LABEL = 0x04;
+    public static final int ACTION_EDIT_NEW_WORD_LABEL = 0x05;
     public static final int ACTION_EDIT_EDGE_LABEL      = 0x06;
     public static final int ACTION_EDIT_NEW_EDGE_LABEL  = 0x07;
     public static final int ACTION_SELECTION            = 0x08;
@@ -79,6 +80,7 @@ public class Plane extends JPanel implements MouseListener,
             BasicStroke.JOIN_MITER, 10,
             new float[]{8, 4}, 0
     );
+    private static final Color MAIN_WORD_FOREGROUND_COLOR = new Color(0, 153, 255);
 
     private Graph graph;
 
@@ -147,7 +149,7 @@ public class Plane extends JPanel implements MouseListener,
 
         setShowGrid(false);
         setCurrentAction(ACTION_DEFAULT);
-        setShapeType(SHAPE_CIRCLE);
+        setShapeType(SHAPE_RECTANGLE);
         exportingToSVG = false;
 
         labelEditor = new JTextPane();
@@ -164,7 +166,7 @@ public class Plane extends JPanel implements MouseListener,
         alignButtonsEnabled = false;
 
         vertexBorderColor = Color.BLACK;
-        vertexForegroundColor = Color.BLACK;
+        vertexForegroundColor = MAIN_WORD_FOREGROUND_COLOR;
         vertexBackgroundColor = Color.WHITE;
 
         edgeStrokeColor = Color.BLACK;
@@ -498,15 +500,15 @@ public class Plane extends JPanel implements MouseListener,
         int ca = getCurrentAction();
         if (event.getClickCount() == 2 && ca == ACTION_DEFAULT) {
             handleLabelEditing(event.getPoint(), click);
-        } else if (ca == ACTION_EDIT_NEW_NODE_LABEL) {
+        } else if (ca == ACTION_EDIT_NEW_WORD_LABEL) {
             finishPendingActions();
-            setCurrentAction(ACTION_CREATE_NEW_VERTEX);
-            handleNewNodeLabel(click);
-        } else if (ca == ACTION_CREATE_NEW_VERTEX) {
-            handleNewNodeLabel(click);
+            setCurrentAction(ACTION_CREATE_NEW_WORD);
+            handleNewWordLabel(click);
+        } else if (ca == ACTION_CREATE_NEW_WORD) {
+            handleNewWordLabel(click);
         } else if (getCurrentAction() == ACTION_ERASE_OBJECT) {
             handleEraseObject(event.getPoint(), click);
-        } else if (getCurrentAction() == ACTION_EDIT_NODE_LABEL) {
+        } else if (getCurrentAction() == ACTION_EDIT_WORD_LABEL) {
             finishPendingActions();
             setCurrentAction(ACTION_DEFAULT);
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -682,8 +684,8 @@ public class Plane extends JPanel implements MouseListener,
         }
 
         switch (getCurrentAction()) {
-            case ACTION_EDIT_NODE_LABEL:
-            case ACTION_EDIT_NEW_NODE_LABEL:
+            case ACTION_EDIT_WORD_LABEL:
+            case ACTION_EDIT_NEW_WORD_LABEL:
                 resizeLabelEditor(vertexBeingEdited.getCenter(),
                         labelEditor.getText());
                 break;
@@ -777,7 +779,7 @@ public class Plane extends JPanel implements MouseListener,
             }
         }
 
-        if (getCurrentAction() != ACTION_EDIT_NODE_LABEL ||
+        if (getCurrentAction() != ACTION_EDIT_WORD_LABEL ||
                 vertex != vertexBeingEdited) {
             g2d.setColor(vertex.getForegroundColor());
             y = y - stringHeight / 2 + (fontHeight  * 3 / 4);
@@ -1053,8 +1055,8 @@ public class Plane extends JPanel implements MouseListener,
 
         this.currentAction = currentAction;
 
-        if (currentAction == ACTION_EDIT_NEW_NODE_LABEL ||
-                currentAction == ACTION_EDIT_NODE_LABEL) {
+        if (currentAction == ACTION_EDIT_NEW_WORD_LABEL ||
+                currentAction == ACTION_EDIT_WORD_LABEL) {
             mainWindow.getToolBar().add(alignLeftButton);
             mainWindow.getToolBar().add(alignCenterButton);
             mainWindow.getToolBar().add(alignRightButton);
@@ -1448,7 +1450,7 @@ public class Plane extends JPanel implements MouseListener,
 
     public void finishPendingActions() {
         switch (getCurrentAction()) {
-            case ACTION_EDIT_NEW_NODE_LABEL:
+            case ACTION_EDIT_NEW_WORD_LABEL:
                 finishNewNodeLabelEditing();
                 break;
 
@@ -1456,7 +1458,7 @@ public class Plane extends JPanel implements MouseListener,
                 finishNewEdgeLabelEditing();
                 break;
 
-            case ACTION_EDIT_NODE_LABEL:
+            case ACTION_EDIT_WORD_LABEL:
                 finishNodeLabelEditing();
                 break;
 
@@ -1631,7 +1633,7 @@ public class Plane extends JPanel implements MouseListener,
                 setTextAlignment(vertex.getLabelAlignment());
                 this.add(labelEditor);
                 labelEditor.grabFocus();
-                setCurrentAction(ACTION_EDIT_NODE_LABEL);
+                setCurrentAction(ACTION_EDIT_WORD_LABEL);
                 pendingActions = true;
                 return;
             }
@@ -1660,17 +1662,31 @@ public class Plane extends JPanel implements MouseListener,
         }
     }
 
-    private void handleNewNodeLabel(Point2D click) {
-        resizeLabelEditor(click, "");
-        vertexBeingEdited = Vertex.from("", click);
+    private void handleNewWordLabel(final Point2D click) {
+        resizeLabelEditor(click, "word");
+        vertexBeingEdited = Vertex.from("    ", click);
         vertexBeingEdited.setForegroundColor(vertexForegroundColor);
         vertexBeingEdited.setBackgroundColor(vertexBackgroundColor);
         vertexBeingEdited.setBorderColor(vertexBorderColor);
         graph.addDummyVertex(vertexBeingEdited);
         labelEditor.setText("");
+
+        final Style style = labelEditor.addStyle("new-word-style", null);
+        StyleConstants.setForeground(style, MAIN_WORD_FOREGROUND_COLOR);
+        StyledDocument styledDocument = labelEditor.getStyledDocument();
+        try {
+            styledDocument.insertString(styledDocument.getLength(), "word", style);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+
+
+        labelEditor.setSelectedTextColor(MAIN_WORD_FOREGROUND_COLOR);
+        labelEditor.selectAll();
+
         this.add(labelEditor);
         labelEditor.grabFocus();
-        setCurrentAction(ACTION_EDIT_NEW_NODE_LABEL);
+        setCurrentAction(ACTION_EDIT_NEW_WORD_LABEL);
         pendingActions = true;
     }
 
@@ -1746,8 +1762,8 @@ public class Plane extends JPanel implements MouseListener,
         @Override
         public void keyReleased(KeyEvent e)  {
             switch (getCurrentAction()) {
-                case ACTION_EDIT_NODE_LABEL:
-                case ACTION_EDIT_NEW_NODE_LABEL:
+                case ACTION_EDIT_WORD_LABEL:
+                case ACTION_EDIT_NEW_WORD_LABEL:
                     resizeLabelEditor(
                             vertexBeingEdited.getCenter(),
                             labelEditor.getText()
